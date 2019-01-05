@@ -39,6 +39,11 @@
     tags:
       - system
 
+  - name: npm | add node and npm sources
+    shell: "bash < (curl -sL {{ setup_script_url }})"
+    tags:
+      - system
+
   - name: apt | install required system packages
     apt:
       pkg: '{{ system_packages }}'
@@ -143,6 +148,9 @@
     tags:
       - python
 
+  - name: npm | install javascript packages
+    npm:
+      path: "{{ project_root }}"
 
 - hosts: all
   vars_files:
