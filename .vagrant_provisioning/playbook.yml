@@ -19,7 +19,7 @@
   - name: apt | install https transport for apt
     apt:
       pkg: apt-transport-https
-      state: installed
+      state: present
       update_cache: yes
     tags:
       -system
@@ -41,10 +41,9 @@
 
   - name: apt | install required system packages
     apt:
-      pkg: '{{ item }}'
+      pkg: '{{ system_packages }}'
       state: present
       update_cache: yes
-    with_items: '{{ system_packages }}'
     tags:
       - system
 
@@ -130,12 +129,20 @@
     tags:
       - python
 
-  - name: pip | ensure python requirements are installed to latest version
+  - name: pip | install pipenv
     pip:
-      requirements: "{{ project_root }}/{{ python.requirements }}"
+      name: pipenv
       virtualenv: "{{ python.virtualenv_location }}"
+      state: latest
     tags:
       - python
+
+  - name: pipenv | ensure python requirements are installed to latest version
+    chdir: "{{ project_root }}"
+    command: "{{ python.virtualenv_location }}/bin/pipenv install --dev"
+    tags:
+      - python
+
 
 - hosts: all
   vars_files:
