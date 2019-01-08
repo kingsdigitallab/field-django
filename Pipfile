@@ -23,6 +23,7 @@ wagtail = "<3"
 wagtailmenus = "*"
 Django = "<3"
 django_compressor = "*"
+kdl-wagtail-page = {git = "https://github.com/kingsdigitallab/kdl-wagtail-page.git",ref = "fda95a28c60a23e28add4746312c205f311c44ba",editable = true}
 
 [requires]
 python_version = "3.5"

@@ -48,7 +48,6 @@ CACHES = {
     }
 }
 
-
 CSRF_COOKIE_SECURE = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
@@ -80,8 +79,7 @@ INSTALLED_APPS = [
     'compressor',
 ]
 
-INSTALLED_APPS += [    # your project apps here
-
+INSTALLED_APPS += [  # your project apps here
     'kdl_ldap',
     'rest_framework',
     'wagtail.core',
@@ -99,6 +97,9 @@ INSTALLED_APPS += [    # your project apps here
     'taggit',
     'modelcluster',
     'wagtail.search',
+    'wagtail.contrib.modeladmin',
+    'wagtailmenus',
+    'kdl_wagtail_page',
 ]
 
 INTERNAL_IPS = ['127.0.0.1']
@@ -173,7 +174,6 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
-
     'wagtail.core.middleware.SiteMiddleware',
     'wagtail.contrib.redirects.middleware.RedirectMiddleware',
 
@@ -197,10 +197,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.template.context_processors.static',
                 'django.contrib.messages.context_processors.messages',
-
-
-
-
+                'wagtailmenus.context_processors.wagtailmenus',
             ],
         },
     },
@@ -276,6 +273,7 @@ COMPRESS_PRECOMPILERS = (
 # -----------------------------------------------------------------------------
 
 FABRIC_USER = getpass.getuser()
+USE_PIPENV = True
 
 # -----------------------------------------------------------------------------
 # GLOBALS FOR JS
@@ -293,11 +291,13 @@ db_engine = 'django.db.backends.postgresql_psycopg2'
 if 'django.contrib.gis' in INSTALLED_APPS:
     db_engine = 'django.contrib.gis.db.backends.postgis'
 
-
 AUTH_LDAP_REQUIRE_GROUP = (
     (
-        LDAPGroupQuery('cn=kdl-staff,' + LDAP_BASE_OU) |
-        LDAPGroupQuery('cn=field,' + LDAP_BASE_OU)
+        LDAPGroupQuery(
+            'cn=kdl-staff,' + LDAP_BASE_OU
+        ) | LDAPGroupQuery(
+            'cn=field,' + LDAP_BASE_OU
+        )
     )
 )
 WAGTAIL_SITE_NAME = PROJECT_TITLE

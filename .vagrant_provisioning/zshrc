@@ -74,8 +74,6 @@ ZSH_HIGHLIGHT_HIGHLIGHTERS=(main brackets pattern cursor)
 # Moves to the project directory
 cd /vagrant
 
-echo "TEST1"
-
 # Activates the virtual environment
 source .venv/bin/activate
 

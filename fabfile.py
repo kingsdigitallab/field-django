@@ -16,6 +16,8 @@ from fabric.contrib import django
 project_root = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(project_root)
 
+USE_PIPENV = getattr(django_settings, 'USE_PIPENV', False)
+
 # -------------------------------
 # SETTINGS VARIABLES
 # Please verify each variable below and edit as necessary to match
@@ -29,7 +31,6 @@ PROJECT_NAME = 'field'
 # Git repository pointer
 REPOSITORY = 'https://github.com/kingsdigitallab/{}-django.git'.format(
     PROJECT_NAME)
-
 
 env.gateway = 'ssh.kdl.kcl.ac.uk'
 # Host names used as deployment targets
@@ -57,6 +58,7 @@ env.user = django_settings.FABRIC_USER
 
 def server(func):
     """Wraps functions that set environment variables for servers"""
+
     @wraps(func)
     def decorated(*args, **kwargs):
         try:
@@ -65,6 +67,7 @@ def server(func):
             env.servers = [func]
 
         return func(*args, **kwargs)
+
     return decorated
 
 
@@ -101,14 +104,18 @@ def set_srvr_vars():
 @task
 def setup_environment(version=None):
     require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
-    create_virtualenv()
     clone_repo()
+    create_virtualenv()
     update(version)
     install_requirements()
 
 
 @task
 def create_virtualenv():
+    if USE_PIPENV:
+        # pipenv install will create the VE if needed
+        return
+
     require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
     with quiet():
         env_vpath = get_virtual_env_path()
@@ -126,7 +133,13 @@ def get_virtual_env_path():
     (dev, stg, live) we are working on.
     E.g. /vol/tvof/webroot/envs/dev
     '''
-    return os.path.join(env.envs_path, env.srvr)
+    ret = ''
+    if USE_PIPENV:
+        ret = os.path.join(set_srvr_vars(), '.venv')
+    else:
+        ret = os.path.join(env.envs_path, env.srvr)
+
+    return ret
 
 
 @task
@@ -149,15 +162,19 @@ def install_requirements():
 
     require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
 
-    reqs = 'requirements-{}.txt'.format(env.srvr)
+    if not USE_PIPENV:
+        reqs = 'requirements-{}.txt'.format(env.srvr)
 
-    try:
-        assert os.path.exists(reqs)
-    except AssertionError:
-        reqs = 'requirements.txt'
+        try:
+            assert os.path.exists(reqs)
+        except AssertionError:
+            reqs = 'requirements.txt'
 
     with cd(env.path), prefix(env.within_virtualenv):
-        run('pip install -q --no-cache -U -r {}'.format(reqs))
+        if USE_PIPENV:
+            run('pipenv sync')
+        else:
+            run('pip install -q --no-cache -U -r {}'.format(reqs))
 
 
 @task
@@ -165,7 +182,13 @@ def reinstall_requirement(which):
     require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
 
     with cd(env.path), prefix(env.within_virtualenv):
-        run('pip uninstall {0} && pip install --no-deps {0}'.format(which))
+        if USE_PIPENV:
+            run(
+                'pip install pipenv && pipenv uninstall --all --clear '
+                '&& pip install pipenv && pipenv sync'
+            )
+        else:
+            run('pip uninstall {0} && pip install --no-deps {0}'.format(which))
 
 
 @task
@@ -291,6 +314,9 @@ def migrate(app=None):
 @task
 def collect_static(process=False):
     require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
+
+    with cd(env.path):
+        run('npm i')
 
     if env.srvr in ['local', 'vagrant']:
         print(yellow('Do not run collect_static on local servers'))
