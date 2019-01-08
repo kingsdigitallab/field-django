@@ -97,10 +97,19 @@ INSTALLED_APPS += [  # your project apps here
     'taggit',
     'modelcluster',
     'wagtail.search',
+
     'wagtail.contrib.modeladmin',
     'wagtailmenus',
+
     'kdl_wagtail_page',
+
+    'wagtail.contrib.sitemaps',
+    'django_social_share',
+    'puput',
+    'colorful',
 ]
+
+#
 
 INTERNAL_IPS = ['127.0.0.1']
 
@@ -283,6 +292,12 @@ USE_PIPENV = True
 GA_ID = ''
 
 # -----------------------------------------------------------------------------
+# Putput
+# -----------------------------------------------------------------------------
+
+PUPUT_AS_PLUGIN = True
+
+# -----------------------------------------------------------------------------
 # Automatically generated settings
 # -----------------------------------------------------------------------------
 
@@ -304,7 +319,7 @@ WAGTAIL_SITE_NAME = PROJECT_TITLE
 ITEMS_PER_PAGE = 10
 WAGTAILSEARCH_BACKENDS = {
     'default': {
-        'BACKEND': 'wagtail.wagtailsearch.backends.elasticsearch5',
+        'BACKEND': 'wagtail.search.backends.elasticsearch5',
         'AUTO_UPDATE': False,
         'URLS': ['http://127.0.0.1:9200'],
         'INDEX': 'field_wagtail',
