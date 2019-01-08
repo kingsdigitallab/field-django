@@ -40,7 +40,7 @@
       - system
 
   - name: npm | add node and npm sources
-    shell: "bash < (curl -sL {{ setup_script_url }})"
+    shell: "curl -sL {{ npm.setup_script_url }} | bash -s"
     tags:
       - system
 
@@ -96,69 +96,36 @@
     - vars.yml
   gather_facts: false
   tasks:
-  - name: python | make python3 default version
+  - name: python | install pipenv
     become: yes
-    alternatives:
-      link: /usr/bin/python
-      name: python
-      path: /usr/bin/python3
-      priority: 10
-
-  - name: pip | install virtualenv
-    become: yes
-    pip:
-      name: virtualenv
-      state: latest
-    tags:
-      - python
-
-  - name: pip | setup virtualenv
-    file: path={{ python.virtualenv_location }} state=directory
-  - command: virtualenv {{ python.virtualenv_location }}
-    tags:
-      - python
-
-  - name: pip | update setuptools
-    pip:
-      name: setuptools
-      virtualenv: "{{ python.virtualenv_location }}"
-      state: latest
-    tags:
-      - python
-
-  - name: pip | update pip
-    pip:
-      name: pip
-      virtualenv: "{{ python.virtualenv_location }}"
-      state: latest
-    tags:
-      - python
-
-  - name: pip | install pipenv
     pip:
       name: pipenv
-      virtualenv: "{{ python.virtualenv_location }}"
       state: latest
     tags:
       - python
 
-  - name: pipenv | ensure python requirements are installed to latest version
-    chdir: "{{ project_root }}"
-    command: "{{ python.virtualenv_location }}/bin/pipenv install --dev"
+  - name: python | install the VE and packages
+    command: "pipenv sync -d"
+    args:
+      chdir: "{{ project_root }}"
+    environment:
+        PIPENV_VENV_IN_PROJECT: "1"
     tags:
       - python
 
   - name: npm | install javascript packages
     npm:
       path: "{{ project_root }}"
+    tags:
+      - javascript
 
 - hosts: all
   vars_files:
     - vars.yml
   # gather_facts: false
+  become: yes
   tasks:
   - name: postgresql | setup gb locale
-    become: yes
     locale_gen:
       name: "{{ postgresql.locale }}"
       state: present
@@ -166,14 +133,12 @@
       - db
 
   - name: postgresql | get installed version
-    become: yes
     shell: 'ls /etc/postgresql/*/main/pg_hba.conf | cut -d / -f4'
     register: postgresql_version
     tags:
       - db
 
   - name: postgresql | ensure postgresql user can authenticate
-    become: yes
     lineinfile:
       path: /etc/postgresql/{{ postgresql_version.stdout }}/main/pg_hba.conf
       backup: yes
@@ -183,7 +148,6 @@
       - db
 
   - name: postgresql | ensure all users can authenticate
-    become: yes
     lineinfile:
       path: /etc/postgresql/{{ postgresql_version.stdout }}/main/pg_hba.conf
       backup: yes
@@ -195,7 +159,6 @@
       - db
 
   - name: elasticsearch | change JVM Heap To start at 256M
-    become: yes
     lineinfile:
       path: /etc/elasticsearch/jvm.options
       backup: yes
@@ -208,7 +171,6 @@
 
   handlers:
   - name: postgresql | restart postgres
-    become: yes
     service:
       name: postgresql
       state: restarted
@@ -216,7 +178,6 @@
       - db
 
   - name: elasticsearch | restart elasticsearch
-    become: yes
     service:
       name: elasticsearch
       state: started
@@ -311,13 +272,19 @@
       - django
 
   - name: django | migrations
-    command: "{{ user_home }}/venv/bin/python {{ project_root }}/manage.py makemigrations"
-  - command: "{{ user_home }}/venv/bin/python {{ project_root }}/manage.py migrate"
+    command: "pipenv run python manage.py makemigrations"
+    args:
+      chdir: "{{ project_root }}"
+  - command: "pipenv run python manage.py migrate"
+    args:
+      chdir: "{{ project_root }}"
     tags:
       - django
 
   - name: django | add default (vagrant/vagrant) superuser
-    command: "{{ user_home }}/venv/bin/python {{ project_root }}/manage.py shell -c \"from django.contrib.auth.models import User; User.objects.create_superuser('vagrant', 'vagrant@localhost', 'vagrant')\""
+    command: "pipenv run python manage.py shell -c \"from django.contrib.auth.models import User; User.objects.create_superuser('vagrant', 'vagrant@localhost', 'vagrant')\""
+    args:
+      chdir: "{{ project_root }}"
     ignore_errors: yes # The user may already exist
     tags:
       - django

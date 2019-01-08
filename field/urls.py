@@ -1,23 +1,25 @@
 from django.conf import settings
 from django.contrib import admin
-from django.urls import include, path, re_path
+from django.urls import include, re_path, path
 from kdl_ldap.signal_handlers import \
     register_signal_handlers as kdl_ldap_register_signal_hadlers
-
+from wagtail.core import urls as wagtail_urls
+from wagtail.admin import urls as wagtailadmin_urls
+from wagtail.documents import urls as wagtaildocs_urls
 kdl_ldap_register_signal_hadlers()
-
 
 admin.autodiscover()
 
+# https://docs.wagtail.io/en/v2.4/advanced_topics/
+# settings.html?highlight=urls.py#urls-py
 urlpatterns = [
     path('admin/', admin.site.urls),
+    re_path(r'^wagtail/', include(wagtailadmin_urls)),
+    re_path(r'^documents/', include(wagtaildocs_urls)),
 
-
-    path('wagtail/', include('wagtail.admin.urls')),
-    path('documents/', include('wagtail.documents.urls')),
-    path('', include('wagtail.core.urls')),
-    path('search/', include('wagtail.search.urls')),
-
+    # For anything not caught by a more specific rule above, hand over to
+    # Wagtail's serving mechanism
+    re_path(r'', include(wagtail_urls)),
 ]
 
 # -----------------------------------------------------------------------------

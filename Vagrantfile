@@ -23,6 +23,6 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   config.vm.provision "ansible" do |ansible|
     ansible.playbook = ".vagrant_provisioning/playbook.yml"
     # ansible.tags = ""
-    # ansible.verbose = "vvv"
+    ansible.verbose = "vvv"
   end
 end
