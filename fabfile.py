@@ -11,12 +11,11 @@ from fabric.api import (cd, env, prefix, prompt, put, quiet, require, run,
                         settings, sudo, task)
 from fabric.colors import green, yellow
 from fabric.contrib import django
+from fabric.utils import abort
 
 # put project directory in path
 project_root = os.path.abspath(os.path.dirname(__file__))
 sys.path.append(project_root)
-
-USE_PIPENV = getattr(django_settings, 'USE_PIPENV', False)
 
 # -------------------------------
 # SETTINGS VARIABLES
@@ -44,6 +43,8 @@ env.envs_path = os.path.join(env.root_path, 'envs')
 # -------------------------------
 
 django.project(PROJECT_NAME)
+
+USE_PIPENV = getattr(django_settings, 'USE_PIPENV', False)
 
 # Set FABRIC_GATEWAY = 'username@proxy.x' in local.py
 # if you are behind a proxy.
@@ -112,10 +113,6 @@ def setup_environment(version=None):
 
 @task
 def create_virtualenv():
-    if USE_PIPENV:
-        # pipenv install will create the VE if needed
-        return
-
     require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
     with quiet():
         env_vpath = get_virtual_env_path()
@@ -125,7 +122,10 @@ def create_virtualenv():
             return
 
     print(yellow('setting up virtual environment in [{}]'.format(env_vpath)))
-    run('virtualenv {}'.format(env_vpath))
+    if USE_PIPENV:
+        run('mkdir {}'.format(env_vpath))
+    else:
+        run('virtualenv {}'.format(env_vpath))
 
 
 def get_virtual_env_path():
@@ -135,7 +135,7 @@ def get_virtual_env_path():
     '''
     ret = ''
     if USE_PIPENV:
-        ret = os.path.join(set_srvr_vars(), '.venv')
+        ret = os.path.join(env.path, '.venv')
     else:
         ret = os.path.join(env.envs_path, env.srvr)
 
@@ -170,11 +170,21 @@ def install_requirements():
         except AssertionError:
             reqs = 'requirements.txt'
 
-    with cd(env.path), prefix(env.within_virtualenv):
-        if USE_PIPENV:
+    if USE_PIPENV:
+        with cd(env.path):
+            check_pipenv()
             run('pipenv sync')
-        else:
+    else:
+        with cd(env.path), prefix(env.within_virtualenv):
             run('pip install -q --no-cache -U -r {}'.format(reqs))
+
+
+@task
+def check_pipenv():
+    with quiet():
+        if run('which pipenv').failed:
+            abort('pipenv is missing, '
+                  'please install it as root with "pip install pipenv"')
 
 
 @task
@@ -183,10 +193,8 @@ def reinstall_requirement(which):
 
     with cd(env.path), prefix(env.within_virtualenv):
         if USE_PIPENV:
-            run(
-                'pip install pipenv && pipenv uninstall --all --clear '
-                '&& pip install pipenv && pipenv sync'
-            )
+            check_pipenv()
+            run('pipenv uninstall --all --clear && pipenv sync')
         else:
             run('pip uninstall {0} && pip install --no-deps {0}'.format(which))
 
@@ -208,7 +216,7 @@ def deploy(version=None):
 
 @task
 def update(version=None):
-    require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
+    require('srvr', 'path', provided_by=env.servers)
 
     if version:
         # try specified version first
@@ -220,7 +228,7 @@ def update(version=None):
         # else deploy to master branch
         to_version = 'master'
 
-    with cd(env.path), prefix(env.within_virtualenv):
+    with cd(env.path):
         run('git pull')
         run('git checkout {}'.format(to_version))
 
