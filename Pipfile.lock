@@ -191,11 +191,11 @@
         },
         "kdl-wagtail-page": {
             "hashes": [
-                "sha256:10d5e4a3422db9d6e4f3475b86fe68dd6a677d4c8f5b882f062218b62f9d8a20",
-                "sha256:8c111cf363b6ccbd13994c7b7db14b4e10a36ec4018bdbbde832009a84ad5b56"
+                "sha256:5d5f21866708418e9d0866155be5086a07c97262f1b50f89a35b69303a4e7d92",
+                "sha256:ef4767c9194b500d9be03050664b624b89ec48062e07e3305ebbf6cffee7b389"
             ],
             "index": "pypi",
-            "version": "==0.1"
+            "version": "==0.1.1"
         },
         "libsass": {
             "hashes": [
