@@ -1,2 +1,12 @@
-{% block main_menu %}
-{% endblock %}
+{% load menu_tags %}
+
+<nav>
+  {% block main_menu %}
+    <div class="menu-list">
+      <ul>
+        {% main_menu template="menus/main_menu.html" %}
+      </ul>
+    </div>
+
+  {% endblock %}
+</nav>
