@@ -1,4 +1,4 @@
-{% load staticfiles compress  %}
+{% load staticfiles compress wagtailuserbar %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -19,6 +19,9 @@
   <link rel="stylesheet" type="text/x-scss" href="{% static 'scss/main.scss' %}">
   {% endcompress %}
 
+  {% block css %}
+  {% endblock %}
+
 </head>
 <body>
   <!-- header>
@@ -34,6 +37,8 @@
     {% endblock %}
     </div>
   </section>
+
+  {% wagtailuserbar %}
 
   <footer class="footer">
     {% block footer %}
