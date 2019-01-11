@@ -11,7 +11,7 @@
 
   {# TEMPORARILY uses milligram framework for minimal styles #}
   {% if 1 %}
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css">
       <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
   {% endif %}
 
@@ -32,9 +32,10 @@
 
   <section class="section">
     <div class="container">
-    {% block title %}{% endblock %}
-    {% block main %}
-    {% endblock %}
+        {% block breacrumb %}{% include 'includes/breadcrumb.html' %}{% endblock %}
+        {% block title %}{% endblock %}
+        {% block main %}
+        {% endblock %}
     </div>
   </section>
 
