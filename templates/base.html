@@ -4,31 +4,38 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>{% block meta_title %}{% endblock %} | Field</title>
+  <title>{% block meta_title %}{% endblock %} | {{ PROJECT_TITLE }}</title>
   <meta name="author" content="King's Digital Lab">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+  {# TEMPORARILY uses milligram framework for minimal styles #}
+  {% if 1 %}
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"
+      <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
+  {% endif %}
+
   {% compress css %}
   <link rel="stylesheet" type="text/x-scss" href="{% static 'scss/main.scss' %}">
   {% endcompress %}
+
 </head>
 <body>
-  <header>
+  <!-- header>
     {% include 'includes/header.html' %}
-  </header>
+  </header -->
 
-  <nav>
-    {% include 'includes/navigation.html' %}
-  </nav>
+  {% include 'includes/navigation.html' %}
 
-  <main>
+  <section class="section">
+    <div class="container">
     {% block title %}{% endblock %}
     {% block main %}
     {% endblock %}
-  </main>
+    </div>
+  </section>
 
-  <footer>
+  <footer class="footer">
     {% block footer %}
     {% include 'includes/footer.html' %}
     {% endblock %}
@@ -43,11 +50,15 @@
   {% block footer_scripts %}{% endblock %}
 
   {% compress js %}
-  <script src="{% static 'js/google_analytics.js' %}"></script>
-  <script>
-    ga('create', '{{ GA_ID }}', 'auto');
-    ga('send', 'pageview');
-  </script>
+
+    {% if GA_ID %}
+        <script src="{% static 'js/google_analytics.js' %}"></script>
+        <script>
+          ga('create', '{{ GA_ID }}', 'auto');
+          ga('send', 'pageview');
+        </script>
+    {% endif %}
+
   {% endcompress %}
 </body>
 </html>

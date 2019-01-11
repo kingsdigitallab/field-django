@@ -19,7 +19,7 @@ from kdl_ldap.settings import *  # noqa
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
 PROJECT_NAME = 'field'
-PROJECT_TITLE = 'Field'
+PROJECT_TITLE = 'FIELD'
 
 # -----------------------------------------------------------------------------
 # Core Settings
@@ -207,6 +207,7 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.contrib.messages.context_processors.messages',
                 'wagtailmenus.context_processors.wagtailmenus',
+                'field.context_processor.project_settings',
             ],
         },
     },
@@ -329,3 +330,12 @@ WAGTAILSEARCH_BACKENDS = {
         'TIMEOUT': 5,
     }
 }
+
+#
+
+USE_BULMA = True
+
+# 1: root, 2: site home page, 3: top level page
+# default is 3, we change to 2 because our default main menu
+# is just the home page, nothing else.
+WAGTAILMENUS_SECTION_ROOT_DEPTH = 2
