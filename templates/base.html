@@ -9,18 +9,14 @@
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  {# TEMPORARILY uses milligram framework for minimal styles #}
-  {% if 1 %}
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css">
-      <script defer src="https://use.fontawesome.com/releases/v5.3.1/js/all.js"></script>
-  {% endif %}
-
   {% compress css %}
   <link rel="stylesheet" type="text/x-scss" href="{% static 'scss/main.scss' %}">
   {% endcompress %}
 
-  {% block css %}
-  {% endblock %}
+
+  <!-- favicons TO: Placeholder only. Need to update -->
+  {% include 'includes/favicon.html' %}
+  <link rel="icon" href="{% static 'images/field-favicon.png' %}" type="image/png">
 
 </head>
 <body>

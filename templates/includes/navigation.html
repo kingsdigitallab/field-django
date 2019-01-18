@@ -1,36 +1,20 @@
-{% load menu_tags wagtailcore_tags %}
+{% load menu_tags wagtailcore_tags %}{% load staticfiles %}
 
-{% if USE_BULMA %}
-<nav class="navbar" role="navigation" aria-label="main navigation">
-  <div class="navbar-brand">
-    <a class="navbar-item" href="/">
-      {{ PROJECT_TITLE }}
-    </a>
 
-    <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-      <span aria-hidden="true"></span>
-    </a>
-  </div>
-
-  <div class="navbar-menu">
-    <div class="navbar-start">
-
-      {% main_menu template="menus/main_menu.html" %}
-
+  <nav id="nav" role="navigation">
+        <div class="logo">
+        <!-- TO: Placeholder logo, need to update -->
+        <img src="{% static 'images/field-logo.jpg' %}" alt="Field logo" >
+        
+        <!-- TO: Added full title-->
+        <!--<h1><a href="/">{{ PROJECT_TITLE }}</a></h1>-->
+        <h1><a href="/">Farm-level Interdisciplinary approaches to Endemic Livestock Disease</a></h1>
     </div>
-  </div>
-</nav>
-{% else %}
-<nav>
-  {% block main_menu %}
-    <div class="menu-list">
-      <ul>
-        {% main_menu template="menus/main_menu.html" %}
-      </ul>
-    </div>
-
-  {% endblock %}
-</nav>
-{% endif %}
+    <a href="#nav" title="Show navigation">☰</a>
+    <a class="hide-nav" href="#" title="Hide navigation">×</a>
+    <ul>
+      {% block main_menu %}
+          {% main_menu template="menus/main_menu.html" %}
+      {% endblock %}
+    </ul>
+  </nav>

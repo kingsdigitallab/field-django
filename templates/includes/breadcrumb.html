@@ -1,9 +1,9 @@
 {% load wagtailcore_tags %}
 
 {% if page and page.pk != page.get_site.root_page.pk %}
-    <nav class="breadcrumb" aria-label="breadcrumbs">
+    <div class="breadcrumb" aria-label="breadcrumbs">
       <ul>
-        <li><a href="/"><i class="fas fa-home"></i></a></li>
+        <li><a href="/"><i class="fas fa-home"></i>Home</a></li>
         {% for item in page.get_ancestors %}
             {% if forloop.counter > 2 %}
                 <li><a href="{% pageurl item %}">{{ item.title }}</a></li>
@@ -11,5 +11,5 @@
         {% endfor %}
         <li><a href="{% pageurl page %}">{{ page.title }}</a></li>
       </ul>
-    </nav>
+    </div>
 {% endif %}

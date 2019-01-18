@@ -3,14 +3,14 @@
 {% if menu_items %}
     {% for item in menu_items %}
         {% if item.has_children_in_menu %}
-            <div class="navbar-item has-dropdown is-hoverable">
-                <a class="navbar-link" href="{{ item.href }}">{{ item.text }}</a>
-                <div class="navbar-dropdown">
-                    {% sub_menu item template=current_template %}
-                </div>
-            </div>
+        
+                <li {% if page.active %} class="is-active" {% endif %}><a href="{{ item.href }}">{{ item.text }}</a>
+                        <ul>{% sub_menu item template=current_template %}</ul>
+                </li>
         {% else %}
-            <a class="navbar-item" href="{{ item.href }}">{{ item.text }}</a>
+            <li {% if page.active %} class="is-active" {% endif %}>
+                <a href="{{ item.href }}">{{ item.text }}</a>
+            </li>
         {% endif %}
     {% endfor %}
 {% endif %}

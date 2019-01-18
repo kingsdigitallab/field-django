@@ -1,7 +1,518 @@
 /** Your custom scss here **/
 
-.navbar-brand .navbar-item {
-    font-size: 1.5rem;
-    color: brown;
+/* Table of contents
+ *
+ * 1. ----- Imports
+ *    --------- FontAwesome
+ *    --------- Webfonts
+ * 2. ----- Mixins and Variables
+ *    --------- Color
+ * 3. ----- General
+ * 4. ----- Navigation
+ *    --------- Primary 
+ *    --------- Secondary
+ *    --------- Search
+ *    --------- Breadcrumbs
+ * 5. ----- Rich pages
+ * 6. ----- Footer
+
+ * Media Queries
+*/
+
+
+/* 1. Imports  */
+
+/* FontAwesome */
+/* TO: GN, Does not work @import 'font-awesome'; */
+/* Webfonts */
+@import url('https://fonts.googleapis.com/css?family=BenchNine:300|Catamaran:400');
+
+/* 2. Mixins and Variables  */
+
+/* Color */
+$black:#222;
+$white:#fff;
+$lightgray:#ddd;
+$primary: #679e5a;
+$secondary: #a1562c;
+
+
+
+/* 3. General */
+body{
+	font-family: 'Catamaran', sans-serif;
+}
+section{
+	float: left;
+	width: 100%;
+}
+/* 4. Navigation  */
+#nav {
+    width: 100%;
+    font-size: 0.8rem;
+    padding: 0;
+    float: left;
+    z-index: 1;
+    .logo {
+        position: relative;
+        z-index: 0;
+        float:left;
+        width:20%;
+        max-width: 11rem;
+        img{
+        	width:3.7rem;
+        }
+        h1 {
+            text-align: left;
+            font-size: 1rem;
+            padding: 0;
+            margin: 0;
+            line-height: 1;
+            //text-transform: uppercase;
+            font-weight: normal;
+			font-family: 'BenchNine', sans-serif;
+            >a {
+                color: darken($lightgray,30%);
+                text-decoration: none;
+            }
+        }
+        &:after{
+        	background: $black url("/static/images/field-logo.jpg");
+    content: '';
+    position: relative;
+    left: 0;
+    top: 0;
+    width:2rem;
+    height:3rem;
+        }
+    }
+    >a {
+        display: none;
+    }
+
+    li {
+        position: relative;
+        list-style-type: none;
+        display: inline-block;
+		margin: 0.5rem 0.3rem;
+		font-size:0.9rem;
+
+        a {
+            display: block;
+            text-decoration: none;
+            padding:0.3rem;
+            color: $primary;
+            &:hover{
+            	color:darken($primary,15%);
+            }
+        }
+    }
+
+
+    span:after {
+        width: 0;
+        height: 0;
+        border: 0.313em solid transparent;
+        border-bottom: none;
+        border-top-color: $black;
+        content: '';
+        vertical-align: middle;
+        display: inline-block;
+        position: relative;
+        right: -0.313em;
+    }
+}
+
+//first level
+#nav>ul {
+    height: 3.75em;
+    margin: 0 0 0 -40px;
+    float:right;
+     width:80%;
+     text-align:right;
+    >li {
+        //height: 100%;
+        display: inline-block;
+        -moz-transition:all 200ms ease-in;
+		-webkit-transition:all 200ms ease-in;
+		-o-transition:all 200ms ease-in;
+		transition:all 200ms ease-in;
+        &.is-active {
+            color:$black;
+            border-bottom:1px solid $black;
+            border-top:1px solid $black;
+            &:hover{
+            	border-bottom:1px solid lighten($black,45%);
+            	border-top:1px solid lighten($black,45%);
+            }
+        }
+
+        >a {
+            height: 100%;
+            font-size: 1.2em;
+            line-height: 2.5;
+            text-align: center;
+            padding: 0 0.5rem;
+        }
+    }
+}
+
+//second level
+#nav li ul {
+    position: absolute;
+    top: 100%;
+    z-index: 1;
+    opacity: 0;
+	background: darken($primary,10%);
+	text-align: center;
+	margin: 0 -40px 0 0;
+	padding: 0;
+    li {
+        background: darken($primary,10%);
+		padding: 0 1rem;
+		margin: 0 0 0 -40px;
+		transition: 0.8s ease;
+		&:hover{
+			background: darken($primary,20%);
+
+			a{
+				color: $white;
+			}
+		}
+    }
+
+    a {
+        font-size: 0.85rem;
+        padding: 0.5rem 0.2rem;
+        color: $white;
+    }
+}
+
+#nav li:hover ul {
+    display: block;
+    left: 0;
+    right: 0;
+    opacity: 1;
+
+    a {
+        display: block;
+        transition: 0.8s ease;
+    }
+}
+
+/* Search */
+
+.button {
+    display: inline-block;
+    font-size: 1rem;
+    padding-left: 15px;
+    padding-right: 15px;
+    height: 50px;
+    line-height: 50px;
+    text-align: center;
+    color: $primary;
+    text-decoration: none;
+    cursor: pointer;
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+}
+
+.button:hover {
+    transition-duration: 0.4s;
+    -moz-transition-duration: 0.4s;
+    -webkit-transition-duration: 0.4s;
+    -o-transition-duration: 0.4s;
+    
+}
+
+.search:focus +.searchbutton {
+    transition-duration: 0.4s;
+    -moz-transition-duration: 0.4s;
+    -webkit-transition-duration: 0.4s;
+    -o-transition-duration: 0.4s;
+    background-color: rgba(255, 255, 255, 0.2);
+    border: none;
+}
+
+.search {
+    position: absolute;
+    background-color: white;
+    outline: none;
+    border: none;
+    padding: 0;
+    z-index: 10;
+    opacity: 0;
+    width: 400px;
+}
+
+.search:focus {
+    width: 400px;
+    right: 73px;
+    top: 0;
+}
+
+.expandright {
+    left: auto;
+    width: 73px;
+    height:50px;
+}
+
+.expandright:focus {
+    padding: 0 0 0 16px;
+}
+
+input {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    margin-top: 0;
+    border: 0;
+    outline: none;
+    opacity: 0;
+    right: 0;
+    -webkit-transition-delay: 0.7s;
+    /* Safari */
+    transition-delay: 0.7s;
+}
+
+input:focus {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 0;
+    margin-top: 0;
+    background: $lightgray;
+    color: $black;
     font-weight: 600;
+    padding: 0;
+    border: 0;
+    outline: none;
+    opacity: 1;
+    transition-duration: 0.3s;
+    -moz-transition-duration: 0.3s;
+    -webkit-transition-duration: 0.3s;
+    -o-transition-duration: 0.3s;
+}
+
+/* Breadcrumbs */
+.breadcrumb{
+	background: lighten($lightgray,10%);
+	padding:0 0.3rem;
+	ul{
+		margin-left: -40px;
+		li{
+			list-style-type: none;
+			display: inline-block;
+			color: $primary;
+			font-size: 0.7rem;
+			text-transform: uppercase;
+			a{
+				color: $primary;
+				text-decoration: none;
+				&:hover{
+					color: darken($primary,20%);
+				}
+			}
+			&:after{
+				content:"▸";
+				padding-left:0.3rem;
+			}
+			&:last-child{
+				&:after{
+				content:"";
+				}
+			}
+		}
+	}
+}
+
+
+
+/* 5. Rich pages */
+
+
+/* 6. Footer */
+footer{
+	text-align: center;
+	padding: 1rem 0;
+    font-size: 0.8rem;
+    background:$primary;
+    float:left;
+    width: 100%; 
+    ul{
+		li{
+			list-style-type: none;
+			display: inline-block;
+			img {
+		        width: 80px;
+		        margin: 0 1rem;
+		        display: inline-block;
+		        margin: 0 1rem 1rem 1rem;
+		        &:hover{
+		        	opacity: 0.7;
+		        }
+		    }
+		    a{
+		    	text-decoration: none;
+		    	color:$lightgray;
+		    	&:hover{
+		        	opacity: 0.7;
+		        }
+		    }
+		}
+    }
+
+    p{
+    	color:$white;
+    	a{
+    		color: $lightgray;
+    		text-decoration: none;
+    		&:hover{
+    			opacity: 0.7;
+    		}
+    	}
+    }
+}
+
+
+@media screen and (max-width: 885px) {
+    #nav {
+        top: 0;
+        z-index: 2;
+        width: 100%;
+        .logo {
+            position: relative;
+            margin: 0;
+            padding: 0;
+            width:11rem;
+        }
+
+        >a {
+            width: 100%;
+            height: 4.125rem;
+            text-align: right;
+            position: absolute;
+            font-size: 1.5rem;
+            top: 0;
+            color: $black;
+            right: 0;
+            width: 10%;
+            padding: 0.8rem 1rem 0 0;
+            transition: 1.6s ease;
+        }
+    }
+
+    #nav:not(:target)>a:first-of-type,
+    #nav:target>a:last-of-type {
+        display: block;
+        color: darken($lightgray,40%);
+        text-decoration: none;
+    } //first level
+    #nav>ul {
+        height: auto;
+        display: none;
+        position: absolute;
+        width: 100%;
+        margin-left: -40px;
+        background: $primary;
+        >li {
+            width: 100%;
+            margin: 0 0 0 -40px;
+            display:block;
+            background-color: $primary;
+            &.is-active {
+                border: none;
+                background: rgba(0,0,0, 0.8);
+                ul {
+                    //second level
+                    li {
+                        a {
+                            color: $black;
+                        }
+                    }
+                }
+            }
+            &:hover{
+            	background-color: darken($primary,10%);
+            	a{
+          			color: $white;
+          		}
+            }
+
+            >a {
+                height: auto;
+                text-align: left;
+                padding: 0.3rem 1rem;
+                transition: none;
+                color: $white;
+            }
+        }
+    }
+
+    #nav:not(:target)>ul {
+        display: block;
+        background-color: rgba(0, 0, 0, 0.8);
+        transition: 0.5s ease;
+        top: -1000%;
+		right: 0;
+    }
+
+    #nav:target>ul {
+        display: block;
+        transition: 0.5s ease;
+        top: 63px;
+        left: 0;
+        margin:0;
+    }
+
+    #nav>ul>li:not(:last-child)>a {}
+
+    //second level
+    #nav li {
+    	display:block;
+    	margin-left:-40px;
+        &:hover ul a {
+            transition: none;
+        }
+
+        ul {
+            position: static;
+            padding: 1.25em;
+            padding-top: 0;
+            opacity: 1;
+            display: none;
+            li {
+                margin-left: 0;
+                text-align: left;
+            }
+            a {
+                padding: 0.7rem;
+            }
+        }
+  }
+  /* Search */
+
+
+    .expandright {
+        right: auto;
+        left: 75px;
+    }
+
+    .search:hover,
+    .search:focus {
+        width: 100%;
+        outline: none;
+    }
+
+	.button {
+		color: $white;
+		float: left;
+		display: block;
+		&:hover{
+			background: darken($primary,10%);
+		}
+	}
 }
