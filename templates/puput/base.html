@@ -1,10 +1,8 @@
 {% extends "base.html" %}
 {% load static i18n wagtailcore_tags wagtailimages_tags wagtailroutablepage_tags wagtailuserbar puput_tags %}
-<!DOCTYPE HTML>
     {% block css %}
         {{ bloc.super }}
         <link rel='stylesheet' href="{% static 'puput/css/bootstrap.min.css' %}" type='text/css'/>
-        <link rel="stylesheet" href="{% static 'puput/css/font-awesome.min.css' %}">
         <style>
             body {
                 --main-color: {{blog_page.main_color}};

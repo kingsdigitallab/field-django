@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/kingsdigitallab/field-django#readme",
   "dependencies": {
+    "@fortawesome/fontawesome-free": "^5.6.3",
     "jquery": "^3.3.1"
   }
 }

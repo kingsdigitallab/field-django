@@ -10,9 +10,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   {% compress css %}
-  <link rel="stylesheet" type="text/x-scss" href="{% static 'scss/main.scss' %}">
+    <link rel="stylesheet" type="text/x-scss" href="{% static 'scss/main.scss' %}">
   {% endcompress %}
-
 
   <!-- favicons TO: Placeholder only. Need to update -->
   {% include 'includes/favicon.html' %}
@@ -44,15 +43,6 @@
   </footer>
 
   {% compress js %}
-  <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
-
-  <script src="{% static 'js/main.js' %}"></script>
-  {% endcompress %}
-
-  {% block footer_scripts %}{% endblock %}
-
-  {% compress js %}
-
     {% if GA_ID %}
         <script src="{% static 'js/google_analytics.js' %}"></script>
         <script>
@@ -61,6 +51,12 @@
         </script>
     {% endif %}
 
+    <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+    <script src="{% static '@fortawesome/fontawesome-free/js/all.js' %}"></script>
+
+    <script src="{% static 'js/main.js' %}"></script>
   {% endcompress %}
+
+  {% block footer_scripts %}{% endblock %}
 </body>
 </html>

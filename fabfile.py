@@ -39,12 +39,11 @@ env.root_path = '/vol/{}/webroot/'.format(PROJECT_NAME)
 # Absolute filesystem path to project Django root
 env.django_root_path = '/vol/{}/webroot/'.format(PROJECT_NAME)
 # Absolute filesystem path to Python virtualenv for this project
-env.envs_path = os.path.join(env.root_path, 'envs')
+# TODO: create symlink to .venv within project folder
+# env.envs_path = os.path.join(env.root_path, 'envs')
 # -------------------------------
 
 django.project(PROJECT_NAME)
-
-USE_PIPENV = getattr(django_settings, 'USE_PIPENV', False)
 
 # Set FABRIC_GATEWAY = 'username@proxy.x' in local.py
 # if you are behind a proxy.
@@ -114,32 +113,25 @@ def setup_environment(version=None):
 @task
 def create_virtualenv():
     require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
+    env_vpath = get_virtual_env_path()
     with quiet():
-        env_vpath = get_virtual_env_path()
         if run('ls {}'.format(env_vpath)).succeeded:
             print(
                 green('virtual environment at [{}] exists'.format(env_vpath)))
             return
 
+    # All we need is a .venv dir in the project folder;
+    # 'pipenv install' will set it up first time
     print(yellow('setting up virtual environment in [{}]'.format(env_vpath)))
-    if USE_PIPENV:
-        run('mkdir {}'.format(env_vpath))
-    else:
-        run('virtualenv {}'.format(env_vpath))
+    run('mkdir {}'.format(env_vpath))
 
 
 def get_virtual_env_path():
     '''Returns the absolute path to the python virtualenv for the server
     (dev, stg, live) we are working on.
-    E.g. /vol/tvof/webroot/envs/dev
+    E.g. /vol/tvof/webroot/.../.venv
     '''
-    ret = ''
-    if USE_PIPENV:
-        ret = os.path.join(env.path, '.venv')
-    else:
-        ret = os.path.join(env.envs_path, env.srvr)
-
-    return ret
+    return os.path.join(env.path, '.venv')
 
 
 @task
@@ -158,25 +150,16 @@ def clone_repo():
 @task
 def install_requirements():
 
+    require('srvr', 'path', provided_by=env.servers)
+
+    create_virtualenv()
+
     fix_permissions('virtualenv')
 
-    require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
-
-    if not USE_PIPENV:
-        reqs = 'requirements-{}.txt'.format(env.srvr)
-
-        try:
-            assert os.path.exists(reqs)
-        except AssertionError:
-            reqs = 'requirements.txt'
-
-    if USE_PIPENV:
-        with cd(env.path):
-            check_pipenv()
-            run('pipenv sync')
-    else:
-        with cd(env.path), prefix(env.within_virtualenv):
-            run('pip install -q --no-cache -U -r {}'.format(reqs))
+    with cd(env.path):
+        check_pipenv()
+        run('pipenv sync')
+        run('pipenv clean')
 
 
 @task
@@ -191,12 +174,11 @@ def check_pipenv():
 def reinstall_requirement(which):
     require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
 
-    with cd(env.path), prefix(env.within_virtualenv):
-        if USE_PIPENV:
-            check_pipenv()
-            run('pipenv uninstall --all --clear && pipenv sync')
-        else:
-            run('pip uninstall {0} && pip install --no-deps {0}'.format(which))
+    with cd(env.path):
+        check_pipenv()
+        run('pipenv uninstall --all --clear')
+
+    install_requirements()
 
 
 @task
