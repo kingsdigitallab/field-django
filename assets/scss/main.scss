@@ -41,6 +41,8 @@ $secondary: #a1562c;
 /* 3. General */
 body{
 	font-family: 'Catamaran', sans-serif;
+	width: 80%;
+	margin: 0 auto;
 }
 section{
 	float: left;
@@ -299,8 +301,12 @@ input:focus {
 
 /* Breadcrumbs */
 .breadcrumb{
-	background: lighten($lightgray,10%);
-	padding:0 0.3rem;
+	//background: lighten($lightgray,10%);
+	padding: 0 0 0 12.5%;
+	margin-left: -12.5%;
+	width: 112.5%;
+	margin-top: 1rem;
+	border-top: 1px solid $lightgray;
 	ul{
 		margin-left: -40px;
 		li{
@@ -333,6 +339,158 @@ input:focus {
 
 /* 5. Rich pages */
 
+/* 5. Blog */
+.news{
+	.article{
+		float:left;
+		width:70%;
+		margin-right: 10%;
+		article{
+			background: lighten($lightgray,10%);
+			float: left;
+			width: 100%;
+			margin-bottom: 2rem;
+			padding:0 1rem;
+			header{
+				a{
+					text-decoration: none;
+					color:$black;
+					font-size: 1.2rem;
+					padding: 0.8rem 0;
+					display: block;
+				}
+			}
+			section{
+				img{
+					width:100%;
+					height:auto;
+				}
+				ul{
+					li{
+						list-style-type: none;
+						display: inline-block;
+						font-size: 0.75rem;
+						margin-right: 0.3rem;
+						color: darken($lightgray,30%);
+						a{
+							color: darken($lightgray,30%);
+							text-decoration: none;
+						}
+					}
+				}
+				path{
+					color: darken($lightgray,20%);
+				}
+				.rich-text{
+					img.richtext-image.left{
+						width:50%;
+						float: left;
+					}
+					img.richtext-image.right{
+						width:50%;
+						float: right;
+					}
+				}
+			}
+			footer{
+				text-align: left;
+				padding:0;
+				font-size: 1rem;
+				background: lighten($lightgray,10%);
+				width: 100%; 
+    			margin-left: 0;
+				p{
+					color: $black;
+				}
+				a{
+					color: $black;
+				}
+				.social{
+					width:60%;
+					display: inline-block;
+				}
+				.read{
+					width: 33%;
+					display: inline-block;
+					text-align: right;
+					a{
+						text-decoration: none;
+						color: $primary;
+						&:hover{
+							color: darken($primary,20%);
+						}
+					}
+				}
+			}
+		}
+	}
+	.sidebar{
+		float:left;
+		width:20%;
+		.rss{
+			text-align:right;
+			a{
+				text-decoration: none;
+				color: darken($lightgray,20%);
+				font-size: 0.8rem;
+			}
+			svg{
+				color: darken($lightgray,20%);
+			}
+		}
+		ul.section{
+			background: lighten($lightgray,10%);
+			padding: 0.1rem 2rem 0.9rem 2rem;
+			h4{
+				border-bottom: 1px solid darken($lightgray,20%);
+			}
+			>li{
+				list-style-type: none;
+				article{
+					margin-bottom: 0.7rem;
+					h5{
+						margin:0;
+						font-size: 1rem;
+						a{
+							text-decoration: none;
+							color: $black;
+							&:hover{
+								opacity: 0.7;
+							}
+						}
+					}
+					>ul{
+						margin-left: -40px;
+						font-size:0.7rem;
+						>li{
+							display: inline-block;
+							margin-right: 0.3rem;
+							color: darken($lightgray,20%);
+							svg{
+								color: darken($lightgray,20%);
+							}
+						}
+					}
+				}
+			}
+			>ul{
+				margin-left: -40px;
+				>li{
+					list-style-type: none;
+					a{
+						color: $black;
+						text-decoration: none;
+						&:hover{
+							opacity: 0.7;
+						}
+					}
+
+				}
+			}
+		}
+	}
+}
+
 
 /* 6. Footer */
 footer{
@@ -341,7 +499,8 @@ footer{
     font-size: 0.8rem;
     background:$primary;
     float:left;
-    width: 100%; 
+    width: 125%; 
+    margin-left: -12.5%;
     ul{
 		li{
 			list-style-type: none;
