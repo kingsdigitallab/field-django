@@ -2,13 +2,11 @@
 {% load static i18n wagtailcore_tags wagtailimages_tags wagtailroutablepage_tags wagtailuserbar puput_tags %}
     {% block css %}
         {{ bloc.super }}
-        <!--<link rel='stylesheet' href="{% static 'puput/css/bootstrap.min.css' %}" type='text/css'/>-->
         <style>
             body {
                 --main-color: {{blog_page.main_color}};
             }
         </style>
-        <!--<link rel="stylesheet" href="{% static 'puput/css/puput.css' %}"/>-->
     {% endblock %}
 
 {% block title %}<h1 class="title">{{page.title}}</h1>{% endblock %}
@@ -26,9 +24,11 @@
             {% endif %}
             <div class="container">
                 <section class="{% if blog_page.header_image %}title-section-image{% else %}title-section{% endif %}">
+                    {% comment %}
                     <h1 class="title-header">
-                        <a href="{% pageurl blog_page %}">{{ blog_page.title }}</a>
+                        <a href="{% pageurl blog_page %}">[[{{ blog_page.title }}</a>
                     </h1>
+                    {% endcomment %}
                     {% if not blog_page.header_image %}
                         <h2>{{ blog_page.description }}</h2>
                     {% endif %}
@@ -41,8 +41,14 @@
 <div class="news">
 
     <div class="article">
-        {% block content %}{% endblock content %}
-        {% block extra_content %}{% endblock extra_content %}
+        {% block blog_index_intro %}
+            {% if blog_page == page %}
+                {# GN: should do that in specific template, not in base.html #}
+                <div>{{ blog_page.description }}</div>
+            {% endif %}
+        {% endblock %}
+        {% block content %}2{% endblock content %}
+        {% block extra_content %}3{% endblock extra_content %}
     </div>
 
     <div class="sidebar">
@@ -51,14 +57,16 @@
                  <i class="fa fa-rss-square"></i> <span>{% trans 'Feed RSS' %}</span>
             </a>
         </div>
-        <form name="search_form" class="search_form" method="get" action="{% routablepageurl blog_page 'entries_search' %}">
-            <div class="input-group">
-                 <input type="search" name="q" placeholder="{% trans 'Search' %}">
-                 <span class="input-group-btn">
-                    <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
-                 </span>
-            </div>
-        </form>
+        {% comment %}
+            <form name="search_form" class="search_form" method="get" action="{% routablepageurl blog_page 'entries_search' %}">
+                <div class="input-group">
+                     <input type="search" name="q" placeholder="{% trans 'Search' %}">
+                     <span class="input-group-btn">
+                        <button class="btn btn-default" type="submit"><i class="fa fa-search"></i></button>
+                     </span>
+                </div>
+            </form>
+        {% endcomment %}
 
         {% if blog_page.display_last_entries %}
             <ul class="section">
