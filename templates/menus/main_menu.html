@@ -1,23 +1,14 @@
 {% load menu_tags %}
 
 {% for item in menu_items %}
-    {% if 0 %}
-    	<li {% if page.active %} class="is-active" {% endif %}>
-	        <a href="{{ item.href }}">
-	            {{ item.text }}
-	        </a>
-        </li>
-
-    {% endif %}
-
     {% if item.has_children_in_menu %}
         {% sub_menu item template="menus/sub_menu.html" %}
     {% endif %}
-            <li>
-            <form action="/search" method="get">
-                <input class="search expandright" id="searchright" type="search" name="q" value="{{q}}" placeholder="Search the site">
-                <label class="button searchbutton" for="searchright">Search</label>
-            </form>
-            </div>
-        </li>
+    <li>
+        <form action="/search" method="get">
+            <input autocomplete="off" class="search expandright" id="searchright"
+                type="search" name="q" value="{{q}}" placeholder="Search the site">
+            <label class="button searchbutton" for="searchright">Search</label>
+        </form>
+    </li>
 {% endfor %}
