@@ -107,6 +107,10 @@ INSTALLED_APPS += [  # your project apps here
     'django_social_share',
     'puput',
     'colorful',
+
+    'wagtail.contrib.settings',
+    'kdl_wagtail.core.apps.KdlWagtailCoreConfig',
+    'kdl_wagtail.people.apps.KdlWagtailPeopleConfig',
 ]
 
 #
