@@ -33,14 +33,12 @@
 
   {% include 'includes/navigation.html' %}
 
-  <section class="section">
-    <div class="container">
-        {% block breacrumb %}{% include 'includes/breadcrumb.html' %}{% endblock %}
-        {% block title %}{% endblock %}
-        {% block main %}
-        {% endblock %}
-    </div>
-  </section>
+  <main>
+    {% block breacrumb %}{% include 'includes/breadcrumb.html' %}{% endblock %}
+    {% block title %}{% endblock %}
+    {% block main %}
+    {% endblock %}
+  </main>
 
   {% wagtailuserbar %}
 
