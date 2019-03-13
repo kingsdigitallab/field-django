@@ -109,8 +109,10 @@ INSTALLED_APPS += [  # your project apps here
     'colorful',
 
     'wagtail.contrib.settings',
-    'kdl_wagtail.core.apps.KdlWagtailCoreConfig',
-    'kdl_wagtail.people.apps.KdlWagtailPeopleConfig',
+    'kdl_wagtail.core',
+    'kdl_wagtail.people',
+
+    'field_wagtail',
 ]
 
 #
@@ -343,3 +345,10 @@ USE_BULMA = True
 # default is 3, we change to 2 because our default main menu
 # is just the home page, nothing else.
 WAGTAILMENUS_SECTION_ROOT_DEPTH = 2
+
+# those settings vars will be available in template contexts
+SETTINGS_VARS_IN_CONTEXT = [
+    'PROJECT_TITLE',
+    'GA_ID',
+    'USE_BULMA',
+]
