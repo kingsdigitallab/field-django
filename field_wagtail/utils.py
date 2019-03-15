@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.management import create_contenttypes
+
 
 def migrate_wagtail_page_type(apps, schema_editor, mapping):
     '''
@@ -16,7 +18,7 @@ def migrate_wagtail_page_type(apps, schema_editor, mapping):
     table. But the parent record in wagtailcore_page is left intact
     (same id, title, slug, webpath) apart from its content_type.
 
-    All fields with the names are automatically copied. Other fields and
+    All fields with the same names are automatically copied. Other fields and
     custom transforms can be done in a custom copy function
     attached to the 'mapping' dictionary.
 
@@ -57,9 +59,22 @@ def migrate_wagtail_page_type(apps, schema_editor, mapping):
     select = mapping.get('select', None)
     if select:
         pages_from = select(pages_from)
+
+    if pages_from.count() < 1:
+        return pages_to
+
     copy = mapping.get('copy', None)
 
-    from django.contrib.contenttypes.models import ContentType
+    # make sure all content_types are present in the DB
+    # see https://stackoverflow.com/a/42791235/3748764
+    from django.apps import apps as global_apps
+    create_contenttypes(
+        global_apps.get_app_config(mapping['models']['to'][0]),
+        verbosity=0, interactive=False
+    )
+
+    # get the content type of PageTo
+    ContentType = apps.get_model('contenttypes', 'ContentType')
     content_type_to = ContentType.objects.filter(
         app_label=mapping['models']['to'][0],
         model=mapping['models']['to'][1].lower()
@@ -106,20 +121,18 @@ def migrate_wagtail_page_type(apps, schema_editor, mapping):
     # the parent Page record.
     # TODO: for large number of ids, we might need to process this in chunk.
     # TODO: ANY in the the where clause may not work with other RDBMS than psql
-    page_from_ids = [
-        int(v) for v in
-        PageFrom.objects.all().values_list('page_ptr_id', flat=True)
-    ]
     from django.db import connection
     with connection.cursor() as cursor:
         cursor.execute(
             'DELETE FROM {} WHERE page_ptr_id = ANY(%s)'.format(
                 PageFrom._meta.db_table),
-            [page_from_ids]
+            [[p.page_ptr_id for p in pages_to]]
         )
 
     # now we can save the converted pages (without duplicate values)
     for page_to in pages_to:
         page_to.save()
+
+    print(len(pages_to))
 
     return len(pages_to)
