@@ -1,4 +1,4 @@
-{% load staticfiles compress wagtailuserbar %}
+{% load staticfiles compress wagtailuserbar kdl_wagtail_core_tags %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -26,7 +26,7 @@
   {% endblock %}
 
 </head>
-<body>
+<body class="ct-{% get_page_label page %}">
   <!-- header>
     {% include 'includes/header.html' %}
   </header -->
