@@ -352,3 +352,6 @@ SETTINGS_VARS_IN_CONTEXT = [
     'GA_ID',
     'USE_BULMA',
 ]
+
+# slug of the page which is the parent of the specific communities
+FIELD_COMMUNITIES_ROOT_SLUG = 'groups'

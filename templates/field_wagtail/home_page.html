@@ -1,5 +1,5 @@
 {% extends "kdl_wagtail_core/base_page.html" %}
-{% load kdl_wagtail_core_tags wagtailcore_tags %}
+{% load kdl_wagtail_core_tags wagtailcore_tags wagtailimages_tags %}
 
 {% block page-header %}
 {% endblock page-header %}
@@ -13,92 +13,64 @@
         {% endcomment %}
 
         <section>
-          <img src="https://www.ciwf.org.uk/media/7434355/cows-in-field-sunset-banner.jpg?center=0.7,0.50166666666666671&mode=crop&width=2000&rnd=131929284250000000">
-          <p>
-          Lorem ipsum dolor sit amet, qualisque erroribus consectetuer sit et, id eam volutpat philosophia, intellegebat voluptatibus cu per. Cu his adhuc omnesque. Eu elitr consetetur mediocritatem vim. Integre quaestio no eam. Stet volutpat ne nec. Eam ex dicit dolorum. Ex mea modo nostrum honestatis, ne harum inermis constituam qui. Civibus pertinacia ea qui. Ut vim dicat tollit nusquam, has ut augue altera. Has eu aperiam laoreet, et sea quidam singulis, ea soleat labitur duo.
-          </p>
-          <p>
-No idque omnesque vel, id nec diam movet alienum. Brute populo cotidieque sea ex. Graecis recusabo consequuntur cum in. Ut alterum docendi maiestatis vim, qui ne nostro facilis constituam. Eam eu praesent incorrupte.Facilis postulant ea sea. Nonumy dolorem ius ex, vis ancillae aliquando consetetur ne. Cibo aperiam ei mei, alterum commune usu ea, nisl postea duo eu. Est quod velit at, cu lorem primis nam. Ex oratio melius mel, cu minimum ponderum vis.
+          {% image page.image width-1500 %}
 
-Ea ius aperiam vituperata. Id novum tollit pertinacia mel, te falli graece instructior vel. No alii efficiantur sed. Usu iudico nostrud ea, iriure invenire ex vel.
-          </p>
-          <div class="readmore"><a href="">
-            Read more</a>
-          </div>
+          {{ page.body|richtext }}
+          <div class="readmore"><a href="about">Read more</a></div>
         </section>
         <section>
           <header>
-          <h2>Communities</h2>
+            <h2>Communities</h2>
           </header>
-          <div class="card">
-            <img src="https://c.pxhere.com/images/51/da/695c4ad8ba3be470aed66bffd447-1420063.jpg!d" />
-            <div class="overlay">
-                <h3>Focus on Research</h3>
-            </div>
-          </div>
-          <div class="card">
-            <img src="https://c.pxhere.com/photos/09/e0/lamb_animals_animal_grass_sheep_livestock_landscape_farm-669882.jpg!d" />
-            <div class="overlay">
-                <h3>Focus on Farming</h3>
-            </div>
-          </div>
-          <div class="card">
-            <img src="https://c.pxhere.com/photos/1e/93/cow_calf_herd_bovine_animal-177590.jpg!d" />
-            <div class="overlay">
-                <h3>Focus on Consumers</h3>
-            </div>
-          </div>
-          <div class="card">
-            <img src="https://c.pxhere.com/photos/a2/e7/animals_horses_a_pair_of_horses_stable-687282.jpg!d" />
-            <div class="overlay">
-                <h3>Focus on Advisors and Policy-makers</h3>
-            </div>
-          </div>
+
+          {% for community in communities_root.get_children %}
+            {% if community.live %}
+              <div class="card">
+                <a href="{{ community.get_url }}">
+                  {% image community.image width-400 %}
+                  <div class="overlay">
+                    <h3>{{ community.title }}</h3>
+                  </div>
+                </a>
+              </div>
+            {% endif %}
+          {% endfor %}
         </section>
+
         <section>
           <section>
             <header>
               <h2>Twitter</h2>
             </header>
-            <img src="https://static4.graphene-theme.com/wp-content/uploads/2013/07/screenshot-1.png?x47800">
+            {# https://developer.twitter.com/en/docs/twitter-for-websites/timelines/overview.html #}
+            <a class="twitter-timeline" data-width="200" data-height="400" href="https://twitter.com/field_wt?ref_src=twsrc%5Etfw">Tweets by field_wt</a>
+            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
           </section>
            <section>
              <header>
               <h2>Latest</h2>
              </header>
-             <div class="card">
-            <img src="https://c.pxhere.com/photos/d5/cc/cow_head_cow_head_animal_livestock_nature_milk_cow_ruminant-798449.jpg!d" />
-            <div class="overlay">
-                <h3>Post 1</h3>
-            </div>
-          </div>
-          <div class="card">
-            <img src="https://c.pxhere.com/photos/87/7c/sheep_lamb_livestock_mammal_cute_domestic_farming_rural-1122412.jpg!d" />
-            <div class="overlay">
-                <h3>Post 2</h3>
-            </div>
-          </div>
-          <div class="card">
-            <img src="https://c.pxhere.com/photos/69/a8/beef_scotland_highland_beef_cow_ox_meadow_landscape_scotland_beef-1012582.jpg!s" />
-            <div class="overlay">
-                <h3>Post 3</h3>
-            </div>
-          </div>
-          <div class="card">
-            <img src="https://c.pxhere.com/photos/df/6a/cattle_pasture_cow_farm_animal_green_grass_rural-1226729.jpg!d" />
-            <div class="overlay">
-                <h3>Post 4</h3>
-            </div>
-          </div>
-          </section>
+            {% for news_item in news|slice:":4" %}
+              <div class="card">
+                <a href="{{ news_item.get_url }}">
+                  {% image news_item.header_image width-400 %}
+                  <div class="overlay">
+                    <h3>{{ news_item.title|truncatewords:2 }}</h3>
+                  </div>
+                </a>
+              </div>
+            {% endfor %}
+           </section>
+
+            {# can't comment this b/c styles will apply nth-child(3) to next section #}
            <section>
              <header>
              <h2>Timeline</h2>
              </header>
              <img src="https://i.stack.imgur.com/faTir.png" />
+           </section>
 
-          </section>
-            <section>
+           <section>
             <header>
               <h2>Media</h2>
              </header>
