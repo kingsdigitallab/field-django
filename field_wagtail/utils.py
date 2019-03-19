@@ -87,10 +87,6 @@ def migrate_wagtail_page_type(apps, schema_editor, mapping):
         # this will at least copy all the fields from Page table
         # See wagtail.core.models.Page.copy()
         for field in page_to._meta.get_fields():
-            #             print(field.name, getattr(
-            #                 page_from, field.name, None
-            #             ))
-
             # Ignore reverse relations
             if field.auto_created:
                 continue
@@ -132,7 +128,5 @@ def migrate_wagtail_page_type(apps, schema_editor, mapping):
     # now we can save the converted pages (without duplicate values)
     for page_to in pages_to:
         page_to.save()
-
-    print(len(pages_to))
 
     return len(pages_to)
