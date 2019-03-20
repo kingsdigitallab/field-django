@@ -38,9 +38,6 @@ env.hosts = ['{}.kdl.kcl.ac.uk'.format(PROJECT_NAME)]
 env.root_path = '/vol/{}/webroot/'.format(PROJECT_NAME)
 # Absolute filesystem path to project Django root
 env.django_root_path = '/vol/{}/webroot/'.format(PROJECT_NAME)
-# Absolute filesystem path to Python virtualenv for this project
-# TODO: create symlink to .venv within project folder
-# env.envs_path = os.path.join(env.root_path, 'envs')
 # -------------------------------
 
 django.project(PROJECT_NAME)
@@ -49,11 +46,28 @@ django.project(PROJECT_NAME)
 # if you are behind a proxy.
 FABRIC_GATEWAY = getattr(django_settings, 'FABRIC_GATEWAY', None)
 if FABRIC_GATEWAY:
-    env.forward_agent = True
     env.gateway = FABRIC_GATEWAY
+
 
 # Name of linux user who deploys on the remote server
 env.user = django_settings.FABRIC_USER
+env.forward_agent = True
+
+'''
+# Optional settings/local.py variable
+# It declares python dev packages pulled from github directly under the
+# project folder. They take precedence over packages in Pipfile / .venv .
+FABRIC_DEV_PACKAGES = [
+    {
+        'git': 'https://github.com/kingsdigitallab/django-kdl-wagtail.git',
+        'folder_git': 'django-kdl-wagtail',
+        'folder_package': 'kdl_wagtail',
+        'branch': 'develop',
+        'servers': ['lcl', 'dev'],
+    }
+]
+'''
+env.dev_packages = getattr(django_settings, 'FABRIC_DEV_PACKAGES', [])
 
 
 def server(func):
@@ -69,6 +83,16 @@ def server(func):
         return func(*args, **kwargs)
 
     return decorated
+
+
+@task
+@server
+def lcl():
+    env.srvr = 'lcl'
+    env.user = 'vagrant'
+    env.gateway = None
+    env.hosts = ['127.0.0.1']
+    set_srvr_vars()
 
 
 @task
@@ -95,8 +119,12 @@ def liv():
 def set_srvr_vars():
     # Absolute filesystem path to the django project root
     # Contains manage.py
-    env.path = os.path.join(env.root_path, env.srvr, 'django',
-                            '{}-django'.format(PROJECT_NAME))
+    if is_vagrant():
+        env.path = '/vagrant'
+    else:
+        env.path = os.path.join(env.root_path, env.srvr, 'django',
+                                '{}-django'.format(PROJECT_NAME))
+
     env.within_virtualenv = 'source {}'.format(
         os.path.join(get_virtual_env_path(), 'bin', 'activate'))
 
@@ -134,6 +162,12 @@ def get_virtual_env_path():
     return os.path.join(env.path, '.venv')
 
 
+def remote_path_exists(absolute_path):
+    with quiet():
+        return run('ls {}'.format(absolute_path)).succeeded
+    return False
+
+
 @task
 def clone_repo():
     require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
@@ -160,6 +194,8 @@ def install_requirements():
         check_pipenv()
         run('pipenv sync')
         run('pipenv clean')
+
+        run('npm ci')
 
 
 @task
@@ -203,7 +239,7 @@ def update(version=None):
     if version:
         # try specified version first
         to_version = version
-    elif not version and env.srvr in ['local', 'vagrant', 'dev']:
+    elif env.srvr in ['local', 'vagrant', 'dev', 'lcl']:
         # if local, vagrant or dev deploy to develop branch
         to_version = 'develop'
     else:
@@ -214,9 +250,41 @@ def update(version=None):
         run('git pull')
         run('git checkout {}'.format(to_version))
 
+    update_dev_packages()
+
+
+def update_dev_packages():
+    '''pull all the dev packages'''
+
+    for package in env.dev_packages:
+        if env.srvr.lower() in package['servers']:
+            path_git = os.path.join(env.path, package['folder_git'])
+            path_package = os.path.join(env.path, package['folder_package'])
+
+            # clone package
+            with cd(os.path.join(env.path)):
+                if not remote_path_exists(path_git):
+                    run('git clone -b {} --single-branch {}'.format(
+                        package['branch'], package['git']
+                    ))
+
+            # pull package
+            with cd(os.path.join(env.path, package['folder_git'])):
+                run('git pull')
+
+            # create symlink
+            with cd(os.path.join(env.path)):
+                if not remote_path_exists(path_package):
+                    run('ln -s {}'.format(os.path.join(
+                        path_git, package['folder_package']
+                    )))
+
 
 @task
 def upload_local_settings():
+    if is_vagrant():
+        return
+
     require('srvr', 'path', provided_by=env.servers)
 
     with cd(env.path):
@@ -244,6 +312,9 @@ def upload_local_settings():
 @task
 def own_django_log():
     """ make sure logs/django.log is owned by www-data"""
+    if is_vagrant():
+        return
+
     require('srvr', 'path', provided_by=env.servers)
 
     with quiet():
@@ -261,6 +332,9 @@ def fix_permissions(category='static'):
         'static' (default): django static path + general project path
         'virtualenv': fix the virtualenv permissions
     '''
+    if is_vagrant():
+        return
+
     require('srvr', 'path', provided_by=env.servers)
 
     processed = False
@@ -303,14 +377,10 @@ def migrate(app=None):
 
 @task
 def collect_static(process=False):
-    require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
-
-    with cd(env.path):
-        run('npm ci')
-
-    if env.srvr in ['local', 'vagrant']:
-        print(yellow('Do not run collect_static on local servers'))
+    if is_vagrant():
         return
+
+    require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
 
     with cd(env.path), prefix(env.within_virtualenv):
         run('./manage.py collectstatic {process} --noinput'.format(
@@ -335,6 +405,9 @@ def clear_cache():
 
 @task
 def touch_wsgi():
+    if is_vagrant():
+        return
+
     require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
 
     with cd(os.path.join(env.path, PROJECT_NAME)), \
@@ -349,3 +422,7 @@ def check_deploy():
     if env.srvr in ['stg', 'liv']:
         with cd(env.path), prefix(env.within_virtualenv):
             run('./manage.py check --deploy')
+
+
+def is_vagrant():
+    return env.srvr in ['local', 'vagrant', 'lcl']
