@@ -362,6 +362,6 @@ FABRIC_DEV_PACKAGES = [
         'folder_git': 'django-kdl-wagtail',
         'folder_package': 'kdl_wagtail',
         'branch': 'develop',
-        'servers': ['lcl', 'dev'],
+        'servers': ['lcl', 'dev', 'stg', 'liv'],
     }
 ]
