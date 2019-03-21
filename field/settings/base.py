@@ -366,4 +366,7 @@ FABRIC_DEV_PACKAGES = [
     }
 ]
 
-KDL_WAGTAIL_HIDDEN_PAGE_TYPES = []
+KDL_WAGTAIL_HIDDEN_PAGE_TYPES = [
+    ('kdl_wagtail_page.richpage'),
+    ('kdl_wagtail_core.streampage')
+]
