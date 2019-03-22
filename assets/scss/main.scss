@@ -25,7 +25,7 @@
 /* FontAwesome */
 /* TO: GN, Does not work @import 'font-awesome'; */
 /* Webfonts */
-@import url('https://fonts.googleapis.com/css?family=BenchNine:300|Catamaran:400');
+@import url('https://fonts.googleapis.com/css?family=BenchNine:300|Catamaran:400|Bai+Jamjuree|Catamaran|Fjalla+One|Gothic+A1|Heebo|Hind+Vadodara|Mada|Michroma|Mukta+Malar|Poppins|Prompt|Quattrocento+Sans');
 
 /* 2. Mixins and Variables  */
 
@@ -33,7 +33,7 @@
 $black:#222;
 $white:#fff;
 $lightgray:#ddd;
-$primary: #679e5a;
+$primary: #357b3c;
 $secondary: #a1562c;
 
 
@@ -131,6 +131,7 @@ a{
     float:right;
     width:75%;
     text-align:right;
+    font-family: 'Bai Jamjuree', sans-serif;
     >li {
         //height: 100%;
         display: inline-block;
@@ -164,18 +165,18 @@ a{
     top: 100%;
     z-index: 1;
     opacity: 0;
-    background: darken($primary,10%);
+    background: $primary;
     text-align: center;
     margin: 0 -40px 0 0;
     padding: 0;
     li {
-        background: darken($primary,10%);
+        background: $primary;
         padding: 0 1rem;
         margin: 0 0 0 -40px;
         transition: 0.8s ease;
         display: block;
         &:hover{
-            background: darken($primary,20%);
+            background: darken($primary,10%);
 
             a{
                 color: $white;
@@ -312,7 +313,7 @@ input.search:focus {
     margin-top: 1rem;
     border-top: 1px solid $lightgray;
     ul{
-        margin-left: -40px;
+        margin: 1rem 0 0 -40px;
         li{
             list-style-type: none;
             display: inline-block;
@@ -330,154 +331,166 @@ input.search:focus {
                 content:"▸";
                 padding-left:0.3rem;
             }
-            &:last-child{
-                &:after{
-                    content:"";
-                }
-            }
         }
+    }
+    h2{
+        font-family: 'Bai Jamjuree', sans-serif;
+        margin:0.5rem 0 1rem 0;
+        font-size: 1.5rem;
+        border-bottom: 1px solid;
+        display: inline-block;
     }
 }
 
 /* Home */
-section{
-    width:100%;
-    float:left;
-    text-align:justify;
-    header{
+.home{
+    section{
         width:100%;
-        text-align:center;
-        h2{
-            margin:0 0 1rem 0;
-            text-align:center;
-            color:$primary;
-            font-size:0.8rem;
-            text-transform:uppercase;
-            font-family: 'BenchNine', sans-serif;
-            border-bottom:1px solid lighten($primary,30%);
-            display:inline-block;
-        }/* end h2 */
-    }/* end header */
-    iframe{
-        width:100% !important;
-        height:100vh !important;
-    }
-
-    &:nth-child(1n){
-        margin:2rem 0;
-        padding:0;
-        width:100%;
-        img{
-            width:100%;
-            object-fit: cover;
-            max-height:300px;
-        }/* end img */
-        .readmore{
-            text-align:center;
-            width:100%;
-            display:block;
-            a{
-                text-align:center;
-                background:$primary;
-                text-decoration:none;
-                color:$white;
-                font-size: 0.9rem;
-                padding: 0.3rem 0.9rem;
-            }/* end a */
-        }/* end .readmore */
-    }/* 1n */
-    &:nth-child(2n){
-      background:lighten($lightgray,10%);
-      padding-bottom:1rem;
-      margin: 0.5rem 0;
-      .card{
-        width:25%;
         float:left;
-        img{
-          width:100%;
-          height:12vw;
-          max-height:200px;
-          object-fit: cover;
+        text-align:justify;
+        header{
+            width:100%;
+            text-align:center;
+            h2{
+                margin:0.5rem 0 1rem 0;
+                text-align:center;
+                color:$primary;
+                font-size:0.9rem;
+                text-transform:uppercase;
+                font-family: 'BenchNine', sans-serif;
+                //border-bottom:1px dotted $primary;
+                //border-top: 1px dotted $primary;
+                display:inline-block;
+            }/* end h2 */
+        }/* end header */
+        iframe{
+            width:100% !important;
+            height:100vh !important;
         }
-      a{
-        text-decoration: none;
-        h3{
-          margin:0;
-          font-family: 'BenchNine', sans-serif;
-          font-size:1.2rem;
-          color:$primary;
-          text-align:center;
-            &:hover{
-                opacity: 0.7;
-            }
-        } /* end h3 */
 
-        }/* end a */
-        }/* end .card */
-    }/* 2n */
-      &:nth-child(3n){
-        margin-bottom:3rem;
-        background:lighten($lightgray,10%);
-        padding:0 2%;
-        width:96%;
-        padding-bottom:2rem;
-        section{
-          p{
-            padding:0 2rem;
-        }
         &:nth-child(1n){
-            float:right;
-            width:28%;
-            header{
-                background: $white;
-            }
-        }
-        &:nth-child(2n){
-            float:left;
-            width:70%;
-            background: $primary url("https://images.pexels.com/photos/958168/pexels-photo-958168.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940");
-            background-size:100%;
-            padding:0 2% 1rem 2%;
-            width:66%;
-            h2,h3{
-              color:$white;
-              }
-              header{
-                background: transparent;
-            }
-        }
-        &:nth-child(3n){
-            background:$white;
-            float:left;
-            width:70%;
+            margin:2rem 0;
             padding:0;
-            margin:0;
+            width:100%;
+            img{
+                width:100%;
+                object-fit: cover;
+                max-height:300px;
+            }/* end img */
+            .readmore{
+                text-align:center;
+                width:100%;
+                display:block;
+                a{
+                    text-align:center;
+                    border: 1px solid $primary;
+                    text-decoration:none;
+                    color:$primary;
+                    font-size: 0.9rem;
+                    padding: 0.4rem 1rem;
+                    font-family: 'Bai Jamjuree', sans-serif;
+                    &:hover{
+                        background:$primary;
+                        color: $white;
+                        opacity: 1;
+                    }
+                }/* end a */
+            }/* end .readmore */
+        }/* 1n */
+        &:nth-child(2n){
+          background:lighten($lightgray,10%);
+          padding-bottom:1rem;
+          margin: 0.5rem 0;
+          .card{
+            width:25%;
+            float:left;
             img{
               width:100%;
-              display:block;
-          }
-        }
-        &:nth-child(4n){
-            background:$white;
-            float:left;
-            width:68%;
-            padding:0 1%;
-            h2{
+              height:12vw;
+              max-height:200px;
+              object-fit: cover;
+            }
+          a{
+            text-decoration: none;
+            h3{
+              margin:0;
+              font-family: 'Bai Jamjuree', sans-serif;
+              font-size:1.3rem;
               color:$primary;
-          }
-        }
-        &:nth-child(5n){
-            background:$white;
-            float:left;
-            width:68%;
-            padding:0 1%;
-            margin:0;
-        }
-    }/* sub-section */
+              text-align:center;
+              font-weight: normal;
+                &:hover{
+                    opacity: 0.7;
+                }
+            } /* end h3 */
 
-  }/* 3n */
-}/* section */
+            }/* end a */
+            }/* end .card */
+        }/* 2n */
+          &:nth-child(3n){
+            margin-bottom:3rem;
+            background:lighten($lightgray,10%);
+            padding:0 2%;
+            width:96%;
+            padding-bottom:2rem;
+            section{
+              p{
+                padding:0 2rem;
+            }
+            &:nth-child(1n){
+                float:right;
+                width:28%;
+                margin: 1rem 0;
+                header{
+                    background: $white;
+                }
+            }
+            &:nth-child(2n){
+                float:left;
+                width:70%;
+                background: $primary url("https://images.pexels.com/photos/958168/pexels-photo-958168.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940");
+                background-size:100%;
+                padding:0 2% 1rem 2%;
+                width:66%;
+                h2,h3{
+                  color:$white;
+                  }
+                  header{
+                    background: transparent;
+                }
+            }
+            &:nth-child(3n){
+                background:$white;
+                float:left;
+                width:70%;
+                padding:0;
+                margin:0;
+                img{
+                  width:100%;
+                  display:block;
+              }
+            }
+            &:nth-child(4n){
+                background:$white;
+                float:left;
+                width:68%;
+                padding:0 1%;
+                h2{
+                  color:$primary;
+              }
+            }
+            &:nth-child(5n){
+                background:$white;
+                float:left;
+                width:68%;
+                padding:0 1%;
+                margin:0;
+            }
+        }/* sub-section */
 
+      }/* 3n */
+    }/* section */
+}/* end .home */
 
 /* 5. Rich pages */
 
@@ -485,14 +498,14 @@ section{
 .news{
     .article{
         float:left;
-        width:70%;
-        margin-right: 10%;
+        width: 67%;
+        margin-right: 8%;
         article{
-            background: lighten($lightgray,10%);
+            border-bottom: 1px solid $lightgray;
             float: left;
             width: 100%;
             margin-bottom: 2rem;
-            padding:0 1rem;
+            padding:1rem 0;
             header{
                 a{
                     text-decoration: none;
@@ -500,25 +513,67 @@ section{
                     font-size: 1.2rem;
                     padding: 0.8rem 0;
                     display: block;
+                    font-family: 'Bai Jamjuree',sans-serif;
                 }
             }
             section{
+                background: transparent;
                 img{
                     width:100%;
                     height:auto;
                 }
                 ul{
-                    li{
+                    margin: 0 0 1rem -40px;
+                    font-family: 'Bai Jamjuree', sans-serif;
+                    li{ 
                         list-style-type: none;
                         display: inline-block;
                         font-size: 0.75rem;
                         margin-right: 0.3rem;
                         color: darken($lightgray,30%);
+                        span{
+                            color: $primary;
+                            padding: 0 0.5rem 0.1rem 0.4rem;
+                            line-height: 1;
+                            margin-right:0.3rem;
+                            border-left:3px solid $primary;
+                        }    
+                        &.full{
+                            width:100%;
+                            margin-top: 0.5rem;
+                            a{
+                                color: $primary;
+                            }
+                            .fa{
+                                color: $primary;
+                            }
+                        }
                         a{
                             color: darken($lightgray,30%);
                             text-decoration: none;
                         }
+                        >ul{
+                            display: inline-block;
+                            >li{
+
+                            }
+                        }
+
                     }
+                }
+                a.blog_btn{
+                        text-align:center;
+                        border: 1px solid $primary;
+                        text-decoration:none;
+                        color:$primary;
+                        font-size: 0.9rem;
+                        padding: 0.4rem 1.3rem 0.4rem 1rem;
+                        font-family: 'Bai Jamjuree', sans-serif;
+                        &:hover{
+                            background:$primary;
+                            color: $white;
+                            opacity: 1;
+                        }
                 }
                 path{
                     color: darken($lightgray,20%);
@@ -538,28 +593,37 @@ section{
                 text-align: left;
                 padding:0;
                 font-size: 1rem;
-                background: lighten($lightgray,10%);
+                background: transparent;
                 width: 100%;
                 margin-left: 0;
                 p{
                     color: $black;
+                    margin:0;
                 }
                 a{
                     color: $black;
                 }
                 .social{
-                    width:60%;
+                    width:100%;
                     display: inline-block;
+                    margin:0 0 0 -40px;
                 }
                 .read{
-                    width: 33%;
+                    width: 100%;
                     display: inline-block;
                     text-align: right;
                     a{
-                        text-decoration: none;
-                        color: $primary;
+                        text-align:center;
+                        border: 1px solid $primary;
+                        text-decoration:none;
+                        color:$primary;
+                        font-size: 0.9rem;
+                        padding: 0.4rem 1rem 0.6rem 1rem;
+                        font-family: 'Bai Jamjuree', sans-serif;
                         &:hover{
-                            color: darken($primary,20%);
+                            background:$primary;
+                            color: $white;
+                            opacity: 1;
                         }
                     }
                 }
@@ -568,12 +632,12 @@ section{
     }
     .sidebar{
         float:left;
-        width:20%;
+        width: 25%;
+        font-size: 0.8rem;
         .rss{
             text-align:right;
             a{
                 text-decoration: none;
-                color: darken($lightgray,20%);
                 font-size: 0.8rem;
             }
             svg{
@@ -581,10 +645,16 @@ section{
             }
         }
         ul.section{
-            background: lighten($lightgray,10%);
-            padding: 0.1rem 2rem 0.9rem 2rem;
+            padding: 0;
             h4{
-                border-bottom: 1px solid darken($lightgray,20%);
+                color: $white;
+                margin: 0.5rem 0 0.5rem 0;
+                font-family: 'Bai Jamjuree',sans-serif;
+                font-size: 0.7rem;
+                font-weight: normal;
+                text-transform: uppercase;
+                background: $primary;
+                padding: 0.2rem 0.5rem;
             }
             >li{
                 list-style-type: none;
@@ -592,10 +662,11 @@ section{
                     margin-bottom: 0.7rem;
                     h5{
                         margin:0;
-                        font-size: 1rem;
+                        font-size: 0.9rem;
+                        font-weight: normal;
                         a{
                             text-decoration: none;
-                            color: $black;
+                            color: $primary;
                             &:hover{
                                 opacity: 0.7;
                             }
@@ -604,6 +675,7 @@ section{
                     >ul{
                         margin-left: -40px;
                         font-size:0.7rem;
+                        line-height: 0.8;
                         >li{
                             display: inline-block;
                             margin-right: 0.3rem;
@@ -620,8 +692,9 @@ section{
                 >li{
                     list-style-type: none;
                     a{
-                        color: $black;
+                        color: $primary;
                         text-decoration: none;
+                        font-size: 0.9rem;
                         &:hover{
                             opacity: 0.7;
                         }

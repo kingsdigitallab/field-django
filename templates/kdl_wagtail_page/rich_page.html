@@ -5,7 +5,7 @@
 
 {% block title %}
     {% if page and page.pk != page.get_site.root_page.pk %}
-        <h1 class="title">{{page.title}}</h1>
+        <!-- <!-- TO: Delete if not needed as page title added to breadcrumbs <h1 class="title">{{page.title}}</h1>-->
     {% endif %}
 {% endblock %}
 
