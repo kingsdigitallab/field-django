@@ -3,7 +3,7 @@
 Converts the top page on the site into a Homepage type
 '''
 from django.db import migrations
-from field_wagtail.utils import migrate_wagtail_page_type
+from kdl_wagtail.core.utils import migrate_wagtail_page_type
 
 
 def convert_pages(apps, schema_editor):
