@@ -984,3 +984,24 @@ section{
 
 }/* section */
 }
+
+
+// GN -
+.pagination {
+    ul {
+        list-style-type: none;
+        padding-left: 0;
+        li {
+            display: inline;
+        }
+    }
+}
+
+.ct-searchpage {
+    .children {
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+    }
+}
