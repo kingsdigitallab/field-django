@@ -48,7 +48,7 @@ class MailingListFormPage(RoutablePageMixin, BasePage):
         blank=True
     )
     error_message = models.TextField(
-        help_text='Confirmation message to users who have just signed up',
+        help_text='Error message in case the use cannot re-subscribe',
         blank=True
     )
 
