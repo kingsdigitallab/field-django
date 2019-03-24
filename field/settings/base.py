@@ -213,7 +213,7 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.contrib.messages.context_processors.messages',
                 'wagtailmenus.context_processors.wagtailmenus',
-                'field.context_processor.project_settings',
+                'field_wagtail.context_processor.project_settings',
             ],
         },
     },

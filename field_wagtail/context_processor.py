@@ -3,8 +3,6 @@ from django.conf import settings
 
 def project_settings(request):
 
-    # site = get_site_from_request(request, fallback_to_default=True)
-
     ret = {
         name: getattr(settings, name)
         for name

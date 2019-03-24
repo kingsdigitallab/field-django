@@ -26,6 +26,7 @@ django_compressor = "*"
 puput = "*"
 kdl-wagtail-page = "*"
 django-kdl-wagtail = "*"
+mailchimp3 = "*"
 
 [requires]
 python_version = "3.5"
