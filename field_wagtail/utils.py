@@ -73,9 +73,8 @@ class MailingList(object):
             error = e.args[0]
             if error['status'] == 400 and error['title'] == 'Member Exists':
                 ret = MC_MEMBER_EXISTS
-            elif (
-                    error['status'] == 400
-                    and error['title'] == 'Forgotten Email Not Subscribed'):
+            elif (error['status'] == 400
+                  and error['title'] == 'Forgotten Email Not Subscribed'):
                 ret = MC_CLEANED
             else:
                 raise e
