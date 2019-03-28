@@ -27,16 +27,18 @@
         <h2>Communities</h2>
       </header>
 
-      {% for community in communities_root.get_children %}
-        {% if community.live %}
-          <div class="card">
-            <a href="{{ community.get_url }}">
-              {% image community.image width-400 %}
-              <div class="overlay">
-                <h3>{{ community.title }}</h3>
+      {% for child in communities_root.get_children %}
+        {% if child.live %}
+            {% with child.specific as community %}
+              <div class="card">
+                <a href="{{ community.get_url }}">
+                  {% image community.image width-400 %}
+                  <div class="overlay">
+                    <h3>{{ community.title }}</h3>
+                  </div>
+                </a>
               </div>
-            </a>
-          </div>
+            {% endwith %}
         {% endif %}
       {% endfor %}
     </section>
