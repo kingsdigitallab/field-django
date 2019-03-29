@@ -148,11 +148,13 @@ def set_srvr_vars():
     if is_vagrant():
         env.path = '/vagrant'
     else:
-        env.path = os.path.join(env.root_path, env.srvr, 'django',
-                                '{}-django'.format(PROJECT_NAME))
+        env.path = os.path.join(
+            env.root_path, env.srvr, 'django', '{}-django'.format(PROJECT_NAME)
+        )
 
     env.within_virtualenv = 'source {}'.format(
-        os.path.join(get_virtual_env_path(), 'bin', 'activate'))
+        os.path.join(get_virtual_env_path(), 'bin', 'activate')
+    )
 
 
 @task
