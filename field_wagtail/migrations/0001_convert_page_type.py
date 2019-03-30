@@ -6,10 +6,11 @@ Into the new reusable kdl package and model
     kdl_wagtail.core.models.RichTextPage
 '''
 from django.db import migrations
-from kdl_wagtail.core.utils import migrate_wagtail_page_type
 
 
 def convert_pages(apps, schema_editor):
+    from kdl_wagtail.core.utils import migrate_wagtail_page_type
+
     def copy(page_from, page_to):
         # page_to.body = page_from.body
         pass

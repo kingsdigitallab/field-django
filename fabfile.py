@@ -40,6 +40,9 @@ FABRIC_DEV_PACKAGES: dev python packages from github to install outside venv
         'servers': ['lcl', 'dev'],
     }
 ]
+    Note: to let pipenv manage your package instead, you'll need to:
+        - delete the two package folders in your project dir
+        - pipenv uninstall PACKAGE && pipenv install PACKAGE
 
 '''
 
@@ -222,7 +225,7 @@ def install_requirements():
 
 
 @task
-def reinstall_requirement(which):
+def reinstall_requirement():
     require('srvr', 'path', provided_by=env.servers)
 
     with cd(env.path):

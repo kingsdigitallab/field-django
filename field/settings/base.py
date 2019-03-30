@@ -356,15 +356,16 @@ SETTINGS_VARS_IN_CONTEXT = [
 # slug of the page which is the parent of the specific communities
 FIELD_COMMUNITIES_ROOT_SLUG = 'groups'
 
-FABRIC_DEV_PACKAGES = [
-    {
-        'git': 'https://github.com/kingsdigitallab/django-kdl-wagtail.git',
-        'folder_git': 'django-kdl-wagtail',
-        'folder_package': 'kdl_wagtail',
-        'branch': 'develop',
-        'servers': ['lcl', 'dev', 'stg', 'liv'],
-    }
-]
+if 1:
+    FABRIC_DEV_PACKAGES = [
+        {
+            'git': 'https://github.com/kingsdigitallab/django-kdl-wagtail.git',
+            'folder_git': 'django-kdl-wagtail',
+            'folder_package': 'kdl_wagtail',
+            'branch': 'develop',
+            'servers': ['lcl', 'dev', 'stg', 'liv'],
+        }
+    ]
 
 KDL_WAGTAIL_HIDDEN_PAGE_TYPES = [
     ('kdl_wagtail_page.richpage'),

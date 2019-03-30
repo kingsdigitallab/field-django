@@ -3,10 +3,11 @@
 Converts the top page on the site into a Homepage type
 '''
 from django.db import migrations
-from kdl_wagtail.core.utils import migrate_wagtail_page_type
 
 
 def convert_pages(apps, schema_editor):
+    from kdl_wagtail.core.utils import migrate_wagtail_page_type
+
     def select(qs):
         # select the top page only
         ret = qs.filter(depth=2)
