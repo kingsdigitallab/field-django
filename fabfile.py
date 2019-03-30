@@ -162,33 +162,8 @@ def setup_environment(version=None):
     require('srvr', provided_by=env.servers)
 
     clone_repo()
-    create_virtualenv()
     update(version)
     install_requirements()
-
-
-@task
-def create_virtualenv():
-    '''
-    Create the pipenv venv if it is not there yet.
-    If within vagrant we create it in vagrant home folder.
-    If remote server, we create it within the project folder.
-    '''
-    require('srvr', 'path', provided_by=env.servers)
-
-    check_pipenv()
-    with cd(env.path):
-        if run('pipenv --venv').succeeded:
-            print(green('virtual environment already exists'))
-        else:
-            print(yellow('setting up virtual environment'))
-
-            # with pipenv we don't really need to set up the venv
-            # it will be done automatically when we call pipenv install / sync
-            if not is_vagrant():
-                run('mkdir .venv')
-            if not exists('Pipfile.lock'):
-                run('pipenv install --three')
 
 
 @task
@@ -209,7 +184,6 @@ def install_requirements():
     require('srvr', 'path', provided_by=env.servers)
 
     create_virtualenv()
-
     fix_permissions('virtualenv')
 
     dev_flag = ''
@@ -222,6 +196,37 @@ def install_requirements():
         run('pipenv clean')
 
         run('npm ci')
+
+
+@task
+def create_virtualenv():
+    '''
+    Create the pipenv venv if it is not there yet.
+    If within vagrant we create it in vagrant home folder.
+    If remote server, we create it within the project folder.
+    '''
+    require('srvr', 'path', provided_by=env.servers)
+
+    check_pipenv()
+    with cd(env.path):
+        venv_path = get_virtual_env_path()
+        if venv_path is not None:
+            print(green('virtual environment already exists'))
+        else:
+            print(yellow('setting up virtual environment'))
+
+            dev_flag = ''
+            if is_vagrant():
+                dev_flag = '-d'
+
+            # with pipenv we don't really need to set up the venv
+            # it will be done automatically when we call pipenv install / sync
+            if not is_vagrant() and not exists('.venv'):
+                run('mkdir .venv')
+            if not exists('Pipfile'):
+                run('pipenv install --three {}'.format(dev_flag))
+            if not exists('Pipfile.lock'):
+                run('pipenv lock {}'.format(dev_flag))
 
 
 @task
@@ -240,14 +245,14 @@ def deploy(version=None):
     update(version)
     install_requirements()
     upload_local_settings()
-    own_django_log()
-    fix_permissions()
     migrate()
     collect_static()
     # update_index()
     # clear_cache()
     touch_wsgi()
     check_deploy()
+    fix_permissions()
+    own_django_log()
 
 
 @task
@@ -379,8 +384,9 @@ def fix_permissions(category='static'):
             processed = True
 
             path = get_virtual_env_path()
-            sudo('chgrp -Rf kdl-staff {}'.format(path))
-            sudo('chmod -Rf g+rw {}'.format(path))
+            if path is not None:
+                sudo('chgrp -Rf kdl-staff {}'.format(path))
+                sudo('chmod -Rf g+rw {}'.format(path))
 
     if not processed:
         raise Exception(
@@ -442,11 +448,17 @@ def check_deploy():
 
 
 def is_vagrant():
+    '''Return True if the task runs within local vagrant env.
+    Return False if the task runs within a remote server.
+    '''
     return env.srvr in ['local', 'vagrant', 'lcl']
 
 
-def remote_path_exists(absolute_path):
-    return exists(absolute_path)
+def remote_path_exists(path):
+    '''Returns True if remote path exists (folder or file)
+    path can be relative or absolute.
+    '''
+    return exists(path)
 
 
 def run_django_command(command):
@@ -460,11 +472,17 @@ def get_virtual_env_path():
     '''Returns the absolute path to the python virtualenv for the server
     (dev, stg, live) we are working on.
     E.g. /vol/tvof/webroot/.../.venv
+
+    return None if no venv is associated to the project folder.
     '''
     require('srvr', 'path')
 
-    with cd(env.path):
-        return run('PIPENV_VERBOSITY=-1 pipenv --venv')
+    with cd(env.path), settings(warn_only=True):
+        ret = run('PIPENV_VERBOSITY=-1 pipenv --venv')
+        if not ret.succeeded:
+            ret = None
+
+    return ret
 
 
 def check_pipenv():
