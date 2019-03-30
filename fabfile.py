@@ -5,7 +5,7 @@ from functools import wraps
 
 from django.conf import settings as django_settings
 from django.core.management.utils import get_random_secret_key
-from fabric.api import (cd, env, prefix, prompt, put, quiet, require, run,
+from fabric.api import (cd, env, prompt, put, quiet, require, run,
                         settings, sudo, task)
 from fabric.colors import green, yellow
 from fabric.contrib import django
@@ -209,9 +209,13 @@ def install_requirements():
 
     fix_permissions('virtualenv')
 
+    dev_flag = ''
+    if is_vagrant():
+        dev_flag = '-d'
+
     with cd(env.path):
         check_pipenv()
-        run('pipenv sync')
+        run('pipenv sync {}'.format(dev_flag))
         run('pipenv clean')
 
         run('npm ci')
@@ -387,10 +391,9 @@ def touch_wsgi():
     if is_vagrant():
         return
 
-    require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
+    require('srvr', 'path', provided_by=env.servers)
 
-    with cd(os.path.join(env.path, PROJECT_NAME)), \
-            prefix(env.within_virtualenv):
+    with cd(os.path.join(env.path, PROJECT_NAME)):
         run('touch wsgi.py')
 
 
@@ -446,8 +449,8 @@ def remote_path_exists(absolute_path):
 def run_django_command(command):
     require('srvr', 'path', 'within_virtualenv', provided_by=env.servers)
 
-    with cd(env.path), prefix(env.within_virtualenv):
-        run('./manage.py {}'.format(command))
+    with cd(env.path):
+        run('{} python manage.py {}'.format(env.within_virtualenv, command))
 
 
 def get_virtual_env_path():
