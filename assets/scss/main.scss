@@ -26,7 +26,7 @@
 /* FontAwesome */
 /* TO: GN, Does not work @import 'font-awesome'; */
 /* Webfonts */
-@import url('https://fonts.googleapis.com/css?family=BenchNine:300|Catamaran:400|Bai+Jamjuree|Catamaran|Fjalla+One|Gothic+A1|Heebo|Hind+Vadodara|Mada|Michroma|Mukta+Malar|Poppins|Prompt|Quattrocento+Sans');
+@import url('https://fonts.googleapis.com/css?family=BenchNine:300|Bai+Jamjuree|Didact+Gothic|Jura');
 
 /* 2. Mixins and Variables  */
 
@@ -41,9 +41,9 @@ $secondary: #a1562c;
 
 /* 3. General */
 body{
-    font-family: 'Bai Jamjuree', sans-serif;
-    //font-family: 'Gothic A1', sans-serif;
-    //font-family: 'Quattrocento Sans', sans-serif;
+    //font-family: 'Bai Jamjuree', sans-serif;
+    //font-family: 'Didact Gothic', sans-serif;
+    font-family: 'Jura', sans-serif;
     width: 80%;
     margin: 0 auto;
 }
@@ -57,6 +57,10 @@ a{
     &:hover{
         opacity: 0.7;
     }
+}
+h2{
+    font-weight: normal;
+    text-transform: uppercase;
 }
 /* 4. Navigation  */
 #nav {
@@ -135,6 +139,7 @@ a{
     width:75%;
     text-align:right;
     font-family: 'Bai Jamjuree', sans-serif;
+    font-family: 'Jura', sans-serif;
     >li {
         //height: 100%;
         display: inline-block;
@@ -154,10 +159,11 @@ a{
 
         >a {
             height: 100%;
-            font-size: 1.2em;
+            font-size: 0.9rem;
             line-height: 2.5;
             text-align: center;
             padding: 0 0.5rem;
+            text-transform: uppercase;
         }
     }
 }
@@ -188,7 +194,7 @@ a{
     }
 
     a {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         padding: 0.5rem 0.2rem;
         color: $white;
     }
@@ -337,7 +343,7 @@ input.search:focus {
         }
     }
     h2{
-        font-family: 'Bai Jamjuree', sans-serif;
+        font-family: 'Jura', sans-serif;
         margin:0.5rem 0 1rem 0;
         font-size: 1.5rem;
         border-bottom: 1px solid;
@@ -392,15 +398,13 @@ input.search:focus {
             width:100%;
             text-align:center;
             h2{
-                margin:0.5rem 0 1rem 0;
-                text-align:center;
-                color:$primary;
-                font-size:0.9rem;
-                text-transform:uppercase;
-                font-family: 'BenchNine', sans-serif;
-                //border-bottom:1px dotted $primary;
-                //border-top: 1px dotted $primary;
-                display:inline-block;
+                margin: 0.5rem 0 1rem 0;
+                text-align: center;
+                font-size: 0.6rem;
+                text-transform: uppercase;
+                border-bottom: 1px dotted;
+                border-top: 1px dotted;
+                display: inline-block;
             }/* end h2 */
         }/* end header */
         iframe{
@@ -426,9 +430,10 @@ input.search:focus {
                     border: 1px solid $primary;
                     text-decoration:none;
                     color:$primary;
-                    font-size: 0.9rem;
-                    padding: 0.4rem 1rem;
-                    font-family: 'Bai Jamjuree', sans-serif;
+                    font-size: 0.8rem;
+                    padding: 0.2rem 1rem;
+                    font-family: 'Jura', sans-serif;
+                    text-transform: uppercase;
                     &:hover{
                         background:$primary;
                         color: $white;
@@ -453,12 +458,13 @@ input.search:focus {
           a{
             text-decoration: none;
             h3{
-              margin:0;
-              font-family: 'Bai Jamjuree', sans-serif;
-              font-size:1.3rem;
-              color:$primary;
-              text-align:center;
-              font-weight: normal;
+                margin: 0;
+                font-family: 'Jura', sans-serif;
+                font-size: 0.9rem;
+                color: $primary;
+                text-align: center;
+                text-transform: uppercase;
+                font-weight: normal;
                 &:hover{
                     opacity: 0.7;
                 }
@@ -553,7 +559,7 @@ input.search:focus {
                     font-size: 1.2rem;
                     padding: 0.8rem 0;
                     display: block;
-                    font-family: 'Bai Jamjuree',sans-serif;
+                    font-family: 'Jura', sans-serif;
                 }
             }
             section{
@@ -564,7 +570,7 @@ input.search:focus {
                 }
                 ul{
                     margin: 0 0 1rem -40px;
-                    font-family: 'Bai Jamjuree', sans-serif;
+                    font-family: 'Jura', sans-serif;
                     li{ 
                         list-style-type: none;
                         display: inline-block;
@@ -608,7 +614,7 @@ input.search:focus {
                         color:$primary;
                         font-size: 0.9rem;
                         padding: 0.4rem 1.3rem 0.4rem 1rem;
-                        font-family: 'Bai Jamjuree', sans-serif;
+                        font-family: 'Jura', sans-serif;
                         &:hover{
                             background:$primary;
                             color: $white;
@@ -659,7 +665,7 @@ input.search:focus {
                         color:$primary;
                         font-size: 0.9rem;
                         padding: 0.4rem 1rem 0.6rem 1rem;
-                        font-family: 'Bai Jamjuree', sans-serif;
+                        font-family: 'Jura', sans-serif;
                         &:hover{
                             background:$primary;
                             color: $white;
@@ -689,7 +695,7 @@ input.search:focus {
             h4{
                 color: $white;
                 margin: 0.5rem 0 0.5rem 0;
-                font-family: 'Bai Jamjuree',sans-serif;
+                font-family: 'Jura', sans-serif;
                 font-size: 0.7rem;
                 font-weight: normal;
                 text-transform: uppercase;
