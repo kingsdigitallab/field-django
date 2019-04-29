@@ -13,8 +13,9 @@
  *    --------- Secondary
  *    --------- Search
  *    --------- Breadcrumbs
- * 5. ----- Rich pages
- * 6. ----- Footer
+ * 5. ----- Home
+ * 6. ----- Rich pages
+ * 7. ----- Footer
 
  * Media Queries
 */
@@ -350,6 +351,43 @@ input.search:focus {
         width:100%;
         float:left;
         text-align:justify;
+        #carousel{
+            display: block;
+            float: left;
+            width: 100%;
+            height: 400px;
+            margin:0 0 2rem 0;
+            img {
+                position: absolute;
+                left: 0;
+                width:100%;
+                object-fit: cover;
+                max-height: 400px;
+                &:nth-child(1) {
+                    animation: fade 16s 0s infinite;
+                }
+                &:nth-child(2) {
+                    animation: fade 16s 4s infinite;
+                }
+                &:nth-child(3) {
+                    animation: fade 16s 8s infinite;
+                }
+                &:nth-child(4) {
+                    animation: fade 16s 12s infinite;
+                }
+            }
+            @keyframes fade{
+              17% {
+                opacity:1;
+              }
+              25% {
+                opacity:0;
+              }
+              92% {
+                opacity:0;
+              }
+            }
+        }
         header{
             width:100%;
             text-align:center;
