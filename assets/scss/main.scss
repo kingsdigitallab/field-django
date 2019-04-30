@@ -497,15 +497,15 @@ input.search:focus {
             &:nth-child(2n){
                 float:left;
                 width:70%;
-                background: $primary url("https://images.pexels.com/photos/958168/pexels-photo-958168.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940");
+                background: $primary url("https://images.pexels.com/photos/1292301/pexels-photo-1292301.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260");
                 background-size:100%;
                 padding:0 2% 1rem 2%;
                 width:66%;
-                h2,h3{
+                h3{
                   color:$white;
-                  }
-                  header{
-                    background: transparent;
+                }
+                header{
+                  background: transparent;
                 }
                 .card{
                     width:50%;
