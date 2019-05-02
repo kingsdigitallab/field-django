@@ -694,6 +694,7 @@ input.search:focus {
                     width:100%;
                     display: inline-block;
                     margin:0 0 0 -40px;
+                    display:none; /* TO: Hiding for now */
                 }
                 .read{
                     width: 100%;
@@ -1116,12 +1117,16 @@ footer{
 
 // GN -
 .pagination {
+    margin-bottom:2rem;
     ul {
         list-style-type: none;
         padding-left: 0;
         li {
             display: inline;
         }
+    }
+    a{
+        text-decoration: none;
     }
 }/* end .pagination */
 
