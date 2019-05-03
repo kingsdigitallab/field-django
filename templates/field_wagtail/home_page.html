@@ -17,21 +17,24 @@
     {% endcomment %}
 
     <section>
-      
-<div id="carousel">
-    <img alt="" src="https://images.pexels.com/photos/1276237/pexels-photo-1276237.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260">
-    <img alt="" src="https://cdn.pixabay.com/photo/2018/05/28/23/05/animal-3437467_1280.jpg">
-    <img alt="" src="https://images.pexels.com/photos/288621/pexels-photo-288621.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260">
-   <img alt="cows-in-field-sunset-banner.jpg" src="/static/media/images/cows-in-field-sunset-banner.width-1500.jpg" > 
-</div>
-      
+
+      <div id="carousel">
+        <img alt="" src="https://images.pexels.com/photos/1276237/pexels-photo-1276237.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260">
+        <img alt="" src="https://cdn.pixabay.com/photo/2018/05/28/23/05/animal-3437467_1280.jpg">
+        <img alt="" src="https://images.pexels.com/photos/288621/pexels-photo-288621.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260">
+        <img alt="cows-in-field-sunset-banner.jpg" src="/static/media/images/cows-in-field-sunset-banner.width-1500.jpg" >
+      </div>
+
 
       {{ page.body|richtext }}
+
       <div class="readmore"><a href="about">Read more</a></div>
+
     </section>
+
     <section>
       <header>
-        <h2>Focus On</h2>
+        <h2><a href="/about/groups/">Focus On</a></h2>
       </header>
 
       {% for child in communities_root.get_children %}
@@ -53,22 +56,23 @@
     <section>
       <section>
         <header>
-          <h2>Twitter</h2>
+          <h2><a href="https://twitter.com/field_wt?ref_src=twsrc%5Etfw">Twitter Feed</a></h2>
         </header>
         {# https://developer.twitter.com/en/docs/twitter-for-websites/timelines/overview.html #}
         <a class="twitter-timeline" data-width="200" data-height="400" href="https://twitter.com/field_wt?ref_src=twsrc%5Etfw">Tweets by field_wt</a>
         <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
       </section>
+
        <section>
          <header>
-          <h2>Latest</h2>
+          <h2><a href="/blog-news/">Latest</a></h2>
          </header>
         {% for news_item in news|slice:":4" %}
           <div class="card">
             <a href="{{ news_item.get_url }}">
               {% image news_item.header_image width-400 %}
               <div class="overlay">
-                <h3>{{ news_item.title|truncatewords:2 }}</h3>
+                <h3>{{ news_item.title|truncatechars:25 }}</h3>
               </div>
             </a>
           </div>
