@@ -305,11 +305,16 @@ h2{
             h2{
                 margin: 0.5rem 0 1rem 0;
                 text-align: center;
-                font-size: 0.6rem;
+                font-size: 1.2rem;
                 text-transform: uppercase;
-                border-bottom: 1px dotted;
-                border-top: 1px dotted;
                 display: inline-block;
+                //font-weight: bold;
+                a{
+                    text-decoration: none;
+                    font-family: 'BenchNine',sans-serif;
+                    border-bottom: 1px dotted;
+                    border-top: 1px dotted;
+                }/* end a */
             }/* end h2 */
         }/* end header */
         iframe{
@@ -397,6 +402,9 @@ h2{
                     background: $primary;
                     h2{
                         margin: 0.5rem 0 0.5rem 0;
+                        a{
+                            color: $white;
+                        }
                     }
                 }
             }
@@ -404,14 +412,19 @@ h2{
                 float:left;
                 width:70%;
                 background: $primary url("https://images.pexels.com/photos/1292301/pexels-photo-1292301.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260");
-                background-size:100%;
+                background-size:150%;
                 padding:0 2% 1rem 2%;
                 width:66%;
                 h3{
                   color:$white;
                 }
                 header{
-                  background: transparent;
+                    background: transparent;
+                    h2{
+                        a{
+                            color:$black;
+                        }/* end a */
+                    }/* end h2 */
                 }
                 .card{
                     width:50%;
@@ -428,8 +441,11 @@ h2{
                     background: $white;
                 }
                 h2{
-                  color:$primary;
-              }
+                    color:$primary;
+                    font-family: 'BenchNine',sans-serif;
+                    border-bottom: 1px dotted;
+                    border-top: 1px dotted;
+                }
               .card{
                 width:50%;
                 float: left;
