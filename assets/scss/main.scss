@@ -1134,7 +1134,9 @@ footer{
 
 // GN -
 .pagination {
-    margin-bottom:2rem;
+    width: 100%;
+    float: left;
+    margin-bottom: 2rem;
     text-align: center;
     ul {
         list-style-type: none;
