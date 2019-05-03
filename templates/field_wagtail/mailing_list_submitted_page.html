@@ -3,13 +3,14 @@
 
 
 {% block page-body %}
-<div class="home">
+<div class="mailing-list-submitted">
     <div class="page-introduction">
         {% if submitted_code < 100 %}
             {{ page.success_message|richtext }}
         {% else %}
             {{ page.error_message|richtext }}
         {% endif %}
+        <br>
     </div>
 </div>
 

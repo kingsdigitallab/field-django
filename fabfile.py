@@ -252,7 +252,7 @@ def deploy(version=None):
     touch_wsgi()
     check_deploy()
     # commented out to avoid asking for pswd each time
-    # fix_permissions()
+    fix_permissions()
     own_django_log()
 
 

@@ -3,7 +3,7 @@
 
 
 {% block page-body %}
-<div class="home">
+<div class="mailing-list-form">
     <div class="page-introduction">
         {{ page.introduction|richtext }}
     </div>
@@ -16,7 +16,7 @@
         </ul>
 
         <p>
-            <label for="id_agree">
+            <label for="id_agree" class="consent-text">
               By providing my details I am consenting to FIELD team
               sending me information about the project,
               such as news, bulletins and events.
@@ -27,7 +27,7 @@
         </p>
 
         <p>
-            <input type="submit" value="Sign up" />
+            <input class="field-button" type="submit" value="Sign up" />
         </p>
     </form>
 </div>

@@ -46,7 +46,8 @@ class MailingListForm(forms.Form):
     email = forms.EmailField()
     first_name = forms.CharField(max_length=64)
     last_name = forms.CharField(max_length=64)
-    agree = forms.BooleanField(required=True)
+    agree = forms.BooleanField(
+        label='I agree with below statement', required=True)
 
 
 class MailingListFormPage(RoutablePageMixin, BasePage):
