@@ -1,4 +1,15 @@
 {% load staticfiles %}
+
+{% if 1 %}
+  <form action="{{  MAILING_LIST_FORM_WEB_PATH}}" method="post" class="">
+    {% csrf_token %}
+    <ul>
+        {{ mailing_list_footer.as_ul }}
+    </ul>
+    <input class="field-button" type="submit" value="Sign up" />
+  </form>
+{% endif %}
+
 <ul>
     <li>
     <a href="//wellcome.ac.uk" title="Wellcome">

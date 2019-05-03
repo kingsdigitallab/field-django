@@ -214,6 +214,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'wagtailmenus.context_processors.wagtailmenus',
                 'field_wagtail.context_processor.project_settings',
+                'field_wagtail.context_processor.mailing_list_footer',
             ],
         },
     },
@@ -351,6 +352,7 @@ SETTINGS_VARS_IN_CONTEXT = [
     'PROJECT_TITLE',
     'GA_ID',
     'USE_BULMA',
+    'MAILING_LIST_FORM_WEB_PATH',
 ]
 
 # slug of the page which is the parent of the specific communities
@@ -371,3 +373,5 @@ KDL_WAGTAIL_HIDDEN_PAGE_TYPES = [
     ('kdl_wagtail_page.richpage'),
     ('kdl_wagtail_core.streampage')
 ]
+
+MAILING_LIST_FORM_WEB_PATH = '/mailing-list/'
