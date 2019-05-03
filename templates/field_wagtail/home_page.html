@@ -25,7 +25,6 @@
         <img alt="cows-in-field-sunset-banner.jpg" src="/static/media/images/cows-in-field-sunset-banner.width-1500.jpg" >
       </div>
 
-
       {{ page.body|richtext }}
 
       <div class="readmore"><a href="about">Read more</a></div>
@@ -93,28 +92,16 @@
         <header>
           <h2>Media</h2>
         </header>
-        <div class="card">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZMroPZFRd683g5_8szccx6MSRnhrCnOS7fzUHiVMbRhL5pnOq" >
-          <div class="overlay">
-            <h3>Media 1</h3>
+
+        {% for image in media_images|slice:":4" %}
+          <div class="card">
+            {% image image fill-360x180 %}
+            <div class="overlay">
+              <h3>{{ image.title|truncatechars:20 }}</h3>
+            </div>
           </div>
-        </div>
-        <div class="card">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHEyVYLKyhjOGkUb2PSDBXmYqAsUMSLoPqqEMhXFvoHXJ2AVLV" >
-          <div class="overlay">
-            <h3>Media 2</h3>
-          </div>
-        </div>
-        <div class="card">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm9nK15B8XIsMDgTRMxb-3sLpvMp2LfyzE0gDp4JiB2ghsurfH" >
-          <div class="overlay">
-            <h3>Media 3</h3>
-          </div>
-        </div>
-        <div class="card">
-          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTekPd2UcT3khLBWRgszFtPm1CuU0kyhyZfHmq1TFqI0Qi9d2Te" >
-          <h3>Media 4</h3>
-        </div>
+        {% endfor %}
+
       </section>
 
       {% if 0 %}

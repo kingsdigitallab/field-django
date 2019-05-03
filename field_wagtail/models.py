@@ -1,4 +1,5 @@
 # from django.db import models
+import wagtail
 from kdl_wagtail.core.models import BaseRichTextPage, BasePage
 from django.conf import settings
 from wagtail.core.models import Page
@@ -25,6 +26,12 @@ class HomePage(BaseRichTextPage):
         ret['news'] = EntryPage.objects.filter(
             live=True
         ).order_by('-first_published_at')
+
+        Image = wagtail.images.get_image_model()
+
+        ret['media_images'] = Image.objects.filter(
+            tags__name='homepage'
+        ).order_by('?')
 
         return ret
 
