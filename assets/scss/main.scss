@@ -527,6 +527,7 @@ h2{
                             line-height: 1;
                             margin-right:0.3rem;
                             border-left:3px solid $primary;
+                            font-family: 'Bai Jamjuree', sans-serif;
                         }    
                         &.full{
                             width:100%;
@@ -667,6 +668,8 @@ h2{
                         margin-left: -40px;
                         font-size:0.7rem;
                         line-height: 0.8;
+                        padding-top: 0.2rem;
+                        font-family: 'Bai Jamjuree', sans-serif;
                         >li{
                             display: inline-block;
                             margin-right: 0.3rem;
@@ -1129,6 +1132,21 @@ footer{
             }
         }
     }
+
+/* Rich pages */
+/*  Blog */
+.news{
+    .article{
+        float:left;
+        width: 100%;
+        margin-right: 0;
+    }
+    .sidebar{
+        width: 100%;
+    }
+}/* end .news */
+
+
 }/* end media 450px */
 
 
