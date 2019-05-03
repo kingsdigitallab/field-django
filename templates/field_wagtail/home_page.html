@@ -9,11 +9,11 @@
 
 
 {% block page-body %}
-<div class="home">
+  <div class="home">
     {% comment %}
-        <div class="page-body {% get_page_label page %}">
-            {{ page.body|richtext }}
-        </div>
+      <div class="page-body {% get_page_label page %}">
+        {{ page.body|richtext }}
+      </div>
     {% endcomment %}
 
     <section>
@@ -39,16 +39,16 @@
 
       {% for child in communities_root.get_children %}
         {% if child.live %}
-            {% with child.specific as community %}
-              <div class="card">
-                <a href="{{ community.get_url }}">
-                  {% image community.image width-400 %}
-                  <div class="overlay">
-                    <h3>{{ community.title }}</h3>
-                  </div>
-                </a>
+          {% with child.specific as community %}
+          <div class="card">
+            <a href="{{ community.get_url }}">
+              {% image community.image width-400 %}
+              <div class="overlay">
+                <h3>{{ community.title }}</h3>
               </div>
-            {% endwith %}
+            </a>
+          </div>
+          {% endwith %}
         {% endif %}
       {% endfor %}
     </section>
@@ -63,10 +63,10 @@
         <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
       </section>
 
-       <section>
-         <header>
+      <section>
+        <header>
           <h2><a href="/blog-news/">Latest</a></h2>
-         </header>
+        </header>
         {% for news_item in news|slice:":4" %}
           <div class="card">
             <a href="{{ news_item.get_url }}">
@@ -77,55 +77,60 @@
             </a>
           </div>
         {% endfor %}
-       </section>
+      </section>
 
-        {# can't comment this b/c styles will apply nth-child(3) to next section #}
-       <!--<section>
-         <header>
-         <h2>Timeline</h2>
-         </header>
-         <img src="https://i.stack.imgur.com/faTir.png" />
-       </section>-->
+      {# can't comment this b/c styles will apply nth-child(3) to next section #}
+      {% if 0 %}
+        <section>
+            <header>
+              <h2>Timeline</h2>
+            </header>
+            <img src="https://i.stack.imgur.com/faTir.png" />
+        </section>
+      {% endif %}
 
-       <section>
+      <section>
         <header>
           <h2>Media</h2>
-         </header>
-         <div class="card">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZMroPZFRd683g5_8szccx6MSRnhrCnOS7fzUHiVMbRhL5pnOq" />
-        <div class="overlay">
-            <h3>Media 1</h3>
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHEyVYLKyhjOGkUb2PSDBXmYqAsUMSLoPqqEMhXFvoHXJ2AVLV" />
-        <div class="overlay">
-            <h3>Media 2</h3>
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm9nK15B8XIsMDgTRMxb-3sLpvMp2LfyzE0gDp4JiB2ghsurfH" />
-        <div class="overlay">
-            <h3>Media 3</h3>
-        </div>
-      </div>
-      <div class="card">
-        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTekPd2UcT3khLBWRgszFtPm1CuU0kyhyZfHmq1TFqI0Qi9d2Te" />
-            <h3>Media 4</h3>
-      </div>
-      </section>
-       <!--<section>
-        <header>
-          <h2>Papers</h2>
         </header>
-        <ul>
-          <li>Lorem ipsum dolor sit amet</li>
-          <li>Qualisque erroribus consectetuer sit et, id eam volutpat</li>
-          <li>Eam ex dicit dolorum</li>
-          <li>Stet volutpat ne nec</li>
-          <li>Eu elitr consetetur mediocritatem vim</li>
-         </ul>
-      </section>-->
+        <div class="card">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZMroPZFRd683g5_8szccx6MSRnhrCnOS7fzUHiVMbRhL5pnOq" >
+          <div class="overlay">
+            <h3>Media 1</h3>
+          </div>
+        </div>
+        <div class="card">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHEyVYLKyhjOGkUb2PSDBXmYqAsUMSLoPqqEMhXFvoHXJ2AVLV" >
+          <div class="overlay">
+            <h3>Media 2</h3>
+          </div>
+        </div>
+        <div class="card">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm9nK15B8XIsMDgTRMxb-3sLpvMp2LfyzE0gDp4JiB2ghsurfH" >
+          <div class="overlay">
+            <h3>Media 3</h3>
+          </div>
+        </div>
+        <div class="card">
+          <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTekPd2UcT3khLBWRgszFtPm1CuU0kyhyZfHmq1TFqI0Qi9d2Te" >
+          <h3>Media 4</h3>
+        </div>
+      </section>
+
+      {% if 0 %}
+        <section>
+          <header>
+            <h2>Papers</h2>
+          </header>
+          <ul>
+            <li>Lorem ipsum dolor sit amet</li>
+            <li>Qualisque erroribus consectetuer sit et, id eam volutpat</li>
+            <li>Eam ex dicit dolorum</li>
+            <li>Stet volutpat ne nec</li>
+            <li>Eu elitr consetetur mediocritatem vim</li>
+          </ul>
+        </section>
+      {% endif %}
     </section>
-</div>
+  </div>
 {% endblock page-body %}
