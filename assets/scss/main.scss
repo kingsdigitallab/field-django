@@ -761,30 +761,32 @@ h2{
               margin: 0;
               padding: 0;
               list-style-type: none;
-            >li.child-page{
-                counter-increment: step-counter;
+            >li.child-page{    
                 margin-bottom: 10px;
                 float: left;
                 width: 100%;
                 border-bottom: 1px solid lighten($lightgray,7%);
                 padding-bottom: 0.7rem;
-                &:before{
-                      content: counter(step-counter);
-                      margin-right: 5px;
-                }
-                .child-page-title{
-                    display: inline-block;
-                }
-                .child-page-image{
-                    float:right;
-                    img{
-                        width: 30%;
-                        height: auto;
-                        float: right;
-                    }
-                }
                 a{
-                    color: $black;
+                     color: $black;
+                     text-decoration: none;
+                    .child-page-title{
+                        display: inline-block;
+                    }
+
+                    .child-page-image{
+                        float:right;
+                        img{
+                            width: 30%;
+                            height: auto;
+                            float: right;
+                        }
+                    }
+                    .child-page-introduction{
+                        margin-top: 0.3rem;
+                        font-size:0.8rem;
+                        color:darken($lightgray,50%);
+                    }
                 }
             }
         }
