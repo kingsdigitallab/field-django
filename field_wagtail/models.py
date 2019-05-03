@@ -101,6 +101,7 @@ class MailingListFormPage(RoutablePageMixin, BasePage):
         else:
             form = MailingListForm()
 
+        ret['hide_footer_mailing_list'] = True
         ret['mailing_list_form'] = form
 
         return ret
@@ -116,5 +117,6 @@ class MailingListFormPage(RoutablePageMixin, BasePage):
             {
                 'page': self,
                 'submitted_code': submitted_code,
+                'hide_footer_mailing_list': True,
             }
         )

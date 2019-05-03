@@ -3,12 +3,12 @@
 
 
 {% block page-body %}
-<div class="mailing-list-form">
+<div class="mailing-list-page">
     <div class="page-introduction">
         {{ page.introduction|richtext }}
     </div>
 
-    <form action="" method="post" class="">
+    <form action="" method="post" class="form-mailing-list">
         {% csrf_token %}
 
         <ul>

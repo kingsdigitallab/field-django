@@ -765,7 +765,10 @@ h2{
     }
 }
 
-/* GN: Contact Us Form */
+/* GN: Contact Us Form
+Used in footer (horizontal) AND
+web page (vertical)
+*/
 
 @mixin submit-button() {
     text-align: center;
@@ -790,24 +793,43 @@ h2{
     @include submit-button();
 }
 
-.mailing-list-form {
-    form {
-        border: 1px solid grey;
-        padding: 1rem;
-        margin: 1rem 0;
+footer {
+    .form-mailing-list {
+        margin-top: -1rem;
+        background-color: lighten($primary, 10%);
 
-        ul {
-            list-style: none;
-            padding-left: 0;
-
-            li {
-                line-height: 1.6rem;
-            }
+        p {
+            display: inline;
 
             label {
-                width: 10rem;
-                display: inline-block;
+                width: auto;
             }
+        }
+
+        input.field-button {
+            background-color: white;
+            color: $primary;
+            border: grey;
+        }
+    }
+}
+
+.form-mailing-list {
+    border: 1px solid grey;
+    padding: 1rem;
+    margin: 1rem 0;
+
+    ul {
+        list-style: none;
+        padding-left: 0;
+
+        li {
+            line-height: 1.6rem;
+        }
+
+        label {
+            width: 10rem;
+            display: inline-block;
         }
     }
 }
