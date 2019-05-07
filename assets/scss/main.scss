@@ -344,7 +344,7 @@ h2{
                     border: 1px solid $primary;
                     text-decoration:none;
                     color:$primary;
-                    font-size: 0.8rem;
+                    font-size: 0.9rem;
                     padding: 0.2rem 1rem;
                     font-family: 'Jura', sans-serif;
                     text-transform: uppercase;
@@ -374,7 +374,7 @@ h2{
             h3{
                 margin: 0;
                 font-family: 'Jura', sans-serif;
-                font-size: 0.9rem;
+                font-size: 1.1rem;
                 text-align: center;
                 text-transform: uppercase;
                 font-weight: normal;
@@ -731,6 +731,49 @@ h2{
     }
 }/* end .news */
 
+
+
+
+/*  Contact Us */
+.contactuspage{
+    li{
+        float: left;
+        width: 100%;
+        list-style: none;
+        margin:1rem 0;
+
+        label{
+            width: 20%;
+            float: left;
+        }
+        input, textarea{
+            width: 79%;
+            float: right;
+            border:1px solid $lightgray;
+            font-family: 'Jura',sans-serif;
+            font-size:1.2rem;
+        }
+    }
+    input[type="submit"]{
+        background-color: $white;
+        color: $primary;
+        border:1px solid;
+        padding:0.2rem 3rem;
+        font-weight: normal;
+        font-family: 'Jura',sans-serif;
+        font-size:0.9rem;
+        width: 40%;
+        margin: 0 40%;
+        text-transform: uppercase;
+        margin-top: 3rem;
+        &:hover{
+            background-color: $primary;
+            color: $white;
+            border:1px solid $primary;
+        }
+    }
+}/* end .contactuspage */
+
 /* GN: reusable button style */
 @mixin submit-button() {
     position: absolute;
@@ -780,7 +823,7 @@ h2{
             height: 55px;
             padding: 0 20px;
             margin: 0;
-            font-size: 1rem;
+            font-size: 1.2rem;
             border: 1px solid $lightgray;
             background: $white;
             outline: none;
@@ -826,12 +869,13 @@ h2{
     }/* end form */
     .search-summary{
         text-align: center;
-        font-size: 0.7rem;
+        font-size: 0.9rem;
         margin-top: 1rem;
         color: darken($lightgray,50%);
     }
     .children{
         margin-top:1rem;
+        font-size: 1.2rem;
         >ul{
               margin: 0;
               padding: 0;
@@ -859,7 +903,7 @@ h2{
                     }
                     .child-page-introduction{
                         margin-top: 0.3rem;
-                        font-size:0.8rem;
+                        font-size:1rem;
                         color:darken($lightgray,50%);
                     }
                 }
@@ -943,10 +987,10 @@ web page (vertical)
 
 
     .form-mailing-list {
-        margin-top: -1rem;
-        background: $black;
+        padding: 1rem;
+        margin:  -1rem 0 1rem 0;
+        background: lighten($lightgray,10%);
         h2{
-            color: $white;
             font-family: 'BenchNine', sans-serif;
             border-bottom: 1px dotted;
             border-top: 1px dotted;
@@ -955,11 +999,10 @@ web page (vertical)
         }
         h4{
             margin-top:0;
-            color: $white;
             font-weight: normal;
         }
         div{
-            background: $lightgray;
+            border:1px dashed darken($lightgray,10%);
             width: 80%;
             margin: 0 auto;
             padding: 1rem;
@@ -989,7 +1032,7 @@ web page (vertical)
                 border:1px solid;
                 padding:0.2rem 3rem;
                 font-weight: normal;
-
+                font-size:0.9rem;
                 &:hover{
                     background-color: $primary;
                     color: $white;
@@ -998,32 +1041,11 @@ web page (vertical)
             }
             div{
                 padding: 0.5rem 0 0 0;
+                width:100%;
+                border:none;
             }
         }
     }
-}
-
-.form-mailing-list {
-    padding: 1rem;
-    margin: 1rem 0;
-
-    ul {
-        list-style: none;
-        padding-left: 0;
-
-        li {
-            line-height: 1.6rem;
-        }
-
-        label {
-            width: 10rem;
-            display: inline-block;
-        }
-    }
-
-
-
-
 }/* end footer */
 
 @media screen and (max-width: 1200px) {
@@ -1253,11 +1275,12 @@ web page (vertical)
 
         .form-mailing-list {
             float:left;
-            width:100%;
+            width:96%;
             padding:2%;
             div{
                 width: 90%;
                 float: left;
+                padding:2%;
                 p {
                     display: block;
                     text-align: left;
@@ -1377,19 +1400,38 @@ web page (vertical)
     }
 }/* end .news */
 
+/*  Contact Us */
+
+.contactuspage{
+    li{
+        float: left;
+        width: 100%;
+        list-style: none;
+        margin:0 0 0.5rem 0;
+        label{
+            width: 100%;
+        }
+        input, textarea{
+            width: 100%;
+        }
+    }
+    input[type="submit"]{
+        width: 100%;
+        margin: 1rem 0 0 0;
+    }
+}/* end .contactuspage */
+
+
+
+
+
+
 /* Footer */
 footer{
     .form-mailing-list {
-        float:left;
-        width:100%;
-        padding:2%;
-        background: $lightgray;
-        h2,h4{
-            color: $black;
-        }
         div{
             width: 95%;
-            padding:0 2%;
+            border:0;
             p {
                 display: block;
                 padding:0;
