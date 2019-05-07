@@ -83,11 +83,11 @@ h2{
             color: darken($lightgray,30%);
             text-decoration: none;
             img{
-                width:4.5rem;
+                width:5.5rem;
             }
             h1 {
                 text-align: left;
-                font-size: 0.9rem;
+                font-size: 1rem;
                 padding: 0;
                 margin: 0;
                 line-height: 1;
@@ -106,7 +106,7 @@ h2{
         list-style-type: none;
         display: inline-block;
         margin: 0.5rem 0;
-        font-size:0.9rem;
+        font-size:1.1rem;
 
         a {
             display: block;
@@ -139,7 +139,7 @@ h2{
 
 //first level
 #nav>ul {
-    height: 3.75em;
+    height: 3.75rem;
     margin: 0 0 0 -40px;
     float:right;
     width:75%;
@@ -165,7 +165,7 @@ h2{
 
         >a {
             height: 100%;
-            font-size: 0.9rem;
+            font-size: 1.1rem;
             line-height: 2;
             text-align: center;
             padding: 0 0.5rem;
@@ -200,7 +200,7 @@ h2{
     }
 
     a {
-        font-size: 0.9rem;
+        font-size: 1rem;
         padding: 0.5rem 0.2rem;
         color: $white;
     }
@@ -232,7 +232,7 @@ h2{
             list-style-type: none;
             display: inline-block;
             color: $primary;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             text-transform: uppercase;
             a{
                 color: $primary;
@@ -249,10 +249,12 @@ h2{
     }
     h2{
         font-family: 'Jura', sans-serif;
-        margin:0.5rem 0 1rem 0;
-        font-size: 1.5rem;
+        margin: 0.5rem 0 1rem 0;
+        font-size: 1.6rem;
         border-bottom: 1px solid;
+        border-top: 1px solid;
         display: inline-block;
+        font-weight: bold;
     }
 }
 
@@ -503,6 +505,8 @@ h2{
 
 /* Rich pages */
 .rich-text{
+    font-size:1.1rem;
+    line-height: 1.3;
      hr{
         border: 0;
         height: 1px;
@@ -613,6 +617,7 @@ h2{
                 background: transparent;
                 width: 100%;
                 margin-left: 0;
+                margin-top:3rem;
                 p{
                     color: $black;
                     margin:0;
@@ -765,74 +770,7 @@ h2{
     }
 }
 
-/* GN: Contact Us Form
-Used in footer (horizontal) AND
-web page (vertical)
-*/
 
-@mixin submit-button() {
-    text-align: center;
-    border: 1px solid $primary;
-    text-decoration: none;
-    color: $primary;
-    font-size: 0.8rem;
-    padding: 0.2rem 1rem;
-    font-family: 'Jura',sans-serif;
-    text-transform: uppercase;
-    background: transparent;
-    cursor: pointer;
-    font-weight: bold;
-
-    &:hover{
-        background-color: $primary;
-        color: white;
-    }
-}
-
-.field-button {
-    @include submit-button();
-}
-
-footer {
-    .form-mailing-list {
-        margin-top: -1rem;
-        background-color: lighten($primary, 10%);
-
-        p {
-            display: inline;
-
-            label {
-                width: auto;
-            }
-        }
-
-        input.field-button {
-            background-color: white;
-            color: $primary;
-            border: grey;
-        }
-    }
-}
-
-.form-mailing-list {
-    border: 1px solid grey;
-    padding: 1rem;
-    margin: 1rem 0;
-
-    ul {
-        list-style: none;
-        padding-left: 0;
-
-        li {
-            line-height: 1.6rem;
-        }
-
-        label {
-            width: 10rem;
-            display: inline-block;
-        }
-    }
-}
 
 /* Search Page */
 .searchpage{
@@ -938,15 +876,17 @@ footer{
     float:left;
     width: 125%;
     margin-left: -12.5%;
+    margin-top:5rem;
     ul{
         li{
             list-style-type: none;
             display: inline-block;
+            font-size: 1rem;
             img {
-                width: 80px;
+                width: 95px;
                 margin: 0 1rem;
                 display: inline-block;
-                margin: 0 1rem 1rem 1rem;
+                margin: 0.5rem 1rem 1rem 1rem;
                 &:hover{
                     opacity: 0.7;
                 }
@@ -971,7 +911,128 @@ footer{
             }
         }
     }
+
+
+/* GN: Contact Us Form
+Used in footer (horizontal) AND
+web page (vertical)
+*/
+
+@mixin submit-button() {
+    text-align: center;
+    border: 1px solid $primary;
+    text-decoration: none;
+    color: $primary;
+    font-size: 0.8rem;
+    padding: 0.2rem 1rem;
+    font-family: 'Jura',sans-serif;
+    text-transform: uppercase;
+    background: transparent;
+    cursor: pointer;
+    font-weight: bold;
+
+    &:hover{
+        background-color: $primary;
+        color: white;
+    }
 }
+
+.field-button {
+    @include submit-button();
+}
+
+
+    .form-mailing-list {
+        margin-top: -1rem;
+        background: $black;
+        h2{
+            color: $white;
+            font-family: 'BenchNine', sans-serif;
+            border-bottom: 1px dotted;
+            border-top: 1px dotted;
+            display: inline-block;
+            margin:0;
+        }
+        h4{
+            margin-top:0;
+            color: $white;
+            font-weight: normal;
+        }
+        div{
+            background: $lightgray;
+            width: 80%;
+            margin: 0 auto;
+            padding: 1rem;
+            p {
+                display: inline;
+                color: $black;
+                padding: 0 1rem;
+                label {
+                    width: auto;
+                    font-size: 1rem;
+                    font-weight: bold;
+                    padding: 0 0.2rem;
+                    text-transform: uppercase;
+                    }
+                &:last-of-type {
+                    display: block;
+                    label{
+                        font-size: 0.9rem;
+                        font-weight: normal;
+                        text-transform: none;
+                    }
+                }
+            }
+            input.field-button {
+                background-color: $white;
+                color: $primary;
+                border:1px solid;
+                padding:0.2rem 3rem;
+                font-weight: normal;
+
+                &:hover{
+                    background-color: $primary;
+                    color: $white;
+                    border:1px solid $primary;
+                }
+            }
+            div{
+                padding: 0.5rem 0 0 0;
+            }
+        }
+    }
+}
+
+.form-mailing-list {
+    padding: 1rem;
+    margin: 1rem 0;
+
+    ul {
+        list-style: none;
+        padding-left: 0;
+
+        li {
+            line-height: 1.6rem;
+        }
+
+        label {
+            width: 10rem;
+            display: inline-block;
+        }
+    }
+
+
+
+
+}/* end footer */
+
+@media screen and (max-width: 1200px) {
+    body{
+        width:90%;
+    }
+
+}
+
 
 
 @media screen and (max-width: 885px) {
@@ -1176,10 +1237,10 @@ footer{
     /* Footer */
     footer{
         padding:0;
-        width: 105%;
+        width: 106%;
         margin-left: -2.5%;
         ul{
-            margin-bottom: 0;
+            margin-bottom: 0.5rem;
             li{
                 img{
                     margin: 0 1rem 0 1rem;
@@ -1189,6 +1250,45 @@ footer{
         p{
             margin-top: 0;
         }
+
+        .form-mailing-list {
+            float:left;
+            width:100%;
+            padding:2%;
+            div{
+                width: 90%;
+                float: left;
+                p {
+                    display: block;
+                    text-align: left;
+                    width: 100%;
+                    float: left;
+                    padding: 0 1%;
+                    label{
+                        width: 20%;
+                        float: left;
+                        display: block;
+                    }
+                    input{
+                        width:75%;
+                        float: left;
+                        display: block;
+                    }
+                    &:last-of-type {
+                    display: block;
+                        label{
+                            width: 65%;
+                        }
+                        input{
+                            width: 15%;
+                        }
+                    }
+                }
+                div{
+                    width:100%;
+                }
+            }
+        }/* end .form-mailing-list */
     }/* end footer */
 
 }/* end media 885px */
@@ -1276,6 +1376,44 @@ footer{
         width: 100%;
     }
 }/* end .news */
+
+/* Footer */
+footer{
+    .form-mailing-list {
+        float:left;
+        width:100%;
+        padding:2%;
+        background: $lightgray;
+        h2,h4{
+            color: $black;
+        }
+        div{
+            width: 95%;
+            padding:0 2%;
+            p {
+                display: block;
+                padding:0;
+                label{
+                    width: 100%;
+                }
+                input{
+                    width:100%;
+                }
+                &:last-of-type {
+                display: block;
+                    label{
+                        width: 65%;
+                    }
+                    input{
+                        width: 15%;
+                    }
+                }
+            }
+        }
+    }/* end .form-mailing-list */
+}/* end footer */
+
+
 
 
 }/* end media 450px */
