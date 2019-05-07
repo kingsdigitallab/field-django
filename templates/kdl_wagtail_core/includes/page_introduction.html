@@ -1,12 +1,14 @@
 {% load wagtailimages_tags %}
 
-{% if page.introduction or page.image %}
+{% if page.introduction %}
     <div class="introduction">
         {% if page.image %}
             {% image page.image width-800 %}
         {% endif %}
+        <p>
         {% if page.introduction %}
             {{ page.introduction }}
         {% endif %}
+        </p>
     </div>
 {% endif %}
