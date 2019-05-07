@@ -221,9 +221,8 @@ h2{
 /* Breadcrumbs */
 .breadcrumb{
     //background: lighten($lightgray,10%);
-    padding: 0 0 0 12.5%;
-    margin-left: -12.5%;
-    width: 112.5%;
+    padding: 0;
+    width: 100%;
     margin-top: 1rem;
     border-top: 1px solid $lightgray;
     ul{
@@ -763,9 +762,10 @@ h2{
         font-family: 'Jura',sans-serif;
         font-size:0.9rem;
         width: 40%;
-        margin: 0 40%;
+        margin: 0 30%;
         text-transform: uppercase;
         margin-top: 3rem;
+        cursor: pointer;
         &:hover{
             background-color: $primary;
             color: $white;
@@ -773,6 +773,70 @@ h2{
         }
     }
 }/* end .contactuspage */
+
+/* Mailing list page */
+.mailing-list-page{
+
+    
+    form.form-mailing-list{
+        ul{
+            margin-left:-40px;
+            list-style-type: none;
+            li{
+                float: left;
+                width: 100%;
+                list-style: none;
+                margin:1rem 0;
+
+                label{
+                    width: 20%;
+                    float: left;
+                    text-transform: uppercase;
+                    font-weight: bold;
+                }
+                input{
+                    width: 79%;
+                    float: left;
+                    border:1px solid $lightgray;
+                    font-family: 'Jura',sans-serif;
+                    font-size:1.2rem;
+                }
+                &:last-of-type{
+                    label{
+                        width: 60%;
+                        text-transform: none;
+                        font-weight: normal;
+                    }
+                    input{
+                        width: 20%;
+                    }
+                }
+            }
+        }/* end ul */
+        p{
+            font-size: 0.8rem;
+            input.field-button{
+                background-color: $white;
+                color: $primary;
+                border:1px solid;
+                padding:0.2rem 3rem;
+                font-weight: normal;
+                font-family: 'Jura',sans-serif;
+                font-size:0.9rem;
+                width: 40%;
+                margin: 0 30%;
+                text-transform: uppercase;
+                margin-top: 3rem;
+                cursor: pointer;
+                &:hover{
+                background-color: $primary;
+                color: $white;
+                border:1px solid $primary;
+                }
+            }/* end input */
+        }
+    }
+}
 
 /* GN: reusable button style */
 @mixin submit-button() {
@@ -1401,7 +1465,6 @@ web page (vertical)
 }/* end .news */
 
 /*  Contact Us */
-
 .contactuspage{
     li{
         float: left;
@@ -1420,6 +1483,8 @@ web page (vertical)
         margin: 1rem 0 0 0;
     }
 }/* end .contactuspage */
+
+
 
 
 
