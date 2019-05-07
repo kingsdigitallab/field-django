@@ -71,7 +71,7 @@
             <a href="{{ news_item.get_url }}">
               {% image news_item.header_image width-400 %}
               <div class="overlay">
-                <h3>{{ news_item.title|truncatechars:25 }}</h3>
+                <h3 class="truncated-text padded-text">{{ news_item.title }}</h3>
               </div>
             </a>
           </div>
@@ -97,7 +97,7 @@
           <div class="card">
             {% image image fill-360x180 %}
             <div class="overlay">
-              <h3>{{ image.title|truncatechars:20 }}</h3>
+              <h3 class="truncated-text padded-text">{{ image.title }}</h3>
             </div>
           </div>
         {% endfor %}

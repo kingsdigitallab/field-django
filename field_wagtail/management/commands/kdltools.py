@@ -15,10 +15,33 @@ class Command(KDLCommand):
     '''
     help = 'KDL toolbox'
 
+    def action_convert_richpages(self):
+        from django.apps import apps
+        c = self.convert_pages(apps, None)
+        print(c)
+
+    def convert_pages(self, apps, schema_editor):
+        from kdl_wagtail.core.utils import migrate_wagtail_page_type
+
+        def copy(page_from, page_to):
+            # page_to.body = page_from.body
+            pass
+
+        mapping = {
+            'models': {
+                'from': ('kdl_wagtail_page', 'RichPage'),
+                'to': ('kdl_wagtail_core', 'RichTextPage'),
+            },
+            'copy': copy,
+        }
+        migrate_wagtail_page_type(apps, schema_editor, mapping)
+
+        # raise Exception('ROLLBACK')
+
     def action_flush(self):
         '''Django flush command usually fails with postgresql because
         of dependencies, not using cascade, and missing table.
-        This command forcefully remove all tables under the publisc schema'''
+        This command forcefully remove all tables under the public schema'''
         username = settings.DATABASES['default']['USER']
 
         with connection.cursor() as cursor:

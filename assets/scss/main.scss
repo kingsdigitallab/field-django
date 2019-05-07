@@ -1628,3 +1628,15 @@ footer{
         }
     }
 }
+
+
+.truncated-text {
+  /* width: 25%; */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.padded-text {
+  padding: 0 1rem;
+}
