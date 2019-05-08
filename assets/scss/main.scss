@@ -571,7 +571,7 @@ h2{
                     li{
                         list-style-type: none;
                         display: inline-block;
-                        font-size: 1rem;
+                        font-size: 0.75rem;
                         margin-right: 0.3rem;
                         color: darken($lightgray,30%);
                         span{
@@ -579,6 +579,9 @@ h2{
                             line-height: 1;
                             margin-right:0.3rem;
                             font-family: 'Bai Jamjuree', sans-serif;
+                        }
+                        &.social-item{
+                            font-size: 1rem;
                         }
                         &.full{
                             width:100%;
@@ -677,7 +680,7 @@ h2{
     .sidebar{
         float:left;
         width: 25%;
-        font-size: 0.8rem;
+        font-size: 1rem;
         .rss{
             text-align:right;
             a{
@@ -694,7 +697,7 @@ h2{
                 color: $white;
                 margin: 0.5rem 0 0.5rem 0;
                 font-family: 'Jura', sans-serif;
-                font-size: 0.7rem;
+                font-size: 0.9rem;
                 font-weight: normal;
                 text-transform: uppercase;
                 background: $primary;
@@ -706,7 +709,7 @@ h2{
                     margin-bottom: 0.7rem;
                     h5{
                         margin:0;
-                        font-size: 0.9rem;
+                        font-size: 1rem;
                         font-weight: normal;
                         a{
                             text-decoration: none;
@@ -718,7 +721,7 @@ h2{
                     }
                     >ul{
                         margin-left: -40px;
-                        font-size:0.7rem;
+                        font-size:0.8rem;
                         line-height: 0.8;
                         padding-top: 0.2rem;
                         font-family: 'Bai Jamjuree', sans-serif;
@@ -726,6 +729,7 @@ h2{
                             display: inline-block;
                             margin-right: 0.3rem;
                             color: darken($lightgray,20%);
+
                             svg{
                                 color: darken($lightgray,20%);
                             }
