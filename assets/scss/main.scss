@@ -1015,10 +1015,11 @@ footer{
             display: inline-block;
             font-size: 1rem;
             img {
-                width: 95px;
+                height: 4vw;
+                max-height:55px;
                 margin: 0 1rem;
                 display: inline-block;
-                margin: 0.5rem 1rem 1rem 1rem;
+                margin: 0.5rem 1.5vw 0.5rem 1.5vw;
                 &:hover{
                     opacity: 0.7;
                 }
@@ -1371,7 +1372,8 @@ web page (vertical)
             margin-bottom: 0.5rem;
             li{
                 img{
-                    margin: 0 1rem 0 1rem;
+                    height:45px;
+                    margin: 0 1.8vw 0.5rem 1.8vw;
                 }
             }
         }
@@ -1571,6 +1573,15 @@ web page (vertical)
 /* Footer */
 footer{
     margin-top:1.5rem;
+    ul{
+        margin-bottom: 0.5rem;
+        li{
+            img{
+                height:35px;
+                margin: 0 2vw 0.5rem 2vw;
+            }
+        }
+    }
     .form-mailing-list {
         div{
             width: 95%;
