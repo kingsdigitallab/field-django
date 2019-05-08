@@ -1640,3 +1640,15 @@ footer{
 .padded-text {
   padding: 0 1rem;
 }
+
+// GN: FIELD uses a newer version of font-awesome than puput (blogging app)
+// In this new version all brand icons use the brand font
+// The class name should be fab-X
+.fa-facebook, .fa-twitter, .fa-linkedin {
+    font-family: 'Font Awesome 5 Brands';
+    font-weight: inherit;
+}
+// Google Plus is dying
+.gplus-this {
+    display: none;
+}
