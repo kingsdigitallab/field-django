@@ -571,15 +571,13 @@ h2{
                     li{
                         list-style-type: none;
                         display: inline-block;
-                        font-size: 0.75rem;
+                        font-size: 1rem;
                         margin-right: 0.3rem;
                         color: darken($lightgray,30%);
                         span{
                             color: $primary;
-                            padding: 0 0.5rem 0.1rem 0.4rem;
                             line-height: 1;
                             margin-right:0.3rem;
-                            border-left:3px solid $primary;
                             font-family: 'Bai Jamjuree', sans-serif;
                         }
                         &.full{

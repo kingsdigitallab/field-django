@@ -26,6 +26,16 @@
     {% endcomment %}
   {% endblock %}
 
+  <!-- Global site tag (gtag.js) - Google Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-67707155-9"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'UA-67707155-9');
+  </script>
+
 </head>
 <body class="ct-{% get_page_label page %}">
   <!-- header>
