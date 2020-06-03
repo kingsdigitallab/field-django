@@ -114,6 +114,7 @@ INSTALLED_APPS += [  # your project apps here
 
     'field_wagtail',
     'captcha',
+    'field_timeline'
 ]
 
 #
