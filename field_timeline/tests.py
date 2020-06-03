@@ -3,19 +3,27 @@ import json
 from django.test import TestCase
 
 from field_timeline.models import (TimelineSlide, FieldTimelineEvent,
-                                   FieldTimelineResource)
+                                   FieldTimelineResource, FieldTimelineCategory
+                                   )
 
 # Test data
 test_data_headline = 'Milk Marketing Board established'
-test_data_text = 'The Milk Marketing Board (MMB) was a producer-led '
-'organisation established in 1933-34 via the Agriculture '
-'Marketing Act (1933). It brought stability and financial '
-'security to dairy farmers by negotiating contracts with '
-'milk purchasers on behalf of all 140,000 milk producers. '
-'At a time of deep agricultural depression, when most '
-'farming produce faced fierce competition from imports, '
-'it contributed to a significant growth in UK dairy '
-'farming.'
+test_data_text = 'The Milk Marketing Board (MMB) was a producer-led ' \
+                 'organisation established in 1933-34 via the Agriculture ' \
+                 'Marketing Act (1933). It brought stability and financial ' \
+                 'security to dairy farmers by negotiating contracts with ' \
+                 'milk purchasers on behalf of all 140,000 milk producers. ' \
+                 'At a time of deep agricultural depression, when most ' \
+                 'farming produce faced fierce competition from imports, ' \
+                 'it contributed to a significant growth in UK dairy ' \
+                 'farming.'
+
+
+def createCategories():
+    FieldTimelineCategory.objects.create(
+        category='Production Practices'
+    )
+    return FieldTimelineCategory.objects.get(category='Production Practices')
 
 
 class TimelineSlideTestCase(TestCase):
@@ -68,6 +76,7 @@ class TimelineSlideTestCase(TestCase):
 
 class FieldTimelineEventTestCase(TestCase):
     def setUp(self):
+        category = createCategories()
         FieldTimelineResource.objects.create(
             resource_id='R001',
             url='http://www.reading.ac.uk/adlib/Details/archive/110025847',
@@ -84,6 +93,7 @@ class FieldTimelineEventTestCase(TestCase):
             end_date_month=12,
             end_date_day=1,
             resource=r,
+            category=category,
             headline=test_data_headline,
             text=test_data_text
         )
