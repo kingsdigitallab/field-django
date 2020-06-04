@@ -100,18 +100,19 @@ class FieldTimelineResource(models.Model):
 
 
 class FieldTimelineCategory(models.Model):
-    category = models.CharField(max_length=256, blank=True)
+    category_name = models.CharField(max_length=256, blank=True)
 
 
 class FieldTimelineEvent(TimelineSlide):
     """An event in the FIELD timeline, inherited from slide"""
     category = models.ForeignKey('FieldTimelineCategory',
-                                 on_delete=models.PROTECT)
+                                 on_delete=models.PROTECT, null=True)
     tier = models.IntegerField(null=False, blank=False, default=0)
     resource = models.ForeignKey('FieldTimelineResource',
-                                 on_delete=models.CASCADE)
+                                 on_delete=models.CASCADE, null=True)
     linked_events = models.ForeignKey('self', on_delete=models.CASCADE,
                                       null=True)
+    who = models.CharField(max_length=256, blank=False, null=False, default='')
 
     def to_timeline_json(self):
         """ Add resources as media objects"""

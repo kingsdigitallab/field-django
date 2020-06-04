@@ -1,7 +1,10 @@
 import json
+import pdb
 
 from django.test import TestCase
 
+from field_timeline.management.commands.import_csv import create_category, \
+    Command as ImportCsvCommand
 from field_timeline.models import (TimelineSlide, FieldTimelineEvent,
                                    FieldTimelineResource, FieldTimelineCategory
                                    )
@@ -17,13 +20,44 @@ test_data_text = 'The Milk Marketing Board (MMB) was a producer-led ' \
                  'farming produce faced fierce competition from imports, ' \
                  'it contributed to a significant growth in UK dairy ' \
                  'farming.'
+test_data_csvline = ['KS', 'F001', 'FALSE', 'Formula', '001', '1933',
+                     'Millk Marketing Board established',
+                     'The Milk Marketing Board (MMB) was a producer-led '
+                     'organisation established in 1933-34 via the '
+                     'Agriculture Marketing Act (1933). It brought stability '
+                     'and financial security to dairy farmers by negotiating '
+                     'contracts with milk purchasers on behalf of all 140,'
+                     '000 milk producers. At a time of deep agricultural '
+                     'depression, when most farming produce faced fierce '
+                     'competition from imports, it contributed to a '
+                     'significant growth in UK dairy farming.  ',
+                     '66', 'Production Practices', '2', 'R001',
+                     'P FW PH1/OS/2/14',
+                     'Butter churn, Milk Marketing Board, Newbury, Berkshire',
+                     'Charles Topham',
+                     'The Museum of English Rural Life, University of '
+                     'Reading.',
+                     'http://www.reading.ac.uk/adlib/Details/archive'
+                     '/110025847',
+                     '', '', '', '', '',
+                     'Anderson, P.D., ‘The English Milk Marketing Board—Its '
+                     'origins and functions: Part I’, Agricultural '
+                     'Administration 5:1 (1978): 59-71. '
+                     'https://doi.org/10.1016/0309-586X(78)90018-3; McQUEEN, '
+                     'D. (1998), The Milk Marketing Boards in Scotland and '
+                     'their legacy. International Journal of Dairy '
+                     'Technology, 51: 113-119. '
+                     'doi:10.1111/j.1471-0307.1998.tb02514.x; '
+                     'https://api.parliament.uk/historic-hansard/acts'
+                     '/agricultural-marketing-act-1933',
+                     '', '']
 
 
 def createCategories():
-    FieldTimelineCategory.objects.create(
-        category='Production Practices'
+    category, created = FieldTimelineCategory.objects.get_or_create(
+        category_name='Production Practices'
     )
-    return FieldTimelineCategory.objects.get(category='Production Practices')
+    return category
 
 
 class TimelineSlideTestCase(TestCase):
@@ -114,3 +148,33 @@ class FieldTimelineEventTestCase(TestCase):
         }
         test_data['unique_id'] = 'F001'
         self.assertEqual(event.to_timeline_json(), json.dumps(test_data))
+
+
+class ImportCsvTestCase(TestCase):
+    def setUp(self):
+        pass
+
+    def test_create_category(self):
+        command = ImportCsvCommand()
+        category = create_category(test_data_csvline[6])
+        self.assertEqual(category.category_name, test_data_csvline[6])
+        id = category.pk
+        category = create_category(test_data_csvline[6])
+        self.assertEqual(category.pk, id)
+
+    def test_parse_csv_line(self):
+        command = ImportCsvCommand()
+        command.parse_csv_line(test_data_csvline)
+        # Test an event was created
+        self.assertEqual(command.events_created, 1)
+        # Test it has the right id
+        event = FieldTimelineEvent.objects.get(unique_id='F001')
+        # and headline
+        self.assertEqual(event.headline, 'Millk Marketing Board established')
+        # and category
+        self.assertEqual(event.category.category_name, 'Production Practices')
+        # and resource attached
+        self.assertEqual(event.resource.url,
+                         'http://www.reading.ac.uk/adlib/Details/archive'
+                         '/110025847'
+                         )
