@@ -111,10 +111,10 @@ INSTALLED_APPS += [  # your project apps here
     'wagtail.contrib.settings',
     'kdl_wagtail.core',
     'kdl_wagtail.people',
-
+    'field_timeline',
     'field_wagtail',
     'captcha',
-    'field_timeline'
+
 ]
 
 #

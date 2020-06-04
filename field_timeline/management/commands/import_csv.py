@@ -6,7 +6,6 @@ KDL (EH) 3/6/2020
 """
 import argparse
 import csv
-import pdb
 from django.core.management.base import BaseCommand, CommandError
 from field_timeline.models import (TimelineSlide, FieldTimelineEvent,
                                    FieldTimelineResource, FieldTimelineCategory
@@ -36,9 +35,11 @@ class Command(BaseCommand):
             event_id = line[1]
             # Make sure this is an event id
             if line[1].startswith("F"):
-                # pdb.set_trace()
+                headline = line[6]
+                text = line[7]
                 tier = 0
-                year = 0
+                start_year = 0
+                end_year = 0
                 who = line[0]
                 category_name = line[9]
                 resource_id = line[11]
@@ -65,7 +66,12 @@ class Command(BaseCommand):
                     )
                 if len(line[5]) > 0:
                     try:
-                        year = int(line[5])
+                        if '-' in line[5]:
+                            years=line[5].split('-')
+                            start_year = int(years[0])
+                            end_year = int(years[1])
+                        else:
+                            start_year = int(line[5])
                     except ValueError as verr:
                         self.stdout.write('Bad year! {}'.format(line[5]))
                 if len(line[10]) > 0:
@@ -76,9 +82,10 @@ class Command(BaseCommand):
                 event, created = FieldTimelineEvent.objects.get_or_create(
                     unique_id=event_id,
                     tier=tier,
-                    headline=line[6],
-                    text=line[7],
-                    start_date_year=year,
+                    headline=headline,
+                    text=text,
+                    start_date_year=start_year,
+                    end_date_year=end_year,
                     who=who
                 )
                 if created:
@@ -102,8 +109,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         csvfile = csv.reader(options['csvfile'], delimiter=',')
         # for each line in csv
+        x = 0
         for csv_line in csvfile:
             self.parse_csv_line(csv_line)
+            x+=1
+            print("{}\n".format(x))
         self.stdout.write("{} Events created, {} updated".format(
             self.events_created,
             self.events_updated

@@ -84,7 +84,7 @@ class TimelineSlide(models.Model):
 class FieldTimelineResource(models.Model):
     resource_id = models.CharField(max_length=256, blank=False, null=False)
     image_ref = models.CharField(max_length=256, blank=True)
-    caption = models.CharField(max_length=256, blank=True)
+    caption = models.TextField(blank=True, default='')
     photographer = models.CharField(max_length=256, blank=True)
     credit = models.CharField(max_length=256, blank=True)
     url = models.CharField(max_length=512, null=False)
