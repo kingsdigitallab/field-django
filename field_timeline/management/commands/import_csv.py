@@ -6,6 +6,7 @@ KDL (EH) 3/6/2020
 """
 import argparse
 import csv
+import pdb
 from django.core.management.base import BaseCommand, CommandError
 from field_timeline.models import (TimelineSlide, FieldTimelineEvent,
                                    FieldTimelineResource, FieldTimelineCategory
@@ -99,7 +100,9 @@ class Command(BaseCommand):
                         event.category = category
                     if resource:
                         event.resource = resource
+                if category or resource or created == False:
                     event.save()
+
 
     def add_arguments(self, parser):
         # csv file to parse

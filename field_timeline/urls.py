@@ -1,7 +1,9 @@
-from django.urls import path
+from django.urls import path, re_path
 
-from . import views
+from field_timeline import views
 
 urlpatterns = [
-    path('timeline/', views.special_case_2003),
+    path(views.TimelineJSONView.timeline_url, views.TimelineJSONView.as_view(),
+         name='timeline_json'),
+    re_path(r'^$', views.TimelineTemplateView.as_view(), name='timeline')
 ]

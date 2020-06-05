@@ -114,6 +114,15 @@ class FieldTimelineEvent(TimelineSlide):
                                       null=True)
     who = models.CharField(max_length=256, blank=False, null=False, default='')
 
+    def get_timeline_data(self):
+        data = super().get_timeline_data()
+        # Add extra data from fieldtimeline
+        if self.category:
+            data['group'] = self.category.category_name
+        if self.resource:
+            data['media'] = self.resource.to_timeline_media()
+        return data
+
     def to_timeline_json(self):
         """ Add resources as media objects"""
         data = self.get_timeline_data()

@@ -1,13 +1,16 @@
 import json
-import pdb
 
+from django.test import Client
 from django.test import TestCase
+from django.test.client import RequestFactory
+from django.urls import reverse
 
 from field_timeline.management.commands.import_csv import create_category, \
     Command as ImportCsvCommand
 from field_timeline.models import (TimelineSlide, FieldTimelineEvent,
                                    FieldTimelineResource, FieldTimelineCategory
                                    )
+from field_timeline.views import TimelineJSONView, TimelineTemplateView
 
 # Test data
 test_data_headline = 'Milk Marketing Board established'
@@ -60,6 +63,30 @@ def createCategories():
     return category
 
 
+def default_data_setup():
+    category = createCategories()
+    FieldTimelineResource.objects.create(
+        resource_id='R001',
+        url='http://www.reading.ac.uk/adlib/Details/archive/110025847',
+        caption='Butter churn, Milk Marketing Board, Newbury, Berkshire',
+        photographer='Charles Topham'
+    )
+    r = FieldTimelineResource.objects.get(resource_id='R001')
+    FieldTimelineEvent.objects.create(
+        unique_id='F001',
+        start_date_year=1933,
+        start_date_month=1,
+        start_date_day=1,
+        end_date_year=1933,
+        end_date_month=12,
+        end_date_day=1,
+        resource=r,
+        category=category,
+        headline=test_data_headline,
+        text=test_data_text
+    )
+
+
 class TimelineSlideTestCase(TestCase):
     def setUp(self):
         TimelineSlide.objects.create(
@@ -109,28 +136,25 @@ class TimelineSlideTestCase(TestCase):
 
 
 class FieldTimelineEventTestCase(TestCase):
+    test_json = '{"unique_id": "F001", "end_date": {"year": 1933, "month": ' \
+                '12, "day": 1}, "start_date": {"year": 1933, "month": 1, ' \
+                '"day": 1}, "group": "Production Practices", "text": {' \
+                '"text": "The Milk Marketing Board (MMB) was a producer-led ' \
+                'organisation established in 1933-34 via the Agriculture ' \
+                'Marketing Act (1933). It brought stability and financial ' \
+                'security to dairy farmers by negotiating contracts with ' \
+                'milk purchasers on behalf of all 140,000 milk producers. At ' \
+                'a time of deep agricultural depression, when most farming ' \
+                'produce faced fierce competition from imports, ' \
+                'it contributed to a significant growth in UK dairy ' \
+                'farming.", "headline": "Milk Marketing Board established"}, ' \
+                '"media": {"url": ' \
+                '"http://www.reading.ac.uk/adlib/Details/archive/110025847", ' \
+                '"caption": "Butter churn, Milk Marketing Board, Newbury, ' \
+                'Berkshire"}}'
+
     def setUp(self):
-        category = createCategories()
-        FieldTimelineResource.objects.create(
-            resource_id='R001',
-            url='http://www.reading.ac.uk/adlib/Details/archive/110025847',
-            caption='Butter churn, Milk Marketing Board, Newbury, Berkshire',
-            photographer='Charles Topham'
-        )
-        r = FieldTimelineResource.objects.get(resource_id='R001')
-        FieldTimelineEvent.objects.create(
-            unique_id='F001',
-            start_date_year=1933,
-            start_date_month=1,
-            start_date_day=1,
-            end_date_year=1933,
-            end_date_month=12,
-            end_date_day=1,
-            resource=r,
-            category=category,
-            headline=test_data_headline,
-            text=test_data_text
-        )
+        default_data_setup()
 
     def test_to_timeline_json(self):
         event = FieldTimelineEvent.objects.get(unique_id='F001')
@@ -147,7 +171,7 @@ class FieldTimelineEventTestCase(TestCase):
                        'Berkshire',
         }
         test_data['unique_id'] = 'F001'
-        self.assertEqual(event.to_timeline_json(), json.dumps(test_data))
+        self.assertEqual(len(event.to_timeline_json()), len(self.test_json))
 
 
 class ImportCsvTestCase(TestCase):
@@ -178,3 +202,102 @@ class ImportCsvTestCase(TestCase):
                          'http://www.reading.ac.uk/adlib/Details/archive'
                          '/110025847'
                          )
+
+
+# Views
+
+class TimelineJSONViewTestCase(TestCase):
+    test_slides = [{'end_date': {'day': 1, 'year': 1933, 'month': 12},
+                    'text': {
+                        'text': 'The Milk Marketing Board (MMB) was a '
+                                'producer-led organisation established in '
+                                '1933-34 via the Agriculture Marketing Act ('
+                                '1933). It brought stability and financial '
+                                'security to dairy farmers by negotiating '
+                                'contracts with milk purchasers on behalf of '
+                                'all 140,000 milk producers. At a time of '
+                                'deep agricultural depression, when most '
+                                'farming produce faced fierce competition '
+                                'from imports, it contributed to a '
+                                'significant growth in UK dairy farming.',
+                        'headline': 'Milk Marketing Board established'},
+                    'group': 'Production Practices',
+                    'start_date': {'day': 1, 'year': 1933, 'month': 1},
+                    'unique_id': 'F001', 'media': {
+            'url': 'http://www.reading.ac.uk/adlib/Details/archive/110025847',
+            'caption': 'Butter churn, Milk Marketing Board, Newbury, '
+                       'Berkshire'}}]
+    test_json = {'events': [{'text': {
+        'text': 'The Milk Marketing Board (MMB) was a producer-led '
+                'organisation established in 1933-34 via the Agriculture '
+                'Marketing Act (1933). It brought stability and financial '
+                'security to dairy farmers by negotiating contracts with '
+                'milk purchasers on behalf of all 140,000 milk producers. At '
+                'a time of deep agricultural depression, when most farming '
+                'produce faced fierce competition from imports, '
+                'it contributed to a significant growth in UK dairy farming.',
+        'headline': 'Milk Marketing Board established'},
+        'end_date': {'year': 1933, 'day': 1, 'month': 12},
+        'start_date': {'year': 1933, 'day': 1,
+                       'month': 1}, 'media': {
+            'url': 'http://www.reading.ac.uk/adlib/Details/archive/110025847',
+            'caption': 'Butter churn, Milk Marketing Board, Newbury, '
+                       'Berkshire'},
+        'group': 'Production Practices',
+        'unique_id': 'F001'}]}
+
+    def setUp(self):
+        default_data_setup()
+        self.factory = RequestFactory()
+
+    def test_get_events(self):
+        request = self.factory.get(reverse('timeline_json'))
+        json_view = TimelineJSONView()
+        events = json_view.get_events(request)
+        self.assertEqual(events.count(), 1)
+
+    def test_events_to_slides(self):
+        request = self.factory.get(reverse('timeline_json'))
+        json_view = TimelineJSONView()
+        events = json_view.get_events(request)
+        slides = json_view.events_to_slides(events)
+        self.assertEqual(slides, self.test_slides)
+
+    def test_timelinejsonview(self):
+        c = Client()
+        response = c.get(reverse('timeline_json'))
+        # 200 test
+        self.assertEqual(response.status_code, 200)
+        # test it's well formed json
+        self.assertEqual(self.test_json, response.json())
+
+
+class TimelineTemplateViewTestCase(TestCase):
+    def setUp(self):
+        default_data_setup()
+        self.factory = RequestFactory()
+
+    def test_get_timeline_json_url(self):
+        """ Test the json url for timeline js is well formed
+        and passes filter variables from main template call to json call"""
+        timeline_view = TimelineTemplateView()
+        request = self.factory.get(reverse('timeline'))
+        # base url
+        self.assertEqual(timeline_view.get_timeline_json_url(request),
+                         reverse('timeline_json'))
+        # filter by category
+        request = self.factory.get(
+            reverse('timeline') + "?category='Production Practices'")
+        self.assertEqual(timeline_view.get_timeline_json_url(request),
+                         reverse(
+                             'timeline_json') + "?category='Production "
+                                                "Practices'")
+
+    def test_timelinetemplateview(self):
+        c = Client()
+        response = c.get(reverse('timeline'))
+        # 200 test
+        self.assertEqual(response.status_code, 200)
+        # make sure timeline url is there and correct
+        self.assertEqual(response.context['timeline_json_url'],
+                         reverse('timeline_json'))
