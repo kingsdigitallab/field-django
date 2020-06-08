@@ -38,7 +38,8 @@ class TimelineSlide(models.Model):
 
     def serialise_start_date(self):
         """Get only relevant start dates, return as dict"""
-        dates = {"year": self.start_date_year}
+        dates = {"year": self.start_date_year,
+                 "display_date": self.start_date_year}
         if self.start_date_month > 0:
             dates['month'] = self.start_date_month
         if self.start_date_day > 0:
@@ -69,7 +70,7 @@ class TimelineSlide(models.Model):
     def get_timeline_data(self):
         """ Serialise object for timelineJS"""
         data = {'start_date': self.serialise_start_date(),
-                'display_date': self.start_date_year,
+                'display_date': "{}".format(self.start_date_year),
                 }
         if len(self.serialise_end_date()) > 0:
             data['end_date'] = self.serialise_end_date()
