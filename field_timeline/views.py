@@ -36,7 +36,7 @@ class TimelineJSONView(View):
     """
     Return events as JSON for async requests
     """
-    timeline_url = 'json/'
+
 
     def get_events(self, request):
         """

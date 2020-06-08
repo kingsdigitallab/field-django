@@ -110,8 +110,7 @@ class FieldTimelineEvent(TimelineSlide):
     tier = models.IntegerField(null=False, blank=False, default=0)
     resource = models.ForeignKey('FieldTimelineResource',
                                  on_delete=models.CASCADE, null=True)
-    linked_events = models.ForeignKey('self', on_delete=models.CASCADE,
-                                      null=True)
+    linked_events = models.ManyToManyField('self', null=True)
     who = models.CharField(max_length=256, blank=False, null=False, default='')
 
     def get_timeline_data(self):

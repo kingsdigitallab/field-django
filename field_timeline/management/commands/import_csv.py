@@ -7,6 +7,7 @@ KDL (EH) 3/6/2020
 import argparse
 import csv
 import pdb
+from django.core.exceptions import ObjectDoesNotExist
 from django.core.management.base import BaseCommand, CommandError
 from field_timeline.models import (TimelineSlide, FieldTimelineEvent,
                                    FieldTimelineResource, FieldTimelineCategory
@@ -24,11 +25,47 @@ def create_category(category_name):
 class Command(BaseCommand):
 
     help = 'Import FIELD timeline events from csv'
-    verbose = 0 # show logging on screen
+    verbose = 1 # show logging on screen
 
     min_row_length = 16
     events_created = 0
     events_updated = 0
+    event_links = {}
+
+    def link_events(self):
+        """Link together events based on dict built from csv"""
+
+        for linker_id in self.event_links:
+            # Get the event we're linking other events to
+            linker_event = None
+            try:
+                linker_event = FieldTimelineEvent.objects.get(
+                    unique_id=linker_id
+                )
+            except ObjectDoesNotExist as ex:
+                self.stdout.write("Linker event not found! ID P{}".format(
+                    linker_id)
+                )
+            if linker_event:
+                for linkee_id in self.event_links[linker_id]:
+                    try:
+                        # pdb.set_trace()
+                        linkee_event = FieldTimelineEvent.objects.get(
+                            unique_id=linkee_id.strip()
+                        )
+                        linker_event.linked_events.add(linkee_event)
+                        if self.verbose == 1:
+                            self.stdout.write(
+                                "Event {} linked to {}\n".format(
+                                    linkee_event.unique_id,
+                                    linker_event.unique_id
+                                ))
+                    except ObjectDoesNotExist as ex:
+                        self.stdout.write(
+                            "Linkee event not found! ID {}".format(
+                                linkee_id)
+                        )
+
 
     def parse_csv_line(self,line):
         # check for event id
@@ -103,6 +140,11 @@ class Command(BaseCommand):
                 if category or resource or created == False:
                     event.save()
 
+                #If there are linked events, add them to the dict
+                event_link_string = line[24]
+                if event_link_string and len(event_link_string) > 0:
+                    events_links = event_link_string.split(';')
+                    self.event_links[event_id] = events_links
 
     def add_arguments(self, parser):
         # csv file to parse
@@ -117,6 +159,9 @@ class Command(BaseCommand):
             self.parse_csv_line(csv_line)
             x+=1
             print("{}\n".format(x))
+        # Add event links
+        if self.event_links and len(self.event_links) > 0:
+            self.link_events()
         self.stdout.write("{} Events created, {} updated".format(
             self.events_created,
             self.events_updated
