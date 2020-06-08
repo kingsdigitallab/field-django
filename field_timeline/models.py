@@ -68,7 +68,9 @@ class TimelineSlide(models.Model):
 
     def get_timeline_data(self):
         """ Serialise object for timelineJS"""
-        data = {'start_date': self.serialise_start_date()}
+        data = {'start_date': self.serialise_start_date(),
+                'display_date': self.start_date_year,
+                }
         if len(self.serialise_end_date()) > 0:
             data['end_date'] = self.serialise_end_date()
         if len(self.serialise_text()) > 0:
@@ -112,6 +114,8 @@ class FieldTimelineEvent(TimelineSlide):
                                  on_delete=models.CASCADE, null=True)
     linked_events = models.ManyToManyField('self', null=True)
     who = models.CharField(max_length=256, blank=False, null=False, default='')
+    # css class for in-timeline links
+    ev_target_class = "timeline_link"
 
     def get_timeline_data(self):
         data = super().get_timeline_data()
@@ -120,12 +124,26 @@ class FieldTimelineEvent(TimelineSlide):
             data['group'] = self.category.category_name
         if self.resource:
             data['media'] = self.resource.to_timeline_media()
+        # If there's a resource, add it here
+        if self.linked_events and self.linked_events.count() > 0:
+            text = data['text']['text']
+            text += "<br/>Related Events: "
+            x = 0
+            for linked_event in self.linked_events.all():
+                if (x>0):
+                    text+=", "
+                text += "<a href=\"#\" class=\"{}\" data-unique-id=\"{}\">{}</a>".format(
+                    self.ev_target_class,
+                    linked_event.unique_id,
+                    linked_event.headline
+                )
+                x += 1
+            data['text']['text'] = text
         return data
 
     def to_timeline_json(self):
         """ Add resources as media objects"""
         data = self.get_timeline_data()
-        # If there's a resource, add it here
         if self.resource:
             data['media'] = self.resource.to_timeline_media()
         return json.dumps(data)

@@ -15,6 +15,7 @@ class TimelineTemplateView(TemplateView):
     FIELD Time line view using Timeline JS 3 """
     template_name = 'field_timeline/timeline.html'
 
+
     def get_timeline_json_url(self, request):
         timeline_url = reverse('timeline_json')
         # Add filter GET variable
@@ -27,6 +28,7 @@ class TimelineTemplateView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context["ev_target_class"] = FieldTimelineEvent.ev_target_class
         context['timeline_json_url'] = self.get_timeline_json_url(
             self.request)
         return context
