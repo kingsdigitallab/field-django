@@ -59,7 +59,8 @@ class Command(BaseCommand):
                                 "Event {} linked to {}\n".format(
                                     linkee_event.unique_id,
                                     linker_event.unique_id
-                                ))
+                                )
+                            )
                     except ObjectDoesNotExist as ex:
                         self.stdout.write(
                             "Linkee event not found! ID {}".format(
