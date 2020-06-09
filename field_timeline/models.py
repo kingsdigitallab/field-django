@@ -112,9 +112,19 @@ class FieldTimelineResource(models.Model):
             media_data['link'] = self.link_url
         return media_data
 
+    def __str__(self):
+        return "{}:{}, {}".format(
+            self.resource_id,
+            self.image_ref,
+            self.url
+        )
+
 
 class FieldTimelineCategory(models.Model):
     category_name = models.CharField(max_length=256, blank=True)
+
+    def __str__(self):
+        return self.category_name
 
 
 class FieldTimelineEvent(TimelineSlide):
@@ -160,3 +170,9 @@ class FieldTimelineEvent(TimelineSlide):
         if self.resource:
             data['media'] = self.resource.to_timeline_media()
         return json.dumps(data)
+
+    def __str__(self):
+        return "{}:{},{}".format(self.unique_id,
+                                 self.start_date_year,
+                                 self.headline
+                                 )
