@@ -106,7 +106,7 @@ class FieldTimelineResource(models.Model):
         if len(url) == 0:
             # Add default resource name
             url = '{}.{}'.format(
-                TIMELINE_IMAGE_FOLDER + '/' + self.resource_id,
+                TIMELINE_IMAGE_FOLDER + '/' + self.filename,
                 TIMELINE_IMAGE_FORMAT)
         media_data = {'url': url}
         if len(self.caption) > 0:
