@@ -139,7 +139,7 @@ class FieldTimelineEvent(TimelineSlide):
     # css class for in-timeline links
     ev_target_class = "timeline_link"
 
-    ordering = ['start_date_year']
+    ordering = ['-start_date_year']
 
     def get_timeline_data(self):
         data = super().get_timeline_data()
