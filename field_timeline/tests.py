@@ -1,5 +1,4 @@
 import json
-import pdb
 
 from django.test import Client
 from django.test import TestCase
@@ -123,7 +122,8 @@ class TimelineSlideTestCase(TestCase):
     def test_get_timeline_data(self):
         slide = TimelineSlide.objects.get(unique_id='F001')
         test_data = {}
-        test_data['start_date'] = {"year": 1933, 'month': 1, 'day': 1,  'display_date': 1933}
+        test_data['start_date'] = {"year": 1933, 'month': 1, 'day': 1,
+                                   'display_date': 1933}
         test_data['display_date'] = "1933"
         test_data['end_date'] = {"year": 1933, 'month': 12, 'day': 1}
         test_data['text'] = {
@@ -133,7 +133,8 @@ class TimelineSlideTestCase(TestCase):
         test_data['unique_id'] = 'F001'
         self.assertEqual(slide.get_timeline_data(), test_data)
         # test JSON conversion
-        self.assertEqual(len(slide.to_timeline_json()), len(json.dumps(test_data)))
+        self.assertEqual(len(slide.to_timeline_json()),
+                         len(json.dumps(test_data)))
 
 
 class FieldTimelineEventTestCase(TestCase):
@@ -142,13 +143,16 @@ class FieldTimelineEventTestCase(TestCase):
                 '"month": 1, "day": 1, "year": 1933}, "media": {"url": ' \
                 '"http://www.reading.ac.uk/adlib/Details/archive/110025847", ' \
                 '' \
+                '' \
                 '"caption": "Butter churn, Milk Marketing Board, Newbury, ' \
                 'Berkshire"}, "text": {"text": "The Milk Marketing Board (' \
                 'MMB) was a producer-led organisation established in 1933-34 ' \
                 '' \
+                '' \
                 'via the Agriculture Marketing Act (1933). It brought ' \
                 'stability and financial security to dairy farmers by ' \
                 'negotiating contracts with milk purchasers on behalf of all ' \
+                '' \
                 '' \
                 '140,000 milk producers. At a time of deep agricultural ' \
                 'depression, when most farming produce faced fierce ' \
