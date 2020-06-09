@@ -36,7 +36,7 @@ class TimelineSlide(models.Model):
     headline = models.TextField(blank=True, default='')
     text = models.TextField(blank=True, default='')
 
-    # Media
+    ordering = ['start_date_year']
 
     def serialise_start_date(self):
         """Get only relevant start dates, return as dict"""
@@ -139,6 +139,8 @@ class FieldTimelineEvent(TimelineSlide):
     # css class for in-timeline links
     ev_target_class = "timeline_link"
 
+    ordering = ['start_date_year']
+
     def get_timeline_data(self):
         data = super().get_timeline_data()
         # Add extra data from fieldtimeline
@@ -172,7 +174,7 @@ class FieldTimelineEvent(TimelineSlide):
         return json.dumps(data)
 
     def __str__(self):
-        return "{}:{},{}".format(self.unique_id,
+        return "{}:{}, {}".format(self.unique_id,
                                  self.start_date_year,
                                  self.headline
                                  )
