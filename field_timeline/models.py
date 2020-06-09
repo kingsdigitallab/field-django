@@ -12,6 +12,8 @@ import json
 
 from django.db import models
 
+from field.settings import TIMELINE_IMAGE_FOLDER, TIMELINE_IMAGE_FORMAT
+
 
 class TimelineSlide(models.Model):
     """Event for Timeline_JS
@@ -90,15 +92,24 @@ class FieldTimelineResource(models.Model):
     caption = models.TextField(blank=True, default='')
     photographer = models.CharField(max_length=256, blank=True)
     credit = models.CharField(max_length=256, blank=True)
-    url = models.CharField(max_length=512, null=False)
+    url = models.CharField(max_length=512, null=False, default='')
+    link_url = models.CharField(max_length=512, null=True)
 
     def to_timeline_media(self):
         """Transform to a timelineJS media object"""
-        media_data = {'url': self.url}
+        url = self.url
+        if len(url) == 0:
+            # Add default resource name
+            url = '{}.{}'.format(
+                TIMELINE_IMAGE_FOLDER + '/' + self.resource_id,
+                TIMELINE_IMAGE_FORMAT)
+        media_data = {'url': url}
         if len(self.caption) > 0:
             media_data['caption'] = self.caption
         if len(self.credit) > 0:
             media_data['credit'] = self.credit
+        if len(self.link_url) > 0:
+            media_data['link'] = self.link_url
         return media_data
 
 
@@ -131,9 +142,10 @@ class FieldTimelineEvent(TimelineSlide):
             text += "<br/>Related Events: "
             x = 0
             for linked_event in self.linked_events.all():
-                if (x>0):
-                    text+=", "
-                text += "<a href=\"#\" class=\"{}\" data-unique-id=\"{}\">{}</a>".format(
+                if (x > 0):
+                    text += ", "
+                text += "<a href=\"#\" class=\"{}\" data-unique-id=\"{}\">{" \
+                        "}</a>".format(
                     self.ev_target_class,
                     linked_event.unique_id,
                     linked_event.headline

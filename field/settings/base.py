@@ -117,6 +117,7 @@ INSTALLED_APPS += [  # your project apps here
 
 ]
 
+
 #
 
 INTERNAL_IPS = ['127.0.0.1']
@@ -386,3 +387,9 @@ MAILING_LIST_FORM_WEB_PATH = '/mailing-list/'
 # -----------------------------------------------------------------------------
 
 CAPTCHA_FONT_SIZE = 36
+
+# Timeline settings
+
+TIMELINE_IMAGE_FOLDER = os.path.join(STATIC_URL,'images/resource')
+TIMELINE_IMAGE_FORMAT = 'jpg'
+
