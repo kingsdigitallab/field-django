@@ -115,8 +115,8 @@ class FieldTimelineResource(models.Model):
     def __str__(self):
         return "{}:{}, {}".format(
             self.resource_id,
-            self.image_ref,
-            self.url
+            self.caption,
+            self.link_url
         )
 
 
