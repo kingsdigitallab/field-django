@@ -1,11 +1,3 @@
-rom
-django.contrib
-import admin
-
-# Register your models here.
-from field_timeline.models import (FieldTimelineEvent, FieldTimelineResource,
-                                   FieldTimelineCategory)
-
 from django.contrib import admin
 
 # Register your models here.
