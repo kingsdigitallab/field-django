@@ -86,7 +86,7 @@ class Command(BaseCommand):
                 caption = line[13]
                 photographer = line[14]
                 credit = line[15]
-                url = line[16]
+                link_url = line[16]
                 category = None
                 resource = None
                 # Get/Create event category
@@ -101,7 +101,7 @@ class Command(BaseCommand):
                         caption=caption,
                         photographer=photographer,
                         credit=credit,
-                        url=url
+                        link_url=link_url
                     )
                 if len(line[5]) > 0:
                     try:
