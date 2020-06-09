@@ -8,8 +8,9 @@ import argparse
 import csv
 import pdb
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.management.base import BaseCommand, CommandError
-from field_timeline.models import (TimelineSlide, FieldTimelineEvent,
+from django.core.management.base import BaseCommand
+
+from field_timeline.models import (FieldTimelineEvent,
                                    FieldTimelineResource, FieldTimelineCategory
                                    )
 
@@ -20,12 +21,9 @@ def create_category(category_name):
     return category
 
 
-
-
 class Command(BaseCommand):
-
     help = 'Import FIELD timeline events from csv'
-    verbose = 1 # show logging on screen
+    verbose = 1  # show logging on screen
 
     min_row_length = 16
     events_created = 0
@@ -67,8 +65,22 @@ class Command(BaseCommand):
                                 linkee_id)
                         )
 
+    def parse_resource_csv_line(self, line):
+        if len(line[0]) > 0 and line[0].startswith("R"):
+            resource_id = line[0]
+            try:
+                resource = FieldTimelineResource.objects.get(
+                    resource_id=resource_id
+                )
+                resource.filename = line[1]
+                resource.title = line[3]
+                resource.date = line[4]
+                resource.rights = line[8]
+                resource.save()
+            except ObjectDoesNotExist as e:
+                self.stdout.write('Resource not found! {}'.format(resource_id))
 
-    def parse_csv_line(self,line):
+    def parse_csv_line(self, line):
         # check for event id
         if len(line) >= self.min_row_length and len(line[1]) > 0:
             event_id = line[1]
@@ -96,17 +108,17 @@ class Command(BaseCommand):
                 if len(resource_id) > 0:
                     resource, created = \
                         FieldTimelineResource.objects.get_or_create(
-                        resource_id=resource_id,
-                        image_ref=image_ref,
-                        caption=caption,
-                        photographer=photographer,
-                        credit=credit,
-                        link_url=link_url
-                    )
+                            resource_id=resource_id,
+                            image_ref=image_ref,
+                            caption=caption,
+                            photographer=photographer,
+                            credit=credit,
+                            link_url=link_url
+                        )
                 if len(line[5]) > 0:
                     try:
                         if '-' in line[5]:
-                            years=line[5].split('-')
+                            years = line[5].split('-')
                             start_year = int(years[0])
                             end_year = int(years[1])
                         else:
@@ -141,7 +153,7 @@ class Command(BaseCommand):
                 if category or resource or created == False:
                     event.save()
 
-                #If there are linked events, add them to the dict
+                # If there are linked events, add them to the dict
                 event_link_string = line[24]
                 if event_link_string and len(event_link_string) > 0:
                     events_links = event_link_string.split(';')
@@ -150,19 +162,23 @@ class Command(BaseCommand):
     def add_arguments(self, parser):
         # csv file to parse
         parser.add_argument('csvfile', type=argparse.FileType('r'))
-
+        parser.add_argument('resourcecsvfile', type=argparse.FileType('r'))
 
     def handle(self, *args, **options):
         csvfile = csv.reader(options['csvfile'], delimiter=',')
+        resourcecsvfile = csv.reader(options['resourcecsvfile'], delimiter=',')
         # for each line in csv
         x = 0
         for csv_line in csvfile:
             self.parse_csv_line(csv_line)
-            x+=1
+            x += 1
             print("{}\n".format(x))
         # Add event links
         if self.event_links and len(self.event_links) > 0:
             self.link_events()
+        # update resources from resources tab
+        for resource_csv_line in resourcecsvfile:
+            self.parse_resource_csv_line(resource_csv_line)
         self.stdout.write("{} Events created, {} updated".format(
             self.events_created,
             self.events_updated

@@ -8,12 +8,19 @@ from field_timeline.models import (FieldTimelineEvent, FieldTimelineResource,
 class FieldTimelineEventAdmin(admin.ModelAdmin):
     list_display = ('start_date_year', 'unique_id', 'headline', 'text')
     search_fields = ('start_date_year', 'unique_id', 'headline', 'text')
+    """
+    fieldsets = (        
+        ('Start Date', {
+            'fields': ('start_date_year')
+        }),
+    )"""
+
 
 
 class FieldTimelineResourceAdmin(admin.ModelAdmin):
     list_display = (
-    'resource_id', 'image_ref', 'caption', 'photographer', 'link_url')
-    search_fields = ('resource_id')
+    'resource_id', 'filename', 'title', 'link_url')
+    search_fields = ('resource_id',)
 
 
 admin.site.register(FieldTimelineEvent, FieldTimelineEventAdmin)

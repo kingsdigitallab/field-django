@@ -88,7 +88,12 @@ class TimelineSlide(models.Model):
 
 class FieldTimelineResource(models.Model):
     resource_id = models.CharField(max_length=256, blank=False, null=False)
+    title = models.CharField(max_length=512, null=False, default='')
+    filename = models.CharField(max_length=256, blank=False, null=False,
+                                default='')
     image_ref = models.CharField(max_length=256, blank=True)
+    rights = models.CharField(max_length=64, blank=False, null=True)
+    date = models.CharField(max_length=64, blank=False, null=True)
     caption = models.TextField(blank=True, default='')
     photographer = models.CharField(max_length=256, blank=True)
     credit = models.CharField(max_length=256, blank=True)
@@ -175,6 +180,6 @@ class FieldTimelineEvent(TimelineSlide):
 
     def __str__(self):
         return "{}:{}, {}".format(self.unique_id,
-                                 self.start_date_year,
-                                 self.headline
-                                 )
+                                  self.start_date_year,
+                                  self.headline
+                                  )
