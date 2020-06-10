@@ -28,6 +28,8 @@ kdl-wagtail-page = "*"
 django-kdl-wagtail = "*"
 mailchimp3 = "*"
 django-simple-captcha = "*"
+django-controlled-vocabulary = "*"
+django-dublincore-resource = "*"
 
 [requires]
 python_version = "3.5"

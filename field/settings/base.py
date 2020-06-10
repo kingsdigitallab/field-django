@@ -97,12 +97,12 @@ INSTALLED_APPS += [  # your project apps here
     'taggit',
     'modelcluster',
     'wagtail.search',
-
+    'controlled_vocabulary',
     'wagtail.contrib.modeladmin',
     'wagtailmenus',
 
     'kdl_wagtail_page',
-
+    'dublincore_resource',
     'wagtail.contrib.sitemaps',
     'django_social_share',
     'puput',

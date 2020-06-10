@@ -21,6 +21,7 @@ urlpatterns = [
     re_path(r'^wagtail/', include(wagtailadmin_urls)),
     re_path(r'^documents/', include(wagtaildocs_urls)),
     re_path(r'^captcha/', include('captcha.urls')),
+    path('vocabularies/', include('controlled_vocabulary.urls')),
     # For anything not caught by a more specific rule above, hand over to
     # Wagtail's serving mechanism
     url(r'', include(puput_urls)),
