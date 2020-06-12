@@ -97,17 +97,15 @@ INSTALLED_APPS += [  # your project apps here
     'taggit',
     'modelcluster',
     'wagtail.search',
-    'controlled_vocabulary',
     'wagtail.contrib.modeladmin',
     'wagtailmenus',
-
     'kdl_wagtail_page',
+    'controlled_vocabulary',
     'dublincore_resource',
     'wagtail.contrib.sitemaps',
     'django_social_share',
     'puput',
     'colorful',
-
     'wagtail.contrib.settings',
     'kdl_wagtail.core',
     'kdl_wagtail.people',
@@ -393,3 +391,15 @@ CAPTCHA_FONT_SIZE = 36
 TIMELINE_IMAGE_FOLDER = os.path.join(STATIC_URL,'images/resource')
 TIMELINE_IMAGE_FORMAT = 'jpg'
 
+# dublin core settings
+# Set to True to disable the DublinCoreResource model and define your own
+DUBLINCORE_RESOURCE_ABSTRACT_ONLY = False
+
+# The path where resource file are uploaded, relative to your MEDIA path
+DUBLINCORE_RESOURCE_UPLOAD_PATH = 'uploads/dublin_core/'
+
+# List of import paths to vocabularies lookup classes
+CONTROLLED_VOCABULARY_VOCABULARIES = [
+    'controlled_vocabulary.vocabularies.iso639_2',
+    'controlled_vocabulary.vocabularies.dcmitype',
+]
