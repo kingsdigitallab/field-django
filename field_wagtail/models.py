@@ -20,6 +20,8 @@ from dublincore_resource.models import (DublinCoreAgent, AbstractDublinCoreResou
 from wagtail.documents.models import Document
 from django.core.exceptions import ObjectDoesNotExist
 from wagtail.snippets.models import register_snippet
+from field_timeline.models import (FieldTimelineEvent)
+from field_timeline.views import (TimelineTemplateView)
 
 class HomePage(BaseRichTextPage):
     parent_page_types = ['wagtailcore.Page']
@@ -129,7 +131,22 @@ class MailingListFormPage(RoutablePageMixin, BasePage):
             }
         )
 
+""" Timeline page"""
 
+class TimelinePage(BaseRichTextPage):
+    """ A wagtail rich text page wrapper for the timeline"""
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+        # Use the field_timeline view to parse the request
+        # A bit round the houses but left this way for modularity
+        tv = TimelineTemplateView()
+        context["ev_target_class"] = FieldTimelineEvent.ev_target_class
+        context['timeline_json_url'] = tv.get_timeline_json_url(request)
+        return context
+
+
+"""Dublin core resource snippets and page"""
 class AbstractDublinCoreWagtailMediaResource(DublinCoreResource):
     """A generic wagtail-dublincore media resource
     Could be moved to django-wagtail later if it proves useful.
