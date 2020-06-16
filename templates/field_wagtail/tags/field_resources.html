@@ -1,0 +1,9 @@
+{% if resources %}
+    <ul>
+        {% for resource in field_resources %}
+            <li>
+            {{ resource }}
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}

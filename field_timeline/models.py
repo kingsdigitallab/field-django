@@ -139,7 +139,7 @@ class FieldTimelineEvent(TimelineSlide):
     tier = models.IntegerField(null=False, blank=False, default=0)
     resource = models.ForeignKey('FieldTimelineResource',
                                  on_delete=models.CASCADE, null=True)
-    linked_events = models.ManyToManyField('self', null=True)
+    linked_events = models.ManyToManyField('self')
     who = models.CharField(max_length=256, blank=False, null=False, default='')
     # css class for in-timeline links
     ev_target_class = "timeline_link"

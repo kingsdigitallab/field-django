@@ -7,8 +7,8 @@
 {% endblock %}
 
 {% block main %}
-    {{ page.body|richtext }}
     <div id='timeline-embed' style="width: 100%; height: 600px"></div>
+    {{ page.body|richtext }}
 {% endblock %}
 
 {% block footer_scripts %}
@@ -20,7 +20,7 @@
         }
         var timeline_json = '{{ timeline_json_url }}';
         window.timeline = new TL.Timeline('timeline-embed', timeline_json, options);
-        //
+        // Capture related slide links
         $(window).on("load", function(){
             $("#timeline-embed").click(function(ev){
                 //

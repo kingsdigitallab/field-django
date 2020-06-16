@@ -2,26 +2,28 @@
 import wagtail
 from django import forms
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
-from kdl_wagtail.core.models import BaseRichTextPage, BasePage
+from dublincore_resource.models import (DublinCoreResource)
+from kdl_wagtail.core.models import (BaseRichTextPage, BasePage)
+from modelcluster.fields import ParentalKey
 from puput.models import EntryPage
-from wagtail.admin.edit_handlers import FieldPanel, MultiFieldPanel, HelpPanel
-from wagtail.snippets.edit_handlers import SnippetChooserPanel
-from wagtail.images.edit_handlers import ImageChooserPanel
-from wagtail.documents.edit_handlers import DocumentChooserPanel
+from wagtail.admin.edit_handlers import (FieldPanel, MultiFieldPanel,
+                                         HelpPanel, InlinePanel)
 from wagtail.contrib.routable_page.models import route, RoutablePageMixin
-from wagtail.core.models import (AbstractPage, ClusterableModel, Page)
-from wagtail.search import index
-from wagtail.images.models import (CollectionMember, AbstractImage, Image, AbstractRendition)
-from dublincore_resource.models import (DublinCoreAgent, AbstractDublinCoreResource, DublinCoreResource, DublinCoreRights)
-#from wagtail.documents.models import
+from wagtail.core.models import (Page, Orderable)
+from wagtail.documents.edit_handlers import DocumentChooserPanel
 from wagtail.documents.models import Document
-from django.core.exceptions import ObjectDoesNotExist
+from wagtail.images.edit_handlers import ImageChooserPanel
+from wagtail.images.models import (Image)
+from wagtail.snippets.edit_handlers import SnippetChooserPanel
 from wagtail.snippets.models import register_snippet
+
 from field_timeline.models import (FieldTimelineEvent)
 from field_timeline.views import (TimelineTemplateView)
+
 
 class HomePage(BaseRichTextPage):
     parent_page_types = ['wagtailcore.Page']
@@ -131,7 +133,9 @@ class MailingListFormPage(RoutablePageMixin, BasePage):
             }
         )
 
+
 """ Timeline page"""
+
 
 class TimelinePage(BaseRichTextPage):
     """ A wagtail rich text page wrapper for the timeline"""
@@ -147,16 +151,20 @@ class TimelinePage(BaseRichTextPage):
 
 
 """Dublin core resource snippets and page"""
+
+
 class AbstractDublinCoreWagtailMediaResource(DublinCoreResource):
     """A generic wagtail-dublincore media resource
     Could be moved to django-wagtail later if it proves useful.
     """
     # wagtail media we have metadata for
     # ONLY ONE should be populated
-    wagtail_image = models.ForeignKey(Image, on_delete=models.CASCADE, blank=True, null=True)
-    wagtail_document  = models.ForeignKey(Document, on_delete=models.CASCADE, blank=True, null=True)
+    wagtail_image = models.ForeignKey(Image, on_delete=models.CASCADE,
+                                      blank=True, null=True)
+    wagtail_document = models.ForeignKey(Document, on_delete=models.CASCADE,
+                                         blank=True, null=True)
 
-    panels =[
+    panels = [
         MultiFieldPanel(
             [
                 FieldPanel('identifier'),
@@ -205,7 +213,9 @@ class AbstractDublinCoreWagtailMediaResource(DublinCoreResource):
         ),
         MultiFieldPanel(
             [
-                HelpPanel('Choose only one to attach, or use attachment for a general resource'),
+                HelpPanel(
+                    'Choose only one to attach, or use attachment for a '
+                    'general resource'),
                 ImageChooserPanel('wagtail_image'),
                 DocumentChooserPanel('wagtail_document'),
                 FieldPanel('attachment'),
@@ -228,7 +238,6 @@ class AbstractDublinCoreWagtailMediaResource(DublinCoreResource):
         else:
             return None
 
-
     @property
     def attached_media(self):
         """
@@ -247,6 +256,7 @@ class AbstractDublinCoreWagtailMediaResource(DublinCoreResource):
         abstract = True
         verbose_name = "Resource"
 
+
 class AbstractDublinCoreResourcePage(Page):
     """ Abstract Page to present a resource as a stand alone detail page
         Also useful to allow a friendlier way of editing the resource"""
@@ -254,22 +264,51 @@ class AbstractDublinCoreResourcePage(Page):
     class Meta:
         abstract = True
 
+
 @register_snippet
 class FieldDublinCoreResource(AbstractDublinCoreWagtailMediaResource):
-    """This is the core resource object, to which pages and timeline events should link to
+    """This is the core resource object, to which pages and timeline events
+    should link to
     We might:
         - add more fields for other media types e.g. video
     """
     pass
 
+
+class FieldDublinCoreResourceItem(Orderable, models.Model):
+    """List Item for dublin core resources"""
+    page = ParentalKey('field_wagtail.FieldDublinCoreResourceListPage',
+                       on_delete=models.CASCADE, related_name='resource_items')
+    resource = models.ForeignKey('field_wagtail.FieldDublinCoreResource',
+                                 on_delete=models.CASCADE, related_name='+')
+
+    class Meta(Orderable.Meta):
+        verbose_name = 'Media Resource'
+        verbose_name_plural = 'Media Resources'
+
+    panels = [
+        SnippetChooserPanel('resource')
+    ]
+
+    def __str__(self):
+        return self.resource
+
+
+class FieldDublinCoreResourceListPage(BaseRichTextPage):
+    """Page to list all resources"""
+
+    content_panels = BaseRichTextPage.content_panels + [
+        InlinePanel('resource_items', label="Media Resources"),
+    ]
+
+
+
+
 class FieldDublinCoreResourcePage(AbstractDublinCoreResourcePage):
     """ Page to present a resource as a stand alone detail page
     Also useful to allow a friendlier way of editing the resource"""
-    resource = models.ForeignKey('FieldDublinCoreResource',on_delete=models.CASCADE)
-
-    settings_panels = [
-        SnippetChooserPanel('resource'),
-    ]
+    resource = models.ForeignKey('FieldDublinCoreResource',
+                                 on_delete=models.PROTECT)
 
     # def create(self, **kwargs):
     def __init__(self, *args, **kwargs):
@@ -281,40 +320,11 @@ class FieldDublinCoreResourcePage(AbstractDublinCoreResourcePage):
         except ObjectDoesNotExist:
             self.resource = FieldDublinCoreResource()
 
-#t= FieldDublinCoreResourcePage()
-
     def save(self, *args, **kwargs):
         super(FieldDublinCoreResourcePage, self).save(*args, **kwargs)
         # Save the resource object as well in case edits have been made
         self.resource.save()
 
-
     content_panels = Page.content_panels + [
         FieldPanel('resource', heading="Resource")
     ]
-    #promote_panels = []
-    #settings_panels = []
-
-
-    # class DublinCoreWagtailMediaResource(DublinCoreResource):
-#     """Class to hold link to dublin core metadata fields
-#     As well as common wagtail admin field definitions"""
-#     admin_form_fields = (
-#         'identifier',
-#     )
-"""
-class DublinCoreWagtailImage(AbstractImage):
-    dcmi = models.ForeignKey(DublinCoreWagtailMediaResource,on_delete=models.CASCADE,null=True, blank=True)
-    admin_form_fields = Image.admin_form_fields + ('dcmi',)
-
-class DublinCoreWagtailImageRendition(AbstractRendition):
-    image = models.ForeignKey(DublinCoreWagtailImage, on_delete=models.CASCADE, related_name='renditions')
-
-    class Meta:
-        unique_together = (
-            ('image', 'filter_spec', 'focal_point_key'),
-        )
-
-class DublinCoreMediaPage(DublinCoreResource):
-    pass
-"""
