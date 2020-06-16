@@ -193,7 +193,7 @@ class ImportCsvTestCase(TestCase):
         # and category
         self.assertEqual(event.category.category_name, 'Production Practices')
         # and resource attached
-        self.assertEqual(event.resource.url,
+        self.assertEqual(event.resource.link_url,
                          'http://www.reading.ac.uk/adlib/Details/archive'
                          '/110025847'
                          )

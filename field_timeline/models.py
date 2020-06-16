@@ -113,7 +113,7 @@ class FieldTimelineResource(models.Model):
             media_data['caption'] = self.caption
         if len(self.credit) > 0:
             media_data['credit'] = self.credit
-        if len(self.link_url) > 0:
+        if self.link_url and len(self.link_url) > 0:
             media_data['link'] = self.link_url
         return media_data
 
