@@ -188,7 +188,6 @@ class AbstractDublinCoreWagtailMediaResource(DublinCoreResource):
                 FieldPanel('publisher'),
                 FieldPanel('rights'),
                 FieldPanel('description'),
-                FieldPanel('publisher'),
                 FieldPanel('rights'),
             ],
             heading='Agents',
