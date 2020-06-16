@@ -6,7 +6,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
-from dublincore_resource.models import (DublinCoreResource)
+from dublincore_resource.models import (DublinCoreAgent, DublinCoreRights,
+                                        DublinCoreResource)
 from kdl_wagtail.core.models import (BaseRichTextPage, BasePage)
 from modelcluster.fields import ParentalKey
 from puput.models import EntryPage
@@ -23,6 +24,9 @@ from wagtail.snippets.models import register_snippet
 
 from field_timeline.models import (FieldTimelineEvent)
 from field_timeline.views import (TimelineTemplateView)
+
+register_snippet(DublinCoreAgent)
+register_snippet(DublinCoreRights)
 
 
 class HomePage(BaseRichTextPage):
@@ -300,8 +304,6 @@ class FieldDublinCoreResourceListPage(BaseRichTextPage):
     content_panels = BaseRichTextPage.content_panels + [
         InlinePanel('resource_items', label="Media Resources"),
     ]
-
-
 
 
 class FieldDublinCoreResourcePage(AbstractDublinCoreResourcePage):
