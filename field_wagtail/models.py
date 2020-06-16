@@ -188,7 +188,7 @@ class AbstractDublinCoreWagtailMediaResource(DublinCoreResource):
                 FieldPanel('rights'),
             ],
             heading='Agents',
-            classname="collapsible collapsed"
+            classname="collapsible"
         ),
         MultiFieldPanel(
             [
@@ -202,7 +202,7 @@ class AbstractDublinCoreWagtailMediaResource(DublinCoreResource):
                 FieldPanel('format'),
             ],
             heading='Content description',
-            classname="collapsible collapsed"
+            classname="collapsible"
         ),
         MultiFieldPanel(
             [
