@@ -1,5 +1,9 @@
 from .base import *  # noqa
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL.strip('/'))
+
+
 ALLOWED_HOSTS = ['field-stg.kdl.kcl.ac.uk']
 
 CACHE_REDIS_DATABASE = '1'
