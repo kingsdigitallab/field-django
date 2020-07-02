@@ -47,4 +47,3 @@ LOGGING['loggers']['field'] = {}
 LOGGING['loggers']['field']['handlers'] = ['console']
 LOGGING['loggers']['field']['level'] = logging.DEBUG
 
-
