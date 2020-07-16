@@ -111,7 +111,16 @@ class FieldTimelineResource(models.Model):
         media_data = {'url': url}
         if len(self.caption) > 0:
             media_data['caption'] = self.caption
-        if len(self.credit) > 0:
+        if len(self.photographer) > 0 and len(self.credit) > 0:
+            media_data['credit'] = "{} / {}".format(
+                self.photographer,
+                self.credit
+            )
+        elif len(self.photographer) > 0:
+            media_data['credit'] = "{}".format(
+                self.photographer,
+            )
+        elif len(self.credit) > 0:
             media_data['credit'] = self.credit
         if self.link_url and len(self.link_url) > 0:
             media_data['link'] = self.link_url
