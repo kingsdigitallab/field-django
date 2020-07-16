@@ -9,6 +9,8 @@ fabric3 = "*"
 flake8 = "*"
 ipython = "*"
 tox = "*"
+coverage = "*"
+django_coverage_plugin = "*"
 
 [packages]
 django-extensions = "*"
@@ -30,6 +32,8 @@ mailchimp3 = "*"
 django-simple-captcha = "*"
 django-controlled-vocabulary = "*"
 django-dublincore-resource = "*"
+coverage = "*"
+django-coverage-plugin = "*"
 
 [requires]
 python_version = "3.5"
