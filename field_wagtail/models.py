@@ -24,9 +24,18 @@ from wagtail.snippets.models import register_snippet
 
 from field_timeline.models import (FieldTimelineEvent)
 from field_timeline.views import (TimelineTemplateView)
-
+from wagtail.search import index
 register_snippet(DublinCoreAgent)
 register_snippet(DublinCoreRights)
+# register_snippet(FieldTimelineEvent)
+
+
+@register_snippet
+class FieldTimelineEventSnippet(index.Indexed, FieldTimelineEvent):
+    search_fields = [
+        index.SearchField('headline', partial_match=True),
+        index.SearchField('text', partial_match=True),
+    ]
 
 
 class HomePage(BaseRichTextPage):
@@ -54,8 +63,8 @@ class HomePage(BaseRichTextPage):
     @classmethod
     def can_create_at(cls, parent):
         # You can only create one of these!
-        return super(HomePage, cls).can_create_at(parent) \
-               and not cls.objects.exists()
+        return (super(HomePage, cls).can_create_at(parent)
+                and not cls.objects.exists())
 
 
 class MailingListForm(forms.Form):

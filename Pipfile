@@ -34,6 +34,7 @@ django-controlled-vocabulary = "*"
 django-dublincore-resource = "*"
 coverage = "*"
 django-coverage-plugin = "*"
+flake8 = "*"
 
 [requires]
 python_version = "3.5"

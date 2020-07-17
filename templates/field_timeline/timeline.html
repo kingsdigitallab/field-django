@@ -20,8 +20,9 @@
     <script src="https://cdn.knightlab.com/libs/timeline3/latest/js/timeline.js"></script>
     <script type="text/javascript">
         var options = {
-            hash_bookmark: true,
-            initial_zoom: 1
+            hash_bookmark: false,
+            zoom_sequence: [0.5, 1, 2, 3, 5, 8, 13, 21, 34, 55, 89],
+            initial_zoom: 0
         }
         var timeline_json = '{{ timeline_json_url }}';
         window.timeline = new TL.Timeline('timeline-embed', timeline_json, options);

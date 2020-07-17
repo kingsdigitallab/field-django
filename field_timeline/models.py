@@ -67,7 +67,8 @@ class TimelineSlide(models.Model):
 
     def __str__(self):
         return '{}:{},{}"{}'.format(
-            self.unique_id, self.start_date_year, self.headline, self.text)
+            self.unique_id, self.start_date_year, self.headline, self.text
+        )
 
     def get_timeline_data(self):
         """ Serialise object for timelineJS"""
@@ -108,7 +109,8 @@ class FieldTimelineResource(models.Model):
             url = '{}.{}'.format(
                 TIMELINE_IMAGE_FOLDER + '/' + self.filename,
                 TIMELINE_IMAGE_FORMAT)
-        media_data = {'url': url}
+        # newimage = myimage.get_rendition('fill-300x150|jpegquality-60')
+        media_data = {'url': url, 'thumbnail': url, }
         if len(self.caption) > 0:
             media_data['caption'] = self.caption
         if len(self.photographer) > 0 and len(self.credit) > 0:
@@ -170,12 +172,12 @@ class FieldTimelineEvent(TimelineSlide):
             for linked_event in self.linked_events.all():
                 if (x > 0):
                     text += ", "
-                text += "<a href=\"#\" class=\"{}\" data-unique-id=\"{}\">{" \
-                        "}</a>".format(
-                    self.ev_target_class,
-                    linked_event.unique_id,
-                    linked_event.headline
-                )
+                    text += ("<a href=\"#\" class=\"{}\" "
+                             "data-unique-id=\"{}\">{}</a>").format(
+                        self.ev_target_class,
+                        linked_event.unique_id,
+                        linked_event.headline
+                    )
                 x += 1
             data['text']['text'] = text
         return data
