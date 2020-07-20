@@ -1,5 +1,5 @@
 from django import template
-from field_wagtail.models import FieldDublinCoreResource
+from django_kdl_timeline.models import DublinCoreImage
 register = template.Library()
 
 
@@ -8,6 +8,6 @@ register = template.Library()
                         takes_context=True)
 def field_resources(context):
     return {
-        'field_resources': FieldDublinCoreResource.objects.all(),
+        'field_resources': DublinCoreImage.objects.all(),
         'request': context['request'],
     }

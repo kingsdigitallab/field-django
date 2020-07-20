@@ -2,31 +2,23 @@
 import wagtail
 from django import forms
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
-from dublincore_resource.models import (DublinCoreAgent, DublinCoreRights,
-                                        DublinCoreResource)
+from dublincore_resource.models import (DublinCoreAgent, DublinCoreRights)
 from kdl_wagtail.core.models import (BaseRichTextPage, BasePage)
-from modelcluster.fields import ParentalKey
 from puput.models import EntryPage
-from wagtail.admin.edit_handlers import (FieldPanel, MultiFieldPanel,
-                                         HelpPanel, InlinePanel)
+from wagtail.admin.edit_handlers import (FieldPanel)
 from wagtail.contrib.routable_page.models import route, RoutablePageMixin
-from wagtail.core.models import (Page, Orderable)
-from wagtail.documents.edit_handlers import DocumentChooserPanel
-from wagtail.documents.models import Document
-from wagtail.images.edit_handlers import ImageChooserPanel
-from wagtail.images.models import (Image)
-from wagtail.snippets.edit_handlers import SnippetChooserPanel
-from wagtail.snippets.models import register_snippet
-
-from field_timeline.models import (FieldTimelineEvent)
-from field_timeline.views import (TimelineTemplateView)
+from wagtail.core.models import (Page)
+# from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.search import index
+from wagtail.snippets.models import register_snippet
+from field_timeline.models import (FieldTimelineEvent)
 register_snippet(DublinCoreAgent)
 register_snippet(DublinCoreRights)
+
+
 # register_snippet(FieldTimelineEvent)
 
 
@@ -147,194 +139,9 @@ class MailingListFormPage(RoutablePageMixin, BasePage):
         )
 
 
-""" Timeline page"""
-
-
-class TimelinePage(BaseRichTextPage):
-    """ A wagtail rich text page wrapper for the timeline"""
-
-    def get_context(self, request, *args, **kwargs):
-        context = super().get_context(request)
-        # Use the field_timeline view to parse the request
-        # A bit round the houses but left this way for modularity
-        tv = TimelineTemplateView()
-        context["ev_target_class"] = FieldTimelineEvent.ev_target_class
-        context['timeline_json_url'] = tv.get_timeline_json_url(request)
-        return context
-
-
-"""Dublin core resource snippets and page"""
-
-
-class AbstractDublinCoreWagtailMediaResource(DublinCoreResource):
-    """A generic wagtail-dublincore media resource
-    Could be moved to django-wagtail later if it proves useful.
-    """
-    # wagtail media we have metadata for
-    # ONLY ONE should be populated
-    wagtail_image = models.ForeignKey(Image, on_delete=models.CASCADE,
-                                      blank=True, null=True)
-    wagtail_document = models.ForeignKey(Document, on_delete=models.CASCADE,
-                                         blank=True, null=True)
-
-    panels = [
-        MultiFieldPanel(
-            [
-                FieldPanel('identifier'),
-                FieldPanel('title'),
-                FieldPanel('date'),
-                FieldPanel('issued'),
-                FieldPanel('is_part_of'),
-                FieldPanel('bibliographic_citation'),
-            ],
-            heading="Identifying information",
-            classname="collapsible"
-        ),
-        MultiFieldPanel(
-            [
-                FieldPanel('creators'),
-                FieldPanel('contributors'),
-                FieldPanel('publisher'),
-                FieldPanel('rights'),
-                FieldPanel('description'),
-                FieldPanel('rights'),
-            ],
-            heading='Agents',
-            classname="collapsible"
-        ),
-        MultiFieldPanel(
-            [
-                FieldPanel('description'),
-                FieldPanel('subjects'),
-                FieldPanel('coverage'),
-                FieldPanel('spatial'),
-                FieldPanel('temporal'),
-                FieldPanel('languages'),
-                FieldPanel('type'),
-                FieldPanel('format'),
-            ],
-            heading='Content description',
-            classname="collapsible"
-        ),
-        MultiFieldPanel(
-            [
-                FieldPanel('source'),
-            ],
-            heading='Other terms',
-            classname="collapsible collapsed"
-        ),
-        MultiFieldPanel(
-            [
-                HelpPanel(
-                    'Choose only one to attach, or use attachment for a '
-                    'general resource'),
-                ImageChooserPanel('wagtail_image'),
-                DocumentChooserPanel('wagtail_document'),
-                FieldPanel('attachment'),
-            ],
-            heading="Attached resource",
-            classname="collapsible"
-        )
-
-    ]
-
-    @property
-    def wagtail_media(self):
-        """ Return attached wagtail media objects
-        If a general file has been attached, return none for now
-        """
-        if self.wagtail_image:
-            return self.wagtail_image
-        elif self.wagtail_document:
-            return self.wagtail_document
-        else:
-            return None
-
-    @property
-    def attached_media(self):
-        """
-        Return raw file, will be finished if needed
-        if self.wagtail_image:
-            return self.wagtail_image
-        elif self.wagtail_document:
-            return self.wagtail_document
-        else:"""
-        return self.attachment
-
-    def __str__(self):
-        return self.title
-
-    class Meta:
-        abstract = True
-        verbose_name = "Resource"
-
-
 class AbstractDublinCoreResourcePage(Page):
     """ Abstract Page to present a resource as a stand alone detail page
         Also useful to allow a friendlier way of editing the resource"""
 
     class Meta:
         abstract = True
-
-
-@register_snippet
-class FieldDublinCoreResource(AbstractDublinCoreWagtailMediaResource):
-    """This is the core resource object, to which pages and timeline events
-    should link to
-    We might:
-        - add more fields for other media types e.g. video
-    """
-    pass
-
-
-class FieldDublinCoreResourceItem(Orderable, models.Model):
-    """List Item for dublin core resources"""
-    page = ParentalKey('field_wagtail.FieldDublinCoreResourceListPage',
-                       on_delete=models.CASCADE, related_name='resource_items')
-    resource = models.ForeignKey('field_wagtail.FieldDublinCoreResource',
-                                 on_delete=models.CASCADE, related_name='+')
-
-    class Meta(Orderable.Meta):
-        verbose_name = 'Media Resource'
-        verbose_name_plural = 'Media Resources'
-
-    panels = [
-        SnippetChooserPanel('resource')
-    ]
-
-    def __str__(self):
-        return self.resource
-
-
-class FieldDublinCoreResourceListPage(BaseRichTextPage):
-    """Page to list all resources"""
-
-    content_panels = BaseRichTextPage.content_panels + [
-        InlinePanel('resource_items', label="Media Resources"),
-    ]
-
-
-class FieldDublinCoreResourcePage(AbstractDublinCoreResourcePage):
-    """ Page to present a resource as a stand alone detail page
-    Also useful to allow a friendlier way of editing the resource"""
-    resource = models.ForeignKey('FieldDublinCoreResource',
-                                 on_delete=models.PROTECT)
-
-    # def create(self, **kwargs):
-    def __init__(self, *args, **kwargs):
-        super(FieldDublinCoreResourcePage, self).__init__(*args, **kwargs)
-        # Make sure we've got a resource object
-        try:
-            if self.resource is not None:
-                return
-        except ObjectDoesNotExist:
-            self.resource = FieldDublinCoreResource()
-
-    def save(self, *args, **kwargs):
-        super(FieldDublinCoreResourcePage, self).save(*args, **kwargs)
-        # Save the resource object as well in case edits have been made
-        self.resource.save()
-
-    content_panels = Page.content_panels + [
-        FieldPanel('resource', heading="Resource")
-    ]

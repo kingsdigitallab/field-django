@@ -2,4 +2,4 @@ from django.apps import AppConfig
 
 
 class KdlTimelineConfig(AppConfig):
-    name = 'django-kdl-timeline'
+    name = 'django_kdl_timeline'
