@@ -110,6 +110,7 @@ INSTALLED_APPS += [  # your project apps here
     'kdl_wagtail.core',
     'kdl_wagtail.people',
     'field_timeline',
+    'django_kdl_timeline',
     'field_wagtail',
     'captcha',
 
@@ -388,7 +389,7 @@ CAPTCHA_FONT_SIZE = 36
 
 # Timeline settings
 
-TIMELINE_IMAGE_FOLDER = os.path.join(STATIC_URL,'images/resource')
+TIMELINE_IMAGE_FOLDER = '/images/'
 TIMELINE_IMAGE_FORMAT = 'jpg'
 
 # dublin core settings
