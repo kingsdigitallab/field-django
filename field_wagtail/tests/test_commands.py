@@ -120,6 +120,8 @@ class TestImportTimelineCommand(TestCase):
     test_image_filename = 'test_image'
     uri = (default_storage.location
            + '/images/' + test_image_filename + '.jpg')
+    orig_uri = (default_storage.location
+                + '/original_images/' + test_image_filename + '.jpg')
 
     rights_csv = StringIO(
         "MERLCC,Copyright to this resource is owned"
@@ -219,3 +221,4 @@ class TestImportTimelineCommand(TestCase):
         # Delete fake image
         if default_storage.exists(cls.uri):
             default_storage.delete(cls.uri)
+            default_storage.delete(cls.orig_uri)

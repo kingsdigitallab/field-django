@@ -14,37 +14,6 @@ test_data_text = 'The Milk Marketing Board (MMB) was a producer-led ' \
                  'farming produce faced fierce competition from imports, ' \
                  'it contributed to a significant growth in UK dairy ' \
                  'farming.'
-test_data_csvline = ['KS', 'F001', 'FALSE', 'Formula', '001', '1933',
-                     'Millk Marketing Board established',
-                     'The Milk Marketing Board (MMB) was a producer-led '
-                     'organisation established in 1933-34 via the '
-                     'Agriculture Marketing Act (1933). It brought stability '
-                     'and financial security to dairy farmers by negotiating '
-                     'contracts with milk purchasers on behalf of all 140,'
-                     '000 milk producers. At a time of deep agricultural '
-                     'depression, when most farming produce faced fierce '
-                     'competition from imports, it contributed to a '
-                     'significant growth in UK dairy farming.  ',
-                     '66', 'Production Practices', '2', 'R001',
-                     'P FW PH1/OS/2/14',
-                     'Butter churn, Milk Marketing Board, Newbury, Berkshire',
-                     'Charles Topham',
-                     'The Museum of English Rural Life, University of '
-                     'Reading.',
-                     'http://www.reading.ac.uk/adlib/Details/archive'
-                     '/110025847',
-                     '', '', '', '', '',
-                     'Anderson, P.D., ‘The English Milk Marketing Board—Its '
-                     'origins and functions: Part I’, Agricultural '
-                     'Administration 5:1 (1978): 59-71. '
-                     'https://doi.org/10.1016/0309-586X(78)90018-3; McQUEEN, '
-                     'D. (1998), The Milk Marketing Boards in Scotland and '
-                     'their legacy. International Journal of Dairy '
-                     'Technology, 51: 113-119. '
-                     'doi:10.1111/j.1471-0307.1998.tb02514.x; '
-                     'https://api.parliament.uk/historic-hansard/acts'
-                     '/agricultural-marketing-act-1933',
-                     '', '']
 
 
 class TimelineSlideTestCase(TestCase):

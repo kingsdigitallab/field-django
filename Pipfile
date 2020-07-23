@@ -10,6 +10,7 @@ flake8 = "*"
 ipython = "*"
 tox = "*"
 coverage = "*"
+factory_boy = "*"
 django_coverage_plugin = "*"
 
 [packages]
@@ -35,6 +36,7 @@ django-dublincore-resource = "*"
 coverage = "*"
 django-coverage-plugin = "*"
 flake8 = "*"
+factory-boy = "*"
 
 [requires]
 python_version = "3.5"

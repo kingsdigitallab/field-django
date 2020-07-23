@@ -7,6 +7,8 @@ from field_wagtail.models import (
     FieldTimelineCategory
 )
 
+from dublincore_resource.models import DublinCoreAgent
+
 
 class FieldOralHistoryFactory(factory.DjangoModelFactory):
     speaker = factory.Faker('name')
@@ -26,6 +28,7 @@ class FieldTimelineCategoryFactory(factory.DjangoModelFactory):
 
 class FieldTimelineResourceFactory(factory.DjangoModelFactory):
     identifier = factory.Sequence(lambda n: "R%03d" % n)
+    link_url = factory.Faker('url')
 
     class Meta:
         model = FieldTimelineResource
@@ -38,3 +41,14 @@ class FieldTimelineEventFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = FieldTimelineEvent
+
+
+""" Dublin Core Factories"""
+
+
+class DublinCoreAgentFactory(factory.DjangoModelFactory):
+    full_name = factory.Faker('name')
+    identifier = factory.Faker('url')
+
+    class Meta:
+        model = DublinCoreAgent

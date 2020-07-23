@@ -1,10 +1,7 @@
 import json
+from typing import Union, Dict, Any
+
 import wagtail
-from django_kdl_timeline.models import (
-    AbstractTimelineEventSnippet,
-    AbstractDublinCoreWagtailMediaResource
-)
-from wagtail.images.models import (Image)
 from django import forms
 from django.conf import settings
 from django.db import models
@@ -16,11 +13,19 @@ from puput.models import EntryPage
 from wagtail.admin.edit_handlers import (FieldPanel)
 from wagtail.contrib.routable_page.models import route, RoutablePageMixin
 from wagtail.core.models import (Page)
+from wagtail.images.models import (Image)
 # from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.snippets.models import register_snippet
 
+from django_kdl_timeline.models import (
+    AbstractTimelineEventSnippet,
+    AbstractDublinCoreWagtailMediaResource
+)
+
 register_snippet(DublinCoreAgent)
 register_snippet(DublinCoreRights)
+
+
 # register_snippet(FieldTimelineEvent)
 
 
@@ -133,15 +138,40 @@ class MailingListFormPage(RoutablePageMixin, BasePage):
         )
 
 
+class FieldTimelineResourceImage(models.Model):
+    image_rendition = 'width-400'
+    thumb_rendition = 'width-50'
+
+    resource = models.ForeignKey(
+        'FieldTimelineResource',
+        on_delete=models.CASCADE,
+        null=True,
+    )
+
+    image = models.ForeignKey(
+        Image,
+        on_delete=models.CASCADE,
+        null=True
+    )
+
+    @property
+    def rendition_url(self) -> str:
+        if self.image:
+            return self.image.get_rendition(self.image_rendition).url
+        return ''
+
+    @property
+    def thumbnail_url(self) -> str:
+        if self.image:
+            return self.image.get_rendition(self.thumb_rendition).url
+        return ''
+
+
 class FieldTimelineResource(AbstractDublinCoreWagtailMediaResource):
-    # resource_id = models.CharField(max_length=256, blank=False, null=False)
     filename = models.CharField(max_length=256, blank=False, null=False,
                                 default='')
     image_ref = models.CharField(max_length=256, blank=True)
-    # rights = models.CharField(max_length=64, blank=False, null=True)
-    # date = models.CharField(max_length=64, blank=False, null=True)
     caption = models.TextField(blank=True, default='')
-    # photographer = models.CharField(max_length=256, blank=True)
     credit = models.CharField(max_length=256, blank=True)
     link_url = models.CharField(max_length=512, null=True)
     resource_type = models.CharField(
@@ -153,37 +183,51 @@ class FieldTimelineResource(AbstractDublinCoreWagtailMediaResource):
         default='I'
     )
 
-    def to_timeline_media(self):
+    @property
+    def attached_media(self) -> Union[None, FieldTimelineResourceImage]:
+        """ Return the attached resource
+        currently only images, but video and perhaps audio could be added"""
+        if self.resource_type == 'I':
+            img = FieldTimelineResourceImage.objects.filter(resource=self)
+            if img and img.count() > 0:
+                return img[0]
+        return None
+
+    def to_timeline_media(self) -> Dict[str, Any]:
         # todo REFACTOR to use attached image, DC fields
         """Transform to a timelineJS media object"""
-        url = self.url
-        # if len(url) == 0:
-        #     # Add default resource name
-        #     url = '{}.{}'.format(
-        #         TIMELINE_IMAGE_FOLDER + '/' + self.filename,
-        #         TIMELINE_IMAGE_FORMAT)
-        # newimage = myimage.get_rendition('fill-300x150|jpegquality-60')
-        media_data = {'url': url, 'thumbnail': url, }
-        # if len(self.caption) > 0:
-        #     media_data['caption'] = self.caption
-        # if len(self.photographer) > 0 and len(self.credit) > 0:
-        #     media_data['credit'] = "{} / {}".format(
-        #         self.photographer,
-        #         self.credit
-        #     )
-        # elif len(self.photographer) > 0:
-        #     media_data['credit'] = "{}".format(
-        #         self.photographer,
-        #     )
-        # elif len(self.credit) > 0:
-        #     media_data['credit'] = self.credit
-        # if self.link_url and len(self.link_url) > 0:
-        #     media_data['link'] = self.link_url
-        return media_data
+        url = ''
+        if self.resource_type == 'I':
+            url = self.attached_media.rendition_url
+        if len(url) > 0:
+            media_data = {'url': url,
+                          'thumbnail': self.attached_media.thumbnail_url, }
+            if len(self.caption) > 0:
+                media_data['caption'] = self.caption
+            photographer = ''
+            if self.creators and self.creators.count() > 0:
+                photographer = ', '.join(
+                    [creator.full_name for creator in self.creators.all()]
+                )
+            if len(photographer) > 0 and len(self.credit) > 0:
+                media_data['credit'] = "{} / {}".format(
+                    photographer,
+                    self.credit
+                )
+            elif len(photographer) > 0:
+                media_data['credit'] = "{}".format(
+                    photographer,
+                )
+            elif len(self.credit) > 0:
+                media_data['credit'] = self.credit
+            if self.link_url and len(self.link_url) > 0:
+                media_data['link'] = self.link_url
+            return media_data
+        return {}
 
     def __str__(self):
         return "{}:{}, {}".format(
-            self.resource_id,
+            self.identifier,
             self.caption,
             self.link_url
         )
@@ -272,17 +316,3 @@ class FieldTimelineEvent(AbstractTimelineEventSnippet):
             self.start_date_year,
             self.headline
         )
-
-
-class FieldTimelineResourceImage(models.Model):
-    resource = models.ForeignKey(
-        'FieldTimelineResource',
-        on_delete=models.CASCADE,
-        null=True,
-    )
-
-    image = models.ForeignKey(
-        Image,
-        on_delete=models.CASCADE,
-        null=True
-    )
