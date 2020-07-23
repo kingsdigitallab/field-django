@@ -194,7 +194,6 @@ class FieldTimelineResource(AbstractDublinCoreWagtailMediaResource):
         return None
 
     def to_timeline_media(self) -> Dict[str, Any]:
-        # todo REFACTOR to use attached image, DC fields
         """Transform to a timelineJS media object"""
         url = ''
         if self.resource_type == 'I':
@@ -279,38 +278,41 @@ class FieldTimelineEvent(AbstractTimelineEventSnippet):
 
     ordering = ['-start_date_year']
 
-    def get_timeline_data(self):
+    def get_timeline_data(self) -> Dict[str, Union[Dict[str, int]]]:
         data = super().get_timeline_data()
         # Add extra data from fieldtimeline
         if self.category:
             data['group'] = self.category.category_name
+        # If there's a resource, add it here
         if self.resource:
             data['media'] = self.resource.to_timeline_media()
-        # If there's a resource, add it here
-        if self.linked_events and self.linked_events.count() > 0:
-            text = data['text']['text']
-            text += "<br/>Related Events: "
-            x = 0
-            for linked_event in self.linked_events.all():
-                if (x > 0):
-                    text += ", "
-                    text += ("<a href=\"#\" class=\"{}\" "
-                             "data-unique-id=\"{}\">{}</a>").format(
-                        self.ev_target_class,
-                        linked_event.unique_id,
-                        linked_event.headline
-                    )
-                x += 1
-            data['text']['text'] = text
+        # Commented out but kept in case
+        # linked events are restored to timeline
+
+        # if self.linked_events and self.linked_events.count() > 0:
+        #     text = data['text']['text']
+        #     text += "<br/>Related Events: "
+        #     x = 0
+        #     for linked_event in self.linked_events.all():
+        #         if (x > 0):
+        #             text += ", "
+        #             text += ("<a href=\"#\" class=\"{}\" "
+        #                      "data-unique-id=\"{}\">{}</a>").format(
+        #                 self.ev_target_class,
+        #                 linked_event.unique_id,
+        #                 linked_event.headline
+        #             )
+        #         x += 1
+        #     data['text']['text'] = text
         return data
 
-    def to_timeline_json(self):
+    def to_timeline_json(self) -> str:
         data = self.get_timeline_data()
         if self.resource:
             data['media'] = self.resource.to_timeline_media()
         return json.dumps(data)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return "{}:{}, {}".format(
             self.unique_id,
             self.start_date_year,

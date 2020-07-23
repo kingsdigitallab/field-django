@@ -1,14 +1,18 @@
+import json
+
 import PIL
+from django.conf import settings
 from django.core.files import File
 from django.core.files.images import ImageFile
 from django.core.files.storage import default_storage
 from django.test import TestCase
 from wagtail.images.models import Image
+from wagtail.tests.utils import WagtailPageTests
 
 from field_wagtail.models import (
-    FieldTimelineEvent,
     FieldTimelineResource,
-    FieldTimelineResourceImage
+    FieldTimelineResourceImage,
+    # MailingListFormPage
 )
 from field_wagtail.tests.factories import (
     FieldTimelineEventFactory,
@@ -25,11 +29,16 @@ def create_wagtail_test_image(uri, filename) -> Image:
         # Add attached resource (currently only images)
         try:
             with open(uri, 'rb') as f:
-                image = Image(
-                    title=filename,
-                    file=ImageFile(File(f), name=filename + '.jpg')
-                )
-                image.save()
+                if Image.objects.filter(title=filename).count() > 0:
+                    image = Image.objects.get(title=filename)
+                else:
+                    image = Image(
+                        title=filename,
+                        file=ImageFile(File(f), name=filename + '.jpg')
+                    )
+                    image.save()
+                image.get_rendition(FieldTimelineResourceImage.image_rendition)
+                image.get_rendition(FieldTimelineResourceImage.thumb_rendition)
                 return image
         except FileNotFoundError:
             return None
@@ -61,18 +70,25 @@ class FieldTimelineResourceTestCase(TestCase):
 
     def setUp(self) -> None:
         FieldTimelineResourceFactory(identifier='R001')
-        self.resource = FieldTimelineResource.objects.get(identifier='R001')
+        resource = FieldTimelineResource.objects.get(identifier='R001')
+
         image = Image.objects.get(
             title=self.test_image_filename
         )
         FieldTimelineResourceImage.objects.get_or_create(
-            resource=self.resource,
+            resource=resource,
             image=image
         )
+        self.resource = resource
+
+    def tearDown(self) -> None:
+        image = Image.objects.get(
+            title=self.test_image_filename
+        )
+        image.delete()
+        self.resource.delete()
 
     def test_to_timeline_media(self):
-        # import pdb
-        # pdb.set_trace()
         media_data = self.resource.to_timeline_media()
         # make sure urls are correct
         self.assertEqual(
@@ -99,6 +115,15 @@ class FieldTimelineResourceTestCase(TestCase):
                 self.resource.credit
             )
         )
+        # Delete the renditions to clean up
+        delete_wagtail_test_image(
+            settings.BASE_DIR + '/'
+            + self.resource.attached_media.image.get_rendition(
+                FieldTimelineResourceImage.image_rendition).url)
+        delete_wagtail_test_image(
+            settings.BASE_DIR
+            + '/' + self.resource.attached_media.image.get_rendition(
+                FieldTimelineResourceImage.thumb_rendition).url)
 
     def test__str__(self):
         self.assertEqual(
@@ -112,36 +137,77 @@ class FieldTimelineResourceTestCase(TestCase):
 
 
 class FieldTimelineEventTestCase(TestCase):
-    test_json = '{"display_date": "1933", "group": "Production Practices", ' \
-                '"unique_id": "F001", "start_date": {"display_date": 1933, ' \
-                '"month": 1, "day": 1, "year": 1933}, "media": {"url": ' \
-                '"http://www.reading.ac.uk/adlib/Details/archive/110025847", '\
-                '' \
-                '' \
-                '' \
-                '"caption": "Butter churn, Milk Marketing Board, Newbury, ' \
-                'Berkshire"}, "text": {"text": "The Milk Marketing Board (' \
-                'MMB) was a producer-led organisation established in 1933-34 '\
-                '' \
-                '' \
-                '' \
-                'via the Agriculture Marketing Act (1933). It brought ' \
-                'stability and financial security to dairy farmers by ' \
-                'negotiating contracts with milk purchasers on behalf of all '\
-                '' \
-                '' \
-                '' \
-                '140,000 milk producers. At a time of deep agricultural ' \
-                'depression, when most farming produce faced fierce ' \
-                'competition from imports, it contributed to a significant ' \
-                'growth in UK dairy farming.", "headline": "Milk Marketing ' \
-                'Board established"}, "end_date": {"month": 12, "day": 1, ' \
-                '"year": 1933}}'
+    test_image_filename = 'test_image'
+    uri = (default_storage.location
+           + '/images/' + test_image_filename + '.jpg')
+    orig_uri = (default_storage.location
+                + '/original_images/' + test_image_filename + '.jpg')
+
+    @classmethod
+    def setUpClass(cls):
+        create_wagtail_test_image(
+            uri=cls.uri, filename=cls.test_image_filename
+        )
+
+    @classmethod
+    def tearDownClass(cls) -> None:
+        delete_wagtail_test_image(cls.uri)
+        delete_wagtail_test_image(cls.orig_uri)
+        Image.objects.all().delete()
 
     def setUp(self):
-        FieldTimelineEventFactory(unique_id='F001')
+        resource = FieldTimelineResourceFactory(identifier='R001')
+        image = Image.objects.get(
+            title=self.test_image_filename
+        )
+        FieldTimelineResourceImage.objects.get_or_create(
+            resource=resource,
+            image=image
+        )
+        self.event = FieldTimelineEventFactory(
+            start_date_year=1933,
+            resource=resource,
+            unique_id='F001')
+
+    def tearDown(self) -> None:
+        image = Image.objects.get(
+            title=self.test_image_filename
+        )
+        image.delete()
+        FieldTimelineResource.objects.all().delete()
+        self.event.delete()
+
+    def test_get_timeline_data(self):
+        data = self.event.get_timeline_data()
+        self.assertEqual(
+            self.event.start_date_year, data['start_date']['year'])
+        self.assertEqual(
+            data['group'], self.event.category.category_name
+        )
+        self.assertEqual(
+            data['media']['url'],
+            self.event.resource.attached_media.rendition_url
+        )
 
     def test_to_timeline_json(self):
-        FieldTimelineEvent.objects.get(unique_id='F001')
-        pass
-        # event.to_timeline_json()
+        data = json.loads(self.event.to_timeline_json())
+        self.assertEqual(
+            self.event.start_date_year, data['start_date']['year'])
+        self.assertEqual(
+            data['group'], self.event.category.category_name
+        )
+
+
+class TestHomePage(WagtailPageTests):
+    pass
+    #
+    # def setUp(self) -> None:
+    #     self.home_page, created = HomePage.objects.get_or_create(
+    #         id=2,
+    #         title='title'
+    #     )
+    #
+    #
+    # def test_home_page_render(self) -> None:
+    #     response = self.client.get(self.home_page.url)
+    #     self.assertEqual(response.status_code, 200)

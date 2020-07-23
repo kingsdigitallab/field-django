@@ -37,7 +37,7 @@ class FieldTimelineResourceFactory(factory.DjangoModelFactory):
 class FieldTimelineEventFactory(factory.DjangoModelFactory):
     unique_id = factory.Sequence(lambda n: "F%03d" % n)
     category = factory.SubFactory(FieldTimelineCategoryFactory)
-    resource = factory.SubFactory(FieldTimelineResourceFactory)
+    text = factory.Faker('sentence', nb_words=4)
 
     class Meta:
         model = FieldTimelineEvent
