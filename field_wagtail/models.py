@@ -26,9 +26,6 @@ register_snippet(DublinCoreAgent)
 register_snippet(DublinCoreRights)
 
 
-# register_snippet(FieldTimelineEvent)
-
-
 class HomePage(BaseRichTextPage):
     parent_page_types = ['wagtailcore.Page']
 
@@ -318,3 +315,4 @@ class FieldTimelineEvent(AbstractTimelineEventSnippet):
             self.start_date_year,
             self.headline
         )
+# register_snippet(FieldTimelineEvent)
