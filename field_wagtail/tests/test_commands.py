@@ -8,10 +8,12 @@ from dublincore_resource.models import (
     DublinCoreRights,
     DublinCoreAgent
 )
+from wagtail.core.models import Page
 
 from field_wagtail.management.commands.import_timeline import (
     create_category,
-    Command as ImportTimelineCommand
+    Command as ImportTimelineCommand,
+    DEFAULT_TIMELINE_EVENT_TITLE
 )
 from field_wagtail.models import (
     FieldTimelineResource,
@@ -19,6 +21,7 @@ from field_wagtail.models import (
     FieldTimelineResourceImage,
     FieldOralHistory
 )
+from field_wagtail.tests.factories import FieldTimelinePageFactory
 
 test_data_csvline = [
     'KS', 'F001', 'FALSE', 'Formula', '001', '1933',
@@ -215,6 +218,28 @@ class TestImportTimelineCommand(TestCase):
         self.assertTrue(f003 in f001.linked_events.all())
         # is F002 linked to F001?
         self.assertTrue(f001 in f002.linked_events.all())
+
+    def test_attach_events_to_default_timeline(self):
+        out = StringIO()
+        command = ImportTimelineCommand(stdout=out)
+
+        # Create timeline wagtail page
+        self.home_page, created = Page.objects.get_or_create(id=2)
+        timeline = FieldTimelinePageFactory.build(
+            title=DEFAULT_TIMELINE_EVENT_TITLE
+        )
+        self.home_page.add_child(
+            instance=timeline
+        )
+
+        # create resources to be attached
+        command.parse_resource_csv_line(self.test_resource_line)
+        create_category(test_data_csvline[6])
+        command.parse_event_csv_line(test_data_csvline)
+        command.parse_event_csv_line(test_linkee_data_csvline)
+        command.parse_event_csv_line(test_linkee_data_csvline2)
+        command.attach_events_to_default_timeline()
+        self.assertEqual(timeline.related_events.count(), 3)
 
     @classmethod
     def tearDownClass(cls):

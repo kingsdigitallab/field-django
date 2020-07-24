@@ -4,7 +4,8 @@ from field_wagtail.models import (
     FieldOralHistory,
     FieldTimelineEvent,
     FieldTimelineResource,
-    FieldTimelineCategory
+    FieldTimelineCategory,
+    FieldTimelinePage
 )
 
 from dublincore_resource.models import DublinCoreAgent
@@ -41,6 +42,15 @@ class FieldTimelineEventFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = FieldTimelineEvent
+
+
+class FieldTimelinePageFactory(factory.DjangoModelFactory):
+    title = factory.Faker('sentence', nb_words=4)
+    path = factory.Sequence(lambda n: "00010009%04d" % n)
+    depth = 3
+
+    class Meta:
+        model = FieldTimelinePage
 
 
 """ Dublin Core Factories"""

@@ -9,17 +9,22 @@ from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
 from dublincore_resource.models import (DublinCoreAgent, DublinCoreRights)
 from kdl_wagtail.core.models import (BaseRichTextPage, BasePage)
+from modelcluster.fields import ParentalKey
 from puput.models import EntryPage
-from wagtail.admin.edit_handlers import (FieldPanel)
+from wagtail.admin.edit_handlers import (
+    FieldPanel, InlinePanel
+)
 from wagtail.contrib.routable_page.models import route, RoutablePageMixin
-from wagtail.core.models import (Page)
+from wagtail.core.models import (Page, Orderable)
 from wagtail.images.models import (Image)
+from wagtail.snippets.edit_handlers import SnippetChooserPanel
 # from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.snippets.models import register_snippet
 
 from django_kdl_timeline.models import (
     AbstractTimelineEventSnippet,
-    AbstractDublinCoreWagtailMediaResource
+    AbstractDublinCoreWagtailMediaResource,
+    AbstractTimelinePage
 )
 
 register_snippet(DublinCoreAgent)
@@ -315,4 +320,71 @@ class FieldTimelineEvent(AbstractTimelineEventSnippet):
             self.start_date_year,
             self.headline
         )
-# register_snippet(FieldTimelineEvent)
+
+
+register_snippet(FieldTimelineResourceImage)
+register_snippet(FieldTimelineResource)
+register_snippet(FieldTimelineEvent)
+
+
+class FieldTimelineEventItem(Orderable, models.Model):
+    page = ParentalKey(
+        'field_wagtail.FieldTimelinePage',
+        on_delete=models.CASCADE,
+        related_name='related_events')
+    event = models.ForeignKey(
+        'field_wagtail.FieldTimelineEvent',
+        on_delete=models.PROTECT, related_name='+')
+
+    class Meta(Orderable.Meta):
+        verbose_name = "Timeline events"
+        verbose_name_plural = "Timeline events"
+
+    panels = [
+        SnippetChooserPanel('event'),
+    ]
+
+    def __str__(self):
+        return self.page.title + " -> " + self.event.unique_id
+
+
+class FieldTimelinePage(AbstractTimelinePage):
+    content_panels = AbstractTimelinePage.content_panels + [
+        InlinePanel('related_events', label="Events"),
+    ]
+
+#
+# class AbstractDublinCoreResourcePage(Page):
+#     """ Abstract Page to present a resource as a stand alone detail page
+#         Also useful to allow a friendlier way of editing the resource"""
+#
+#     class Meta:
+#         abstract = True
+#
+#
+# class FieldDublinCoreResourceItem(Orderable, models.Model):
+#     """List Item for dublin core resources"""
+#     page = ParentalKey('field_wagtail.FieldDublinCoreResourceListPage',
+#                        on_delete=models.CASCADE,
+#                        related_name='resource_items')
+#     resource = models.ForeignKey('field_wagtail.FieldDublinCoreResource',
+#                                  on_delete=models.CASCADE, related_name='+')
+#
+#     class Meta(Orderable.Meta):
+#         verbose_name = 'Media Resource'
+#         verbose_name_plural = 'Media Resources'
+#
+#     panels = [
+#         SnippetChooserPanel('resource')
+#     ]
+#
+#     def __str__(self):
+#         return self.resource
+#
+#
+# class FieldDublinCoreResourceListPage(BaseRichTextPage):
+#     """Page to list all resources"""
+#
+#     content_panels = BaseRichTextPage.content_panels + [
+#         InlinePanel('resource_items', label="Media Resources"),
+#     ]

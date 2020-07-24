@@ -21,8 +21,14 @@ from wagtail.images.models import Image
 
 from field_wagtail.models import (
     FieldTimelineEvent, FieldOralHistory,
-    FieldTimelineResource, FieldTimelineCategory, FieldTimelineResourceImage
+    FieldTimelineResource, FieldTimelineCategory,
+    FieldTimelineResourceImage, FieldTimelinePage, FieldTimelineEventItem
 )
+
+# Toggle attache events to default timeline.
+# Set to false if initial run finished!
+ATTACH_EVENTS = True
+DEFAULT_TIMELINE_EVENT_TITLE = 'FIELD Timeline'
 
 
 def create_category(category_name):
@@ -256,6 +262,27 @@ class Command(BaseCommand):
         parser.add_argument('csvfile', type=argparse.FileType('r'))
         parser.add_argument('resourcecsvfile', type=argparse.FileType('r'))
         parser.add_argument('rightsfile', type=argparse.FileType('r'))
+
+    def attach_events_to_default_timeline(self):
+        """ Convenience method for initial upload
+        Checks if timeline page has been created, creates if not
+        Then attaches all of the unattached events to it
+        TOGGLE Off with ATTACH_EVENTS """
+        if ATTACH_EVENTS:
+            if FieldTimelinePage.objects.filter(
+                    title=DEFAULT_TIMELINE_EVENT_TITLE).count() > 0:
+                timeline_page = FieldTimelinePage.objects.get(
+                    title=DEFAULT_TIMELINE_EVENT_TITLE
+                )
+            else:
+                timeline_page, created = \
+                    FieldTimelinePage.objects.get_or_create(
+                        title=DEFAULT_TIMELINE_EVENT_TITLE,
+
+                    )
+            for event in FieldTimelineEvent.objects.all():
+                FieldTimelineEventItem.objects.get_or_create(
+                    page=timeline_page, event=event)
 
     def handle(self, *args, **options):
         # import rights tab
