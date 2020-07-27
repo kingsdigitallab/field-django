@@ -13,6 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.files import File
 from django.core.files.images import ImageFile
 from django.core.management.base import BaseCommand
+from django.db.utils import DataError
 from dublincore_resource.models import (
     DublinCoreRights,
     DublinCoreAgent
@@ -53,7 +54,9 @@ class Command(BaseCommand):
         result = ''
         total_rights = 0
         for rights_line in rights_file:
-            if rights_line and len(rights_line) == 2:
+            if (rights_line
+                    and 'rights.code' not in rights_line[0]
+                    and len(rights_line) == 2):
                 DublinCoreRights.objects.get_or_create(
                     shorthand=rights_line[0],
                     statement=rights_line[1]
@@ -80,7 +83,6 @@ class Command(BaseCommand):
             if linker_event:
                 for linkee_id in self.event_links[linker_id]:
                     try:
-                        # pdb.set_trace()
                         linkee_event = FieldTimelineEvent.objects.get(
                             unique_id=linkee_id.strip()
                         )
@@ -99,7 +101,10 @@ class Command(BaseCommand):
                         )
 
     def parse_resource_csv_line(self, line) -> None:
-        if len(line[0]) > 0 and line[0].startswith("R"):
+        if (
+                len(line[0]) > 0 and line[0].startswith("R")
+                and 'Resource ID' not in line[0]
+        ):
             resource_id = line[0]
             filename = line[1]
             try:
@@ -128,7 +133,10 @@ class Command(BaseCommand):
                     statement=''
                 )
                 resource.rights = right
-            resource.save()
+            try:
+                resource.save()
+            except DataError:
+                print("ERROR saving {}".format(line[0]))
 
             # Add creator/agents
             if line and len(line) > 5 and len(line[5]) > 0:

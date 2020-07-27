@@ -10,7 +10,11 @@ Now includes optional wagtail integrations and KDL-Dublincore integrations
 
 """
 import json
+
 from django.db import models
+from dublincore_resource.models import (DublinCoreAgent,
+                                        DublinCoreRights,
+                                        DublinCoreResource)
 from modelcluster.fields import ParentalKey
 from wagtail.admin.edit_handlers import (FieldPanel, MultiFieldPanel,
                                          InlinePanel, HelpPanel)
@@ -20,9 +24,7 @@ from wagtail.images.models import (Image)
 from wagtail.search import index
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
 from wagtail.snippets.models import register_snippet
-from dublincore_resource.models import (DublinCoreAgent,
-                                        DublinCoreRights,
-                                        DublinCoreResource)
+
 register_snippet(DublinCoreAgent)
 register_snippet(DublinCoreRights)
 
