@@ -42,3 +42,17 @@ try:
     DEBUG_TOOLBAR_PATCH_SETTINGS = True
 except ImportError:
     pass
+
+
+# -----------------------------------------------------------------------------
+# Local settings
+# -----------------------------------------------------------------------------
+
+try:
+    from .local import *  # noqa
+except ImportError:
+    print('failed to import local settings')
+
+    from test import *  # noqa
+    print('the project is running with test settings')
+    print('please create a local settings file')

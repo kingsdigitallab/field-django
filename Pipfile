@@ -36,6 +36,7 @@ coverage = "*"
 django-coverage-plugin = "*"
 flake8 = "*"
 factory-boy = "*"
+django-kdl-wagtail = {git = "https://github.com/kingsdigitallab/django-kdl-wagtail", editable = true, ref = "8938e32"}
 
 [requires]
 python_version = "3.5"

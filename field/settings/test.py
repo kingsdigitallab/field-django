@@ -1,9 +1,15 @@
 from .base import *  # noqa
 
 DEBUG = True
-TEMPLATES[0]['OPTIONS']['debug'] = True
+TEMPLATE_DEBUG = True
 
 SECRET_KEY = 'test'
+
+# https://docs.djangoproject.com/en/dev/ref/settings/#test-runner
+TEST_RUNNER = "django.test.runner.DiscoverRunner"
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL.strip('/'))
 
 CACHES = {
     'default': {
@@ -15,6 +21,11 @@ CACHES = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': 'field',
+        'USER': 'field',
+        'PASSWORD': 'field',
+        'ADMINUSER': 'postgres',
+        'HOST': 'localhost'
     },
 }
 

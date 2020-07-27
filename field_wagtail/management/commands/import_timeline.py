@@ -28,7 +28,7 @@ from field_wagtail.models import (
 # Toggle attache events to default timeline.
 # Set to false if initial run finished!
 ATTACH_EVENTS = True
-DEFAULT_TIMELINE_EVENT_TITLE = 'FIELD Timeline'
+DEFAULT_TIMELINE_EVENT_TITLE = 'Timeline'
 
 
 def create_category(category_name):
