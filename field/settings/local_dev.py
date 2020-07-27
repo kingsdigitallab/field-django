@@ -5,8 +5,8 @@ ALLOWED_HOSTS = ['127.0.0.1',
                  '[::1]',
                  'field-dev.kdl.kcl.ac.uk']
 
-CACHE_REDIS_DATABASE = '2'
-CACHES['default']['LOCATION'] = '127.0.0.1:6379:' + CACHE_REDIS_DATABASE
+# CACHE_REDIS_DATABASE = '2'
+# CACHES['default']['LOCATION'] = '127.0.0.1:6379:' + CACHE_REDIS_DATABASE
 
 DEBUG = True
 
@@ -24,7 +24,13 @@ DATABASES = {
 
 LOGGING_LEVEL = logging.DEBUG
 
-LOGGING['loggers']['field']['level'] = LOGGING_LEVEL
+LOGGING['loggers']['field'] = {}
+LOGGING['loggers']['field']['handlers'] = ['console']
+LOGGING['loggers']['field']['level'] = logging.DEBUG
+
+MEDIA_URL = 'media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL.strip('/'))
+
 
 SECRET_KEY = ''
 

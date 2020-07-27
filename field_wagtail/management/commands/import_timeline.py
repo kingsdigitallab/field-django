@@ -282,15 +282,9 @@ class Command(BaseCommand):
                 timeline_page = FieldTimelinePage.objects.get(
                     title=DEFAULT_TIMELINE_EVENT_TITLE
                 )
-            else:
-                timeline_page, created = \
-                    FieldTimelinePage.objects.get_or_create(
-                        title=DEFAULT_TIMELINE_EVENT_TITLE,
-
-                    )
-            for event in FieldTimelineEvent.objects.all():
-                FieldTimelineEventItem.objects.get_or_create(
-                    page=timeline_page, event=event)
+                for event in FieldTimelineEvent.objects.all():
+                    FieldTimelineEventItem.objects.get_or_create(
+                        page=timeline_page, event=event)
 
     def handle(self, *args, **options):
         # import rights tab
@@ -310,6 +304,8 @@ class Command(BaseCommand):
             self.parse_event_csv_line(csv_line)
             x += 1
             print("{}\n".format(x))
+
+        self.attach_events_to_default_timeline()
 
         # Add event links
         if self.event_links and len(self.event_links) > 0:
