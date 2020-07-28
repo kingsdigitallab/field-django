@@ -398,9 +398,3 @@ DUBLINCORE_RESOURCE_ABSTRACT_ONLY = False
 
 # The path where resource file are uploaded, relative to your MEDIA path
 DUBLINCORE_RESOURCE_UPLOAD_PATH = 'uploads/dublin_core/'
-
-# List of import paths to vocabularies lookup classes
-CONTROLLED_VOCABULARY_VOCABULARIES = [
-    'controlled_vocabulary.vocabularies.iso639_2',
-    'controlled_vocabulary.vocabularies.dcmitype',
-]
