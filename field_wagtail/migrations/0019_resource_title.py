@@ -9,8 +9,4 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL(
-            "alter table dublincore_resource_dublincoreresource "
-            "alter column title type varchar(500) using title::varchar(500);"
-        ),
     ]
