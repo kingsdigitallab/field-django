@@ -174,7 +174,6 @@ class AbstractTimelinePage(Page):
         abstract = True
 
 
-@register_snippet
 class TimelineEventWithImageSnippet(AbstractTimelineEventSnippet):
     image = models.ForeignKey(
         Image,
@@ -276,7 +275,6 @@ class AbstractDublinCoreWagtailMediaResource(DublinCoreResource):
         verbose_name = "Resource"
 
 
-@register_snippet
 class DublinCoreImage(AbstractDublinCoreWagtailMediaResource):
     """This is the core resource object,
     to which pages and timeline events should link to
@@ -315,7 +313,6 @@ class DublinCoreImage(AbstractDublinCoreWagtailMediaResource):
         return self.wagtail_media
 
 
-@register_snippet
 class TimelineEventWithDCImageSnippet(
     AbstractTimelineEventSnippet
 ):

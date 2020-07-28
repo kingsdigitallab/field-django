@@ -6,7 +6,7 @@ from kdl_ldap.signal_handlers import \
 from wagtail.core import urls as wagtail_urls
 from wagtail.admin import urls as wagtailadmin_urls
 from wagtail.documents import urls as wagtaildocs_urls
-from field_timeline import urls as field_timeline_urls
+from field_wagtail import urls as field_wagtail_urls
 from puput import urls as puput_urls
 from django.conf.urls import url
 kdl_ldap_register_signal_hadlers()
@@ -17,7 +17,7 @@ admin.autodiscover()
 # settings.html?highlight=urls.py#urls-py
 urlpatterns = [
     path('admin/', admin.site.urls),
-    re_path(r'^timeline/', include(field_timeline_urls)),
+    re_path(r'^timeline/', include(field_wagtail_urls)),
     re_path(r'^wagtail/', include(wagtailadmin_urls)),
     re_path(r'^documents/', include(wagtaildocs_urls)),
     re_path(r'^captcha/', include('captcha.urls')),

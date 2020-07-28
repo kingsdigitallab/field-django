@@ -13,7 +13,7 @@
 # class TimelineTemplateView(TemplateView):
 #     """
 #     FIELD Time line view using Timeline JS 3 """
-#     template_name = 'field_timeline/timeline.html'
+#     template_name = 'field_timeline/field_timeline_page.html'
 #
 #
 #     def get_timeline_json_url(self, request):

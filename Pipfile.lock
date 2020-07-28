@@ -126,11 +126,11 @@
         },
         "django-controlled-vocabulary": {
             "hashes": [
-                "sha256:1e61d26776537052087231659ef90255461fed67ef027b3a54fe7ef70bf74d2f",
-                "sha256:b7aa6705030c032b4e7f936caa26ca67df942bf68b79a5fe5027b94d93dbde0e"
+                "sha256:6565a38481c4d0e3874621590a36d679751aaa12c878991b98ecfc294704f943",
+                "sha256:854483d43f1dea5c0ff4975c53eb269be43ddea95b742001dfbad4aed136c7d5"
             ],
             "index": "pypi",
-            "version": "==0.8"
+            "version": "==0.8.1"
         },
         "django-coverage-plugin": {
             "hashes": [
@@ -141,11 +141,11 @@
         },
         "django-dublincore-resource": {
             "hashes": [
-                "sha256:99006b97a586b9bb3840d421138146182f7c2a603dec4126977c2a0519624711",
-                "sha256:cdf69af16fabd4b8e2d8933f37920047c5ea7d048b6ad1d89e3a6d8f44930c75"
+                "sha256:d9834b2124884097e499761f25e73fd043538d5244f99c946fe8fa94f807d08b",
+                "sha256:fce142928e51cc4f53e4e8e2a2e48756f47abbfbbb34f17a21bb5cb5eeb3b357"
             ],
             "index": "pypi",
-            "version": "==0.1.2"
+            "version": "==0.1.4"
         },
         "django-el-pagination": {
             "hashes": [
@@ -1082,11 +1082,11 @@
         },
         "tox": {
             "hashes": [
-                "sha256:c60692d92fe759f46c610ac04c03cf0169432d1ff8e981e8ae63e068d0954fc3",
-                "sha256:f179cb4043d7dc1339425dd49ab1dd8c916246b0d9173143c1b0af7498a03ab0"
+                "sha256:3d914480c46232c2d1a035482242535a26d76cc299e4fd28980c858463206f45",
+                "sha256:5c82e40046a91dbc80b6bd08321b13b4380d8ce3bcb5b62616cb17aaddefbb3a"
             ],
             "index": "pypi",
-            "version": "==3.18.0"
+            "version": "==3.18.1"
         },
         "traitlets": {
             "hashes": [
