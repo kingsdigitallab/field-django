@@ -250,10 +250,8 @@ class FieldTimelineResource(ClusterableModel,
         return {'url': url}
 
     def __str__(self):
-        return "{}:{}, {}".format(
-            self.identifier,
-            self.caption,
-            self.link_url
+        return "{}".format(
+            self.identifier
         )
 
 
