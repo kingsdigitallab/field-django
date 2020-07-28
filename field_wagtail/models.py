@@ -302,7 +302,12 @@ class FieldTimelineEvent(AbstractTimelineEventSnippet):
     ordering = ['-start_date_year']
 
     panels = AbstractTimelineEventSnippet.panels + [
+        FieldPanel('category'),
+        FieldPanel('tier'),
+        FieldPanel('who'),
+        FieldPanel('additional_information'),
         SnippetChooserPanel('resource'),
+        FieldPanel('linked_events')
     ]
 
     def get_timeline_data(self) -> Dict[str, Union[Dict[str, int]]]:
@@ -346,8 +351,10 @@ class FieldTimelineEvent(AbstractTimelineEventSnippet):
             self.headline
         )
 
+# hiding this for now, shouldn't need to be accessed directly
+# register_snippet(FieldTimelineResourceImage)
 
-register_snippet(FieldTimelineResourceImage)
+
 register_snippet(FieldTimelineResource)
 register_snippet(FieldTimelineEvent)
 

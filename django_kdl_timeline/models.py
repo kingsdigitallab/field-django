@@ -16,8 +16,10 @@ from dublincore_resource.models import (DublinCoreAgent,
                                         DublinCoreRights,
                                         DublinCoreResource)
 from modelcluster.fields import ParentalKey
-from wagtail.admin.edit_handlers import (FieldPanel, MultiFieldPanel,
-                                         InlinePanel, HelpPanel)
+from wagtail.admin.edit_handlers import (
+    FieldPanel, FieldRowPanel,
+    MultiFieldPanel,
+    InlinePanel, HelpPanel)
 from wagtail.core.models import (Page, Orderable)
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images.models import (Image)
@@ -131,24 +133,18 @@ class AbstractTimelineEventSnippet(index.Indexed, AbstractTimelineSlide):
     panels = [
         MultiFieldPanel(
             [
-                MultiFieldPanel(
+                FieldRowPanel(
                     [
                         FieldPanel('start_date_year'),
                         FieldPanel('start_date_month'),
                         FieldPanel('start_date_day'),
-                    ],
-                    heading="Start Date",
-                    classname="collapsible"
+                    ]
                 ),
-                MultiFieldPanel(
-                    [
-                        FieldPanel('end_date_year'),
-                        FieldPanel('end_date_month'),
-                        FieldPanel('end_date_day'),
-                    ],
-                    heading="End Date",
-                    classname="collapsible"
-                ),
+                FieldRowPanel([
+                    FieldPanel('end_date_year'),
+                    FieldPanel('end_date_month'),
+                    FieldPanel('end_date_day'),
+                ]),
             ],
             heading="Dates",
             classname="collapsible"
@@ -157,10 +153,11 @@ class AbstractTimelineEventSnippet(index.Indexed, AbstractTimelineSlide):
         FieldPanel('text'),
     ]
 
-    search_fields = [
-        index.SearchField('headline', partial_match=True),
-        index.SearchField('text', partial_match=True),
-    ]
+
+search_fields = [
+    index.SearchField('headline', partial_match=True),
+    index.SearchField('text', partial_match=True),
+]
 
 
 class AbstractTimelinePage(Page):
