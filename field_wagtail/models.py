@@ -4,6 +4,7 @@ from django.urls import reverse
 import wagtail
 
 from django import forms
+from django.utils.text import Truncator
 from django.conf import settings
 from django.db import models
 from django.http.response import HttpResponseRedirect
@@ -283,6 +284,16 @@ class FieldOralHistory(models.Model):
         on_delete=models.SET_NULL
     )
 
+    class Meta:
+        verbose_name = "Oral History"
+        verbose_name_plural = "Oral Histories"
+
+    def __str__(self):
+        return "{}:{}".format(
+            self.speaker,
+            Truncator(self.text).words(10)
+        )
+
 
 """An event in the FIELD timeline, inherited from slide"""
 
@@ -357,6 +368,7 @@ class FieldTimelineEvent(AbstractTimelineEventSnippet):
 
 register_snippet(FieldTimelineResource)
 register_snippet(FieldTimelineEvent)
+register_snippet(FieldOralHistory)
 
 
 class FieldTimelineEventItem(Orderable, models.Model):

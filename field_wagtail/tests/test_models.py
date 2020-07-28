@@ -6,6 +6,7 @@ from django.core.files import File
 from django.core.files.images import ImageFile
 from django.core.files.storage import default_storage
 from django.test import TestCase
+from django.utils.text import Truncator
 from wagtail.images.models import Image
 from wagtail.tests.utils import WagtailPageTests
 
@@ -17,7 +18,8 @@ from field_wagtail.models import (
 from field_wagtail.tests.factories import (
     FieldTimelineEventFactory,
     FieldTimelineResourceFactory,
-    DublinCoreAgentFactory
+    DublinCoreAgentFactory,
+    FieldOralHistoryFactory
 )
 
 
@@ -48,6 +50,31 @@ def delete_wagtail_test_image(uri) -> None:
     # Delete fake image
     if default_storage.exists(uri):
         default_storage.delete(uri)
+
+
+class FieldOralHistoryTestCase(TestCase):
+
+    def test__str__(self):
+        history = FieldOralHistoryFactory(
+            speaker='me',
+            text='This is fewer than ten words')
+        self.assertEqual(
+            str(history),
+            "{}:{}".format(
+                history.speaker,
+                Truncator(history.text).words(10)
+            )
+        )
+        history = FieldOralHistoryFactory(
+            speaker='me',
+            text='This is more than ten words it is in fact eleven')
+        self.assertEqual(
+            str(history),
+            "{}:{}".format(
+                history.speaker,
+                Truncator(history.text).words(10)
+            )
+        )
 
 
 class FieldTimelineResourceTestCase(TestCase):

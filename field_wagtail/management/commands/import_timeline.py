@@ -247,20 +247,20 @@ class Command(BaseCommand):
 
                 # If the line has oral history information
                 # create object and link it to event
-                if len(line[16]) > 0:
+                if len(line[17]) > 0:
                     oral_history, created = \
                         FieldOralHistory.objects.get_or_create(
                             timeline_event=event,
-                            speaker=line[16],
-                            place=line[17],
-                            era=line[18],
-                            text=line[19]
+                            speaker=line[17],
+                            place=line[18],
+                            era=line[19],
+                            text=line[20]
                         )
                     # Add rights if the exist
-                    if oral_history and len(line[19]) > 0:
-                        shorthand = line[19]
+                    if oral_history and len(line[21]) > 0:
+                        shorthand = line[21]
                         if 'Rights:' in shorthand:
-                            shorthand = shorthand.replace('Rights:')
+                            shorthand = shorthand.replace('Rights:', '')
                         right, created = \
                             DublinCoreRights.objects.get_or_create(
                                 shorthand=shorthand.lstrip()
