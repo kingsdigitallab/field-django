@@ -128,10 +128,8 @@ class FieldTimelineResourceTestCase(TestCase):
     def test__str__(self):
         self.assertEqual(
             self.resource.__str__(),
-            "{}:{}, {}".format(
-                self.resource.identifier,
-                self.resource.caption,
-                self.resource.link_url
+            "{}".format(
+                self.resource.identifier
             )
         )
 
