@@ -1,14 +1,15 @@
 import factory
+from dublincore_resource.models import DublinCoreAgent
+from wagtail.core.models import Page
 
 from field_wagtail.models import (
     FieldOralHistory,
     FieldTimelineEvent,
     FieldTimelineResource,
     FieldTimelineCategory,
-    FieldTimelinePage
+    FieldTimelinePage,
+    HomePage
 )
-
-from dublincore_resource.models import DublinCoreAgent
 
 
 class FieldOralHistoryFactory(factory.DjangoModelFactory):
@@ -42,6 +43,25 @@ class FieldTimelineEventFactory(factory.DjangoModelFactory):
 
     class Meta:
         model = FieldTimelineEvent
+
+
+class HomePageFactory(factory.DjangoModelFactory):
+    title = factory.Faker('sentence', nb_words=4)
+    path = "00010002"
+    depth = 2
+    body = "[]"
+
+    class Meta:
+        model = HomePage
+
+
+class PageFactory(factory.DjangoModelFactory):
+    title = factory.Faker('sentence', nb_words=4)
+    path = factory.Sequence(lambda n: "00010009%04d" % n)
+    depth = 3
+
+    class Meta:
+        model = Page
 
 
 class FieldTimelinePageFactory(factory.DjangoModelFactory):

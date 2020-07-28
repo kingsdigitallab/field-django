@@ -6,20 +6,25 @@ from django.core.files import File
 from django.core.files.images import ImageFile
 from django.core.files.storage import default_storage
 from django.test import TestCase
+from django.test.client import RequestFactory
 from django.utils.text import Truncator
+from wagtail.core.models import Page
 from wagtail.images.models import Image
 from wagtail.tests.utils import WagtailPageTests
 
 from field_wagtail.models import (
     FieldTimelineResource,
     FieldTimelineResourceImage,
+    HomePage
     # MailingListFormPage
 )
 from field_wagtail.tests.factories import (
     FieldTimelineEventFactory,
     FieldTimelineResourceFactory,
     DublinCoreAgentFactory,
-    FieldOralHistoryFactory
+    FieldOralHistoryFactory,
+    HomePageFactory,
+    PageFactory
 )
 
 
@@ -222,9 +227,42 @@ class FieldTimelineEventTestCase(TestCase):
             data['group'], self.event.category.category_name
         )
 
+    def test__str__(self):
+        self.assertEqual(
+            self.event.__str__(), "{}:{}, {}".format(
+                self.event.unique_id,
+                self.event.start_date_year,
+                self.event.headline,
+            ))
+
 
 class TestHomePage(WagtailPageTests):
-    pass
+
+    def setUp(self) -> None:
+        self.site_root, created = Page.objects.get_or_create(id=2)
+        self.home_page = HomePageFactory.build(
+            title='Home Page Test'
+        )
+        self.site_root.add_child(
+            instance=self.home_page
+        )
+
+    def test_can_create_at(self):
+        self.assertFalse(HomePage.can_create_at(self.site_root))
+
+    def test_get_context(self):
+        self.factory = RequestFactory()
+        communities_root = PageFactory.build(
+            slug=settings.FIELD_COMMUNITIES_ROOT_SLUG)
+        self.home_page.add_child(instance=communities_root)
+        request = self.factory.get('/test')
+        context = self.home_page.get_context(request)
+        self.assertEqual(context['communities_root'], communities_root)
+
+    def test_home_page_render(self) -> None:
+        response = self.client.get(self.home_page.url)
+        self.assertEqual(response.status_code, 200)
+
     #
     # def setUp(self) -> None:
     #     self.home_page, created = HomePage.objects.get_or_create(
@@ -233,6 +271,3 @@ class TestHomePage(WagtailPageTests):
     #     )
     #
     #
-    # def test_home_page_render(self) -> None:
-    #     response = self.client.get(self.home_page.url)
-    #     self.assertEqual(response.status_code, 200)
