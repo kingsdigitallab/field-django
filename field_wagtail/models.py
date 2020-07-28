@@ -1,7 +1,8 @@
 import json
 from typing import Union, Dict, Any
-
+from django.urls import reverse
 import wagtail
+
 from django import forms
 from django.conf import settings
 from django.db import models
@@ -10,15 +11,16 @@ from django.shortcuts import render
 from dublincore_resource.models import (DublinCoreAgent, DublinCoreRights)
 from kdl_wagtail.core.models import (BaseRichTextPage, BasePage)
 from modelcluster.fields import ParentalKey
+from modelcluster.models import ClusterableModel
 from puput.models import EntryPage
 from wagtail.admin.edit_handlers import (
     FieldPanel, InlinePanel
 )
 from wagtail.contrib.routable_page.models import route, RoutablePageMixin
 from wagtail.core.models import (Page, Orderable)
+from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images.models import (Image)
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
-# from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.snippets.models import register_snippet
 
 from django_kdl_timeline.models import (
@@ -140,14 +142,15 @@ class MailingListFormPage(RoutablePageMixin, BasePage):
         )
 
 
-class FieldTimelineResourceImage(models.Model):
+class FieldTimelineResourceImage(Orderable, models.Model):
     image_rendition = 'width-400'
     thumb_rendition = 'width-50'
 
-    resource = models.ForeignKey(
+    resource = ParentalKey(
         'FieldTimelineResource',
         on_delete=models.CASCADE,
         null=True,
+        related_name='related_images'
     )
 
     image = models.ForeignKey(
@@ -156,20 +159,37 @@ class FieldTimelineResourceImage(models.Model):
         null=True
     )
 
+    panels = [
+        ImageChooserPanel('image')
+    ]
+
     @property
     def rendition_url(self) -> str:
         if self.image:
-            return self.image.get_rendition(self.image_rendition).url
+            try:
+                return self.image.get_rendition(self.image_rendition).url
+            except Exception:
+                pass
         return ''
 
     @property
     def thumbnail_url(self) -> str:
         if self.image:
-            return self.image.get_rendition(self.thumb_rendition).url
+            try:
+                return self.image.get_rendition(self.thumb_rendition).url
+            except Exception:
+                pass
         return ''
 
+    def __str__(self):
+        return str(self.resource) + '/' + self.image.filename
 
-class FieldTimelineResource(AbstractDublinCoreWagtailMediaResource):
+    class Meta:
+        verbose_name = 'Timeline Resource'
+
+
+class FieldTimelineResource(ClusterableModel,
+                            AbstractDublinCoreWagtailMediaResource):
     filename = models.CharField(max_length=256, blank=False, null=False,
                                 default='')
     image_ref = models.CharField(max_length=256, blank=True)
@@ -184,6 +204,9 @@ class FieldTimelineResource(AbstractDublinCoreWagtailMediaResource):
             ('V', 'VIDEO')],
         default='I'
     )
+    panels = AbstractDublinCoreWagtailMediaResource.panels + [
+        InlinePanel('related_images', label="Images"),
+    ]
 
     @property
     def attached_media(self) -> Union[None, FieldTimelineResourceImage]:
@@ -198,7 +221,7 @@ class FieldTimelineResource(AbstractDublinCoreWagtailMediaResource):
     def to_timeline_media(self) -> Dict[str, Any]:
         """Transform to a timelineJS media object"""
         url = ''
-        if self.resource_type == 'I':
+        if self.resource_type == 'I' and self.attached_media:
             url = self.attached_media.rendition_url
         if len(url) > 0:
             media_data = {'url': url,
@@ -224,7 +247,7 @@ class FieldTimelineResource(AbstractDublinCoreWagtailMediaResource):
             if self.link_url and len(self.link_url) > 0:
                 media_data['link'] = self.link_url
             return media_data
-        return {}
+        return {'url': url}
 
     def __str__(self):
         return "{}:{}, {}".format(
@@ -279,6 +302,10 @@ class FieldTimelineEvent(AbstractTimelineEventSnippet):
     ev_target_class = "timeline_link"
 
     ordering = ['-start_date_year']
+
+    panels = AbstractTimelineEventSnippet.panels + [
+        SnippetChooserPanel('resource'),
+    ]
 
     def get_timeline_data(self) -> Dict[str, Union[Dict[str, int]]]:
         data = super().get_timeline_data()
@@ -344,6 +371,8 @@ class FieldTimelineEventItem(Orderable, models.Model):
         SnippetChooserPanel('event'),
     ]
 
+    ordering = ['-event.start_date_year']
+
     def __str__(self):
         return self.page.title + " -> " + self.event.unique_id
 
@@ -353,7 +382,24 @@ class FieldTimelinePage(AbstractTimelinePage):
         InlinePanel('related_events', label="Events"),
     ]
 
-#
+    def get_timeline_json_url(self, request):
+        timeline_url = reverse('timeline_json')
+        # Add filter GET variable
+        filters = ''
+        if 'category' in request.GET:
+            filters = 'category={}'.format(request.GET['category'])
+        if len(filters) > 0:
+            timeline_url += '?' + filters
+        return timeline_url
+
+    def get_context(self, request, *args, **kwargs):
+        context = super().get_context(request)
+        # Use the field_timeline view to parse the request
+        # A bit round the houses but left this way for modularity
+        context["ev_target_class"] = FieldTimelineEvent.ev_target_class
+        context['timeline_json_url'] = self.get_timeline_json_url(request)
+        return context
+
 # class AbstractDublinCoreResourcePage(Page):
 #     """ Abstract Page to present a resource as a stand alone detail page
 #         Also useful to allow a friendlier way of editing the resource"""

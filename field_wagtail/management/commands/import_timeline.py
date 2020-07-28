@@ -154,11 +154,14 @@ class Command(BaseCommand):
                         + settings.TIMELINE_IMAGE_FORMAT,
                         'rb'
                 ) as f:
-                    image = Image(
-                        title=line[0],
-                        file=ImageFile(File(f), name=filename)
-                    )
-                    image.save()
+                    if Image.objects.filter(title=line[0]).count() > 0:
+                        image = Image.objects.get(title=line[0])
+                    else:
+                        image = Image(
+                            title=line[0],
+                            file=ImageFile(File(f), name=filename)
+                        )
+                        image.save()
                     if image and resource:
                         ri = FieldTimelineResourceImage(
                             resource=resource,
