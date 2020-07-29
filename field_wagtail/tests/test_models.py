@@ -208,6 +208,12 @@ class FieldTimelineEventTestCase(TestCase):
         self.event.delete()
 
     def test_get_timeline_data(self):
+        next_event = FieldTimelineEventFactory(
+            start_date_year=1934,
+            headline='This is the next event',
+            unique_id='F002')
+        self.event.next_event = next_event
+        self.event.save()
         data = self.event.get_timeline_data()
         self.assertEqual(
             self.event.start_date_year, data['start_date']['year'])
@@ -218,6 +224,7 @@ class FieldTimelineEventTestCase(TestCase):
             data['media']['url'],
             self.event.resource.attached_media.rendition_url
         )
+        self.assertTrue('next event' in data['text']['text'])
 
     def test_to_timeline_json(self):
         data = json.loads(self.event.to_timeline_json())

@@ -1,14 +1,14 @@
 import json
 from typing import Union, Dict, Any
-from django.urls import reverse
-import wagtail
 
+import wagtail
 from django import forms
-from django.utils.text import Truncator
 from django.conf import settings
 from django.db import models
 from django.http.response import HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse
+from django.utils.text import Truncator
 from dublincore_resource.models import (DublinCoreAgent, DublinCoreRights)
 from kdl_wagtail.core.models import (BaseRichTextPage, BasePage)
 from modelcluster.fields import ParentalKey
@@ -29,9 +29,6 @@ from django_kdl_timeline.models import (
     AbstractDublinCoreWagtailMediaResource,
     AbstractTimelinePage
 )
-
-register_snippet(DublinCoreAgent)
-register_snippet(DublinCoreRights)
 
 
 class HomePage(BaseRichTextPage):
@@ -259,6 +256,10 @@ class FieldTimelineResource(ClusterableModel,
 class FieldTimelineCategory(models.Model):
     category_name = models.CharField(max_length=256, blank=True)
 
+    class Meta:
+        verbose_name = "Timeline Category"
+        verbose_name_plural = "Timeline Categories"
+
     def __str__(self):
         return self.category_name
 
@@ -305,6 +306,12 @@ class FieldTimelineEvent(AbstractTimelineEventSnippet):
     resource = models.ForeignKey('FieldTimelineResource',
                                  on_delete=models.CASCADE, null=True)
     linked_events = models.ManyToManyField('self')
+    next_event = models.ForeignKey('FieldTimelineEvent',
+                                   help_text='Next event in theme',
+                                   on_delete=models.SET_NULL,
+                                   related_name='previous_event',
+                                   null=True)
+
     who = models.CharField(max_length=256, blank=False, null=False, default='')
     additional_information = models.TextField(blank=True, default='')
     # css class for in-timeline links
@@ -318,6 +325,7 @@ class FieldTimelineEvent(AbstractTimelineEventSnippet):
         FieldPanel('who'),
         FieldPanel('additional_information'),
         SnippetChooserPanel('resource'),
+        SnippetChooserPanel('next_event'),
         FieldPanel('linked_events')
     ]
 
@@ -329,11 +337,34 @@ class FieldTimelineEvent(AbstractTimelineEventSnippet):
         # If there's a resource, add it here
         if self.resource:
             data['media'] = self.resource.to_timeline_media()
+        # next event in theme/thread
+        if self.next_event or self.previous_event.count() > 0:
+            text = data['text']['text']
+            text += "<br/>Related Events: "
+            if self.previous_event.count() > 0:
+                previous_event = FieldTimelineEvent.objects.filter(
+                    next_event=self)[0]
+                text += ("<a href=\"#\" class=\"{}\" "
+                         "data-unique-id=\"{}\">< {}</a>").format(
+                    self.ev_target_class,
+                    previous_event.unique_id,
+                    Truncator(previous_event.headline).words(5)
+                )
+            if self.next_event:
+                if self.previous_event.count() > 0:
+                    text += " | "
+                text += ("<a href=\"#\" class=\"{}\" "
+                         "data-unique-id=\"{}\">{} ></a>").format(
+                    self.ev_target_class,
+                    self.next_event.unique_id,
+                    Truncator(self.next_event.headline).words(5)
+                )
+            data['text']['text'] = text
+
         # Commented out but kept in case
         # linked events are restored to timeline
-
         # if self.linked_events and self.linked_events.count() > 0:
-        #     text = data['text']['text']
+        #
         #     text += "<br/>Related Events: "
         #     x = 0
         #     for linked_event in self.linked_events.all():
@@ -361,14 +392,6 @@ class FieldTimelineEvent(AbstractTimelineEventSnippet):
             self.start_date_year,
             self.headline
         )
-
-# hiding this for now, shouldn't need to be accessed directly
-# register_snippet(FieldTimelineResourceImage)
-
-
-register_snippet(FieldTimelineResource)
-register_snippet(FieldTimelineEvent)
-register_snippet(FieldOralHistory)
 
 
 class FieldTimelineEventItem(Orderable, models.Model):
@@ -417,6 +440,15 @@ class FieldTimelinePage(AbstractTimelinePage):
         context['timeline_json_url'] = self.get_timeline_json_url(request)
         return context
 
+
+# hiding this for now, shouldn't need to be accessed directly
+# register_snippet(FieldTimelineResourceImage)
+register_snippet(DublinCoreAgent)
+register_snippet(DublinCoreRights)
+register_snippet(FieldTimelineResource)
+register_snippet(FieldTimelineEvent)
+register_snippet(FieldOralHistory)
+register_snippet(FieldTimelineCategory)
 # class AbstractDublinCoreResourcePage(Page):
 #     """ Abstract Page to present a resource as a stand alone detail page
 #         Also useful to allow a friendlier way of editing the resource"""
