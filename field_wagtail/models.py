@@ -304,15 +304,17 @@ class FieldTimelineEvent(AbstractTimelineEventSnippet):
                                  on_delete=models.PROTECT, null=True)
     tier = models.IntegerField(null=False, blank=False, default=0)
     resource = models.ForeignKey('FieldTimelineResource',
-                                 on_delete=models.CASCADE, null=True)
-    linked_events = models.ManyToManyField('self')
+                                 on_delete=models.CASCADE, blank=True,
+                                 null=True)
+    linked_events = models.ManyToManyField('self', blank=True)
     next_event = models.ForeignKey('FieldTimelineEvent',
                                    help_text='Next event in theme',
                                    on_delete=models.SET_NULL,
                                    related_name='previous_event',
+                                   blank=True,
                                    null=True)
 
-    who = models.CharField(max_length=256, blank=False, null=False, default='')
+    who = models.CharField(max_length=256, blank=True, null=False, default='')
     additional_information = models.TextField(blank=True, default='')
     # css class for in-timeline links
     ev_target_class = "timeline_link"
