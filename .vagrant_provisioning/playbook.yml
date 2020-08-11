@@ -114,9 +114,9 @@
       - python
 
   - name: npm | install javascript packages
-    npm:
-      path: "{{ project_root }}"
-      ci: true
+    command: "npm ci"
+    args:
+      chdir: "{{ project_root }}"
     tags:
       - javascript
 
