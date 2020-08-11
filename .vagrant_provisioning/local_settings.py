@@ -1,5 +1,8 @@
 from .base import *  # noqa
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, MEDIA_URL.strip('/'))
+
 DEBUG = True
 
 CSRF_COOKIE_SECURE = False

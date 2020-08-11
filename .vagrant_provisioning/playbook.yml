@@ -116,6 +116,7 @@
   - name: npm | install javascript packages
     npm:
       path: "{{ project_root }}"
+      ci: true
     tags:
       - javascript
 
@@ -271,15 +272,15 @@
     tags:
       - django
 
-  #- name: django | migrations
-  #  command: "pipenv run python manage.py makemigrations"
-  #  args:
-  #    chdir: "{{ project_root }}"
-  #- command: "pipenv run python manage.py migrate"
-  #  args:
-  #    chdir: "{{ project_root }}"
-  #  tags:
-  #    - django
+  - name: django | migrations
+    command: "pipenv run python manage.py makemigrations"
+    args:
+      chdir: "{{ project_root }}"
+  - command: "pipenv run python manage.py migrate"
+    args:
+      chdir: "{{ project_root }}"
+    tags:
+      - django
 
   - name: django | add default (vagrant/vagrant) superuser
     command: "pipenv run python manage.py shell -c \"from django.contrib.auth.models import User; User.objects.create_superuser('vagrant', 'vagrant@localhost', 'vagrant')\""
