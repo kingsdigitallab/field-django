@@ -113,6 +113,7 @@ INSTALLED_APPS += [  # your project apps here
     'kdl_wagtail.people',
 
     'field_wagtail',
+    'captcha',
 ]
 
 #
@@ -213,7 +214,8 @@ TEMPLATES = [
                 'django.template.context_processors.static',
                 'django.contrib.messages.context_processors.messages',
                 'wagtailmenus.context_processors.wagtailmenus',
-                'field.context_processor.project_settings',
+                'field_wagtail.context_processor.project_settings',
+                'field_wagtail.context_processor.mailing_list_footer',
             ],
         },
     },
@@ -299,7 +301,7 @@ USE_PIPENV = True
 # -----------------------------------------------------------------------------
 
 # Google Analytics ID
-GA_ID = ''
+GA_ID = 'UA-67707155-9'
 
 # -----------------------------------------------------------------------------
 # Putput
@@ -351,7 +353,35 @@ SETTINGS_VARS_IN_CONTEXT = [
     'PROJECT_TITLE',
     'GA_ID',
     'USE_BULMA',
+    'MAILING_LIST_FORM_WEB_PATH',
 ]
 
 # slug of the page which is the parent of the specific communities
 FIELD_COMMUNITIES_ROOT_SLUG = 'groups'
+
+if 1:
+    FABRIC_DEV_PACKAGES = [
+        {
+            'git': 'https://github.com/kingsdigitallab/django-kdl-wagtail.git',
+            'folder_git': 'django-kdl-wagtail',
+            'folder_package': 'kdl_wagtail',
+            'branch': 'develop',
+            'servers': ['lcl', 'dev', 'stg', 'liv'],
+        }
+    ]
+
+KDL_WAGTAIL_HIDDEN_PAGE_TYPES = [
+    ('kdl_wagtail_page.richpage'),
+    ('kdl_wagtail_core.streampage'),
+    ('kdl_wagtail_core.indexpage'),
+    ('kdl_wagtail_people.peopleindexpage'),
+    ('kdl_wagtail_people.personpage'),
+]
+
+MAILING_LIST_FORM_WEB_PATH = '/mailing-list/'
+
+# -----------------------------------------------------------------------------
+# Django Simple Captcha
+# -----------------------------------------------------------------------------
+
+CAPTCHA_FONT_SIZE = 36

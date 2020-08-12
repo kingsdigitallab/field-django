@@ -1,113 +1,117 @@
 {% extends "kdl_wagtail_core/base_page.html" %}
 {% load kdl_wagtail_core_tags wagtailcore_tags wagtailimages_tags %}
 
+
+{% block meta_title %}{% endblock %}
+
 {% block page-header %}
 {% endblock page-header %}
 
 
 {% block page-body %}
-        {% comment %}
-            <div class="page-body {% get_page_label page %}">
-                {{ page.body|richtext }}
-            </div>
-        {% endcomment %}
+  <div class="home">
+    <section>
 
+      <div id="carousel">
+        <img alt="" src="https://images.pexels.com/photos/1276237/pexels-photo-1276237.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260">
+        <img alt="" src="https://cdn.pixabay.com/photo/2018/05/28/23/05/animal-3437467_1280.jpg">
+        <img alt="" src="https://images.pexels.com/photos/288621/pexels-photo-288621.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260">
+        <img alt="cows-in-field-sunset-banner.jpg" src="/static/media/images/cows-in-field-sunset-banner.width-1500.jpg" >
+      </div>
+
+      {{ page.body|richtext }}
+
+      <div class="readmore"><a href="about">Read more</a></div>
+
+    </section>
+
+    <section>
+      <header>
+        <h2><a href="/about/groups/">Focus On</a></h2>
+      </header>
+
+      {% for child in communities_root.get_children %}
+        {% if child.live %}
+          {% with child.specific as community %}
+          <div class="card">
+            <a href="{{ community.get_url }}">
+              {% image community.image width-400 %}
+              <div class="overlay">
+                <h3>{{ community.title }}</h3>
+              </div>
+            </a>
+          </div>
+          {% endwith %}
+        {% endif %}
+      {% endfor %}
+    </section>
+
+    <section>
+      <section>
+        <header>
+          <h2><a href="https://twitter.com/field_wt?ref_src=twsrc%5Etfw">Twitter Feed</a></h2>
+        </header>
+        {# https://developer.twitter.com/en/docs/twitter-for-websites/timelines/overview.html #}
+        <a class="twitter-timeline" data-width="200" data-height="400" href="https://twitter.com/field_wt?ref_src=twsrc%5Etfw">Tweets by field_wt</a>
+        <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+      </section>
+
+      <section>
+        <header>
+          <h2><a href="/blog-news/">Latest</a></h2>
+        </header>
+        {% for news_item in news|slice:":4" %}
+          <div class="card">
+            <a href="{{ news_item.get_url }}">
+              {% image news_item.header_image width-400 %}
+              <div class="overlay">
+                <h3 class="truncated-text padded-text">{{ news_item.title }}</h3>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </section>
+
+      {# can't comment this b/c styles will apply nth-child(3) to next section #}
+      {% if 0 %}
         <section>
-          {% image page.image width-1500 %}
-
-          {{ page.body|richtext }}
-          <div class="readmore"><a href="about">Read more</a></div>
+            <header>
+              <h2>Timeline</h2>
+            </header>
+            <img src="https://i.stack.imgur.com/faTir.png" />
         </section>
+      {% endif %}
+
+      <section>
+        <header>
+          <h2>Media</h2>
+        </header>
+
+        {% for image in media_images|slice:":4" %}
+          <div class="card">
+            {% image image fill-360x180 %}
+            <div class="overlay">
+              <h3 class="truncated-text padded-text">{{ image.title }}</h3>
+            </div>
+          </div>
+        {% endfor %}
+
+      </section>
+
+      {% if 0 %}
         <section>
           <header>
-            <h2>Communities</h2>
+            <h2>Papers</h2>
           </header>
-
-          {% for community in communities_root.get_children %}
-            {% if community.live %}
-              <div class="card">
-                <a href="{{ community.get_url }}">
-                  {% image community.image width-400 %}
-                  <div class="overlay">
-                    <h3>{{ community.title }}</h3>
-                  </div>
-                </a>
-              </div>
-            {% endif %}
-          {% endfor %}
+          <ul>
+            <li>Lorem ipsum dolor sit amet</li>
+            <li>Qualisque erroribus consectetuer sit et, id eam volutpat</li>
+            <li>Eam ex dicit dolorum</li>
+            <li>Stet volutpat ne nec</li>
+            <li>Eu elitr consetetur mediocritatem vim</li>
+          </ul>
         </section>
-
-        <section>
-          <section>
-            <header>
-              <h2>Twitter</h2>
-            </header>
-            {# https://developer.twitter.com/en/docs/twitter-for-websites/timelines/overview.html #}
-            <a class="twitter-timeline" data-width="200" data-height="400" href="https://twitter.com/field_wt?ref_src=twsrc%5Etfw">Tweets by field_wt</a>
-            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-          </section>
-           <section>
-             <header>
-              <h2>Latest</h2>
-             </header>
-            {% for news_item in news|slice:":4" %}
-              <div class="card">
-                <a href="{{ news_item.get_url }}">
-                  {% image news_item.header_image width-400 %}
-                  <div class="overlay">
-                    <h3>{{ news_item.title|truncatewords:2 }}</h3>
-                  </div>
-                </a>
-              </div>
-            {% endfor %}
-           </section>
-
-            {# can't comment this b/c styles will apply nth-child(3) to next section #}
-           <section>
-             <header>
-             <h2>Timeline</h2>
-             </header>
-             <img src="https://i.stack.imgur.com/faTir.png" />
-           </section>
-
-           <section>
-            <header>
-              <h2>Media</h2>
-             </header>
-             <div class="card">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRZMroPZFRd683g5_8szccx6MSRnhrCnOS7fzUHiVMbRhL5pnOq" />
-            <div class="overlay">
-                <h3>Media 1</h3>
-            </div>
-          </div>
-          <div class="card">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQHEyVYLKyhjOGkUb2PSDBXmYqAsUMSLoPqqEMhXFvoHXJ2AVLV" />
-            <div class="overlay">
-                <h3>Media 2</h3>
-            </div>
-          </div>
-          <div class="card">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQm9nK15B8XIsMDgTRMxb-3sLpvMp2LfyzE0gDp4JiB2ghsurfH" />
-            <div class="overlay">
-                <h3>Media 3</h3>
-            </div>
-          </div>
-          <div class="card">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTekPd2UcT3khLBWRgszFtPm1CuU0kyhyZfHmq1TFqI0Qi9d2Te" />
-                <h3>Media 4</h3>
-          </div>
-          </section>
-           <section>
-            <header>
-              <h2>Papers</h2>
-            </header>
-            <ul>
-              <li>Lorem ipsum dolor sit amet</li>
-              <li>Qualisque erroribus consectetuer sit et, id eam volutpat</li>
-              <li>Eam ex dicit dolorum</li>
-              <li>Stet volutpat ne nec</li>
-              <li>Eu elitr consetetur mediocritatem vim</li>
-             </ul>
-          </section>
-        </section>
+      {% endif %}
+    </section>
+  </div>
 {% endblock page-body %}

@@ -4,19 +4,20 @@
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>{% block meta_title %}{% endblock %} | {{ PROJECT_TITLE }}</title>
+  <title>
+    {% block meta_title %}{{ page.title }} | {% endblock %} {{ PROJECT_TITLE }}
+  </title>
   <meta name="author" content="King's Digital Lab">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <link rel="stylesheet" type="text/css" href="{% static '@fortawesome/fontawesome-free/css/all.css' %}">
+  <link rel="stylesheet" type="text/css" href="{% static '@fortawesome/fontawesome-free/css/all.css' %}">
   {% compress css %}
     <link rel="stylesheet" type="text/x-scss" href="{% static 'scss/main.scss' %}">
   {% endcompress %}
 
-  <!-- favicons TO: Placeholder only. Need to update -->
-  {% include 'includes/favicon.html' %}
-  <link rel="icon" href="{% static 'images/field-favicon.png' %}" type="image/png">
+  {# % include 'includes/favicon.html' % #}
+<link rel="icon" type="image/png" href="{% static 'images/field-favicon.png' %}">
 
   {% block css %}
     {% comment %}
@@ -24,6 +25,7 @@
         as it allows other templates to insert css files in the head.
     {% endcomment %}
   {% endblock %}
+
 
 </head>
 <body class="ct-{% get_page_label page %}">
@@ -35,7 +37,6 @@
 
   <main>
     {% block breacrumb %}{% include 'includes/breadcrumb.html' %}{% endblock %}
-    {% block title %}{% endblock %}
     {% block main %}
     {% endblock %}
   </main>

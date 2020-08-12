@@ -1,138 +1,107 @@
-from django.contrib.contenttypes.management import create_contenttypes
+from mailchimp3.mailchimpclient import MailChimpError
+from mailchimp3 import MailChimp
+from django.conf import settings
+
+# OK < 100
+MC_SUBSCRIBED = 1
+MC_UNSUBSCRIBED = 2
+MC_RESUBSCRIBED = 3
+MC_PENDING = 4
+# ERROR > 100
+# permanently deleted, we can't re-subscribe them with the API it seems
+# only the user can re-sub with a mailchimp form
+MC_CLEANED = 101
+MC_ERROR_IN_MC = 201
+MC_MEMBER_EXISTS = 202
 
 
-def migrate_wagtail_page_type(apps, schema_editor, mapping):
-    '''
-    Fairly generic method to convert all instances of one direct subtype
-    of wagtail page into another.
+class MailingList(object):
 
-    Returns the number of converted pages.
+    def __init__(self):
+        self.client = MailChimp(settings.MAILCHIMP_API_KEY)
 
-    This is supposed to be called from a data migration operation function.
+    def subscribe(self, user):
+        '''
+        (Re)subscribe a user to a Mailchimp newsletter
 
-    https://docs.djangoproject.com/en/2.2/topics/migrations/#data-migrations
-
-    Method:
-
-    A record from the specific Page type table is copied into the new type
-    table. But the parent record in wagtailcore_page is left intact
-    (same id, title, slug, webpath) apart from its content_type.
-
-    All fields with the same names are automatically copied. Other fields and
-    custom transforms can be done in a custom copy function
-    attached to the 'mapping' dictionary.
-
-    An OPTIONAL 'select' entry in 'mapping' links to a function that can
-    further filter the default django queryset of all pages to convert.
-
-    IT IS RECOMMENDED TO BACK UP YOUR DATABASE BEFORE USING THIS FUNCTION.
-
-    Example:
-
-    def my_migration_operation(apps, schema_editor):
-
-        def copy(page_from, page_to):
-            page_to.field_a = page_from.field_b
-
-        def select(qs):
-            return qs.filter(title__icontains='banana')
-
-        mapping = {
-            'models': {
-                'from': ('kdl_wagtail_page', 'RichPage'),
-                'to': ('kdl_wagtail_core', 'RichTextPage'),
-            },
-            'copy': copy,
-            'select': select,
+        merge_vars = {
+            'EMAIL': '',
+            'FNAME': '',
+            'LNAME': '',
+            'ORG': '',
         }
 
-        convert_pages(apps, schema_editor, mapping)
+        Returns one of the MC_XXX code see const above:
+            MC_SUBSCRIBED
+            MC_RESUBSCRIBED
+            MC_CLEANED
 
-    '''
+        Newsletter id and mailchimp account id should be set up in settings.py
 
-    PageFrom = apps.get_model(*mapping['models']['from'])
-    PageTo = apps.get_model(*mapping['models']['to'])
+        //developer.mailchimp.com/documentation/mailchimp/reference/lists/members/
 
-    pages_to = []
+        create_or_update() would be a convenient call to do anything in one
+        single request. However we can't do that as it would allow anyone with
+        your email address to change your first and last name in the list.
+        So we need to set the names only when the member is created (as it
+        requires email verification). We thus have to separate the two cases:
+        the user already exists in the list or they don't.
+        '''
+        ret = self._create_user(user)
+        print('create', ret)
+        if ret in [MC_MEMBER_EXISTS]:
+            ret = self._update_user(user)
+            print('update', ret)
+        return ret
 
-    pages_from = PageFrom.objects.all()
-    select = mapping.get('select', None)
-    if select:
-        pages_from = select(pages_from)
+    def _create_user(self, user):
+        ret = MC_ERROR_IN_MC
 
-    if pages_from.count() < 1:
-        return pages_to
+        try:
+            res = self.client.lists.members.create(
+                settings.MAILCHIMP_LIST_ID,
+                {
+                    'email_address': user['EMAIL'],
+                    'status': 'subscribed',
+                    'merge_fields': user,
+                }
+            )
+            if res['status'] == 'subscribed':
+                ret = MC_SUBSCRIBED
+        except MailChimpError as e:
+            # print('args', e.args)
+            error = e.args[0]
+            if error['status'] == 400 and error['title'] == 'Member Exists':
+                ret = MC_MEMBER_EXISTS
+            elif (error['status'] == 400
+                  and error['title'] == 'Forgotten Email Not Subscribed'):
+                ret = MC_CLEANED
+            else:
+                raise e
 
-    copy = mapping.get('copy', None)
+        return ret
 
-    # make sure all content_types are present in the DB
-    # see https://stackoverflow.com/a/42791235/3748764
-    from django.apps import apps as global_apps
-    create_contenttypes(
-        global_apps.get_app_config(mapping['models']['to'][0]),
-        verbosity=0, interactive=False
-    )
+    def _update_user(self, user):
+        ret = MC_ERROR_IN_MC
 
-    # get the content type of PageTo
-    ContentType = apps.get_model('contenttypes', 'ContentType')
-    content_type_to = ContentType.objects.filter(
-        app_label=mapping['models']['to'][0],
-        model=mapping['models']['to'][1].lower()
-    ).first()
+        import hashlib
 
-    for page_from in pages_from:
-        page_to = PageTo()
+        hash = hashlib.md5(user['EMAIL'].lower().encode('utf')).hexdigest()
 
-        # naive conversion: we copy all the fields which have a common name
-        # this will at least copy all the fields from Page table
-        # See wagtail.core.models.Page.copy()
-        for field in page_to._meta.get_fields():
-            #             print(field.name, getattr(
-            #                 page_from, field.name, None
-            #             ))
+        try:
+            res = self.client.lists.members.update(
+                settings.MAILCHIMP_LIST_ID,
+                hash,
+                {
+                    'email_address': user['EMAIL'],
+                    'status': 'subscribed',
+                }
+            )
+            # print(res)
+            if res['status'] == 'subscribed':
+                ret = MC_SUBSCRIBED
+        except MailChimpError as e:
+            # print(e.args)
+            raise e
 
-            # Ignore reverse relations
-            if field.auto_created:
-                continue
-
-            # Ignore m2m relations - they will be copied as child objects
-            # if modelcluster supports them at all (as it does for tags)
-            if field.many_to_many:
-                continue
-
-            if hasattr(page_from, field.name):
-                setattr(page_to, field.name, getattr(
-                    page_from, field.name, None
-                ))
-
-        # particular cases
-        page_to.id = page_from.id
-        page_to.page_ptr_id = page_from.page_ptr_id
-        page_to.content_type_id = content_type_to.pk
-
-        # custom copy
-        if copy:
-            copy(page_from, page_to)
-
-        pages_to.append(page_to)
-
-    # Remove all the converted page
-    # we use a raw statement instead of .delete() because we want to keep
-    # the parent Page record.
-    # TODO: for large number of ids, we might need to process this in chunk.
-    # TODO: ANY in the the where clause may not work with other RDBMS than psql
-    from django.db import connection
-    with connection.cursor() as cursor:
-        cursor.execute(
-            'DELETE FROM {} WHERE page_ptr_id = ANY(%s)'.format(
-                PageFrom._meta.db_table),
-            [[p.page_ptr_id for p in pages_to]]
-        )
-
-    # now we can save the converted pages (without duplicate values)
-    for page_to in pages_to:
-        page_to.save()
-
-    print(len(pages_to))
-
-    return len(pages_to)
+        return ret
