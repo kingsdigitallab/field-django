@@ -67,7 +67,10 @@ local.py
 #local_*.py
 logs/
 static/
-media/original_images
+media/original_images/
+media/images/
 # Dev of django-kdl-wagtail package
 /django-kdl-wagtail
 /kdl_wagtail
+
+

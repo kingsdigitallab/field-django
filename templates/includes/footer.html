@@ -63,6 +63,13 @@
           <img src="{% static 'images/University-of-Hull-logo.png' %}" alt="University of Hull logo" >
     </a>
     </li>
+    {% if not HIDE_KCL_LOGO %}
+      <li>
+        <a href="//www.kcl.ac.uk/" title="King's College London logo" target="_blank">
+          <img src="{% static 'images/KCL-logo-white.svg' %}" alt="King's College London logo" >
+        </a>
+      </li>
+    {% endif %}
 </ul>
 <ul>
   <li>

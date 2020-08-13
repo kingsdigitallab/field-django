@@ -349,12 +349,17 @@ USE_BULMA = True
 # is just the home page, nothing else.
 WAGTAILMENUS_SECTION_ROOT_DEPTH = 2
 
+# Note that KCL was (still is?) the research grant recipient.
+# Please make sure logo removal is agreed first with Wellcome & KCL.
+HIDE_KCL_LOGO = True
+
 # those settings vars will be available in template contexts
 SETTINGS_VARS_IN_CONTEXT = [
     'PROJECT_TITLE',
     'GA_ID',
     'USE_BULMA',
     'MAILING_LIST_FORM_WEB_PATH',
+    'HIDE_KCL_LOGO',
 ]
 
 # slug of the page which is the parent of the specific communities
