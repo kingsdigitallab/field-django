@@ -18,24 +18,28 @@ class Command(BaseCommand):
         FieldTimelineResourceImage.objects.all().delete()
 
         for resource in FieldTimelineResource.objects.all():
-            with open(
-                    settings.MEDIA_ROOT
-                    + settings.TIMELINE_IMAGE_FOLDER
-                    + '/' + resource.filename + '.'
-                    + settings.TIMELINE_IMAGE_FORMAT,
-                    'rb'
-            ) as f:
-                if Image.objects.filter(title=resource.title).count() > 0:
-                    image = Image.objects.get(title=resource.title)
-                else:
-                    image = Image(
-                        title=resource.title,
-                        file=ImageFile(File(f), name=resource.filename)
-                    )
-                    image.save()
-                if image and resource:
-                    ri = FieldTimelineResourceImage(
-                        resource=resource,
-                        image=image
-                    )
-                    ri.save()
+            try:
+                with open(
+                        settings.MEDIA_ROOT
+                        + settings.TIMELINE_IMAGE_FOLDER
+                        + '/' + resource.filename + '.'
+                        + settings.TIMELINE_IMAGE_FORMAT,
+                        'rb'
+                ) as f:
+                    if Image.objects.filter(title=resource.title).count() > 0:
+                        image = Image.objects.get(title=resource.title)
+                    else:
+                        image = Image(
+                            title=resource.title,
+                            file=ImageFile(File(f), name=resource.filename)
+                        )
+                        image.save()
+                    if image and resource:
+                        ri = FieldTimelineResourceImage(
+                            resource=resource,
+                            image=image
+                        )
+                        ri.save()
+            except FileNotFoundError:
+                self.stdout.write('File {} not found!'.format(
+                    resource.filename))
