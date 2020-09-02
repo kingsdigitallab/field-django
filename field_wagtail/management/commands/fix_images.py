@@ -1,10 +1,11 @@
-import pdb
+# import pdb
 
 from django.conf import settings
 from django.core.files import File
 from django.core.files.images import ImageFile
 from django.core.management.base import BaseCommand
 from wagtail.images.models import Image
+from django.db.utils import DataError
 
 from field_wagtail.models import (
     FieldTimelineResource, FieldTimelineResourceImage
@@ -14,7 +15,7 @@ from field_wagtail.models import (
 class Command(BaseCommand):
 
     def handle(self, *args, **options):
-        pdb.set_trace()
+        # pdb.set_trace()
         FieldTimelineResourceImage.objects.all().delete()
 
         for resource in FieldTimelineResource.objects.all():
@@ -42,4 +43,7 @@ class Command(BaseCommand):
                         ri.save()
             except FileNotFoundError:
                 self.stdout.write('File {} not found!'.format(
+                    resource.filename))
+            except DataError:
+                self.stdout.write('Data Error {}!'.format(
                     resource.filename))
