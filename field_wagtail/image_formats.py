@@ -11,5 +11,5 @@ class AltTextImageFormat(Format):
 
 
 register_image_format(
-    AltTextImageFormat('fieldimage', 'Alt text image')
+    AltTextImageFormat('fieldimage', 'Alt text image', '', 'width-750')
 )
