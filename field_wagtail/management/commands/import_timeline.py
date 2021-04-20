@@ -146,30 +146,33 @@ class Command(BaseCommand):
                 )
                 resource.creators.add(creator)
             # Add attached resource (currently only images)
-            try:
-                with open(
-                        settings.MEDIA_ROOT
-                        + settings.TIMELINE_IMAGE_FOLDER
-                        + '/' + filename + '.'
-                        + settings.TIMELINE_IMAGE_FORMAT,
-                        'rb'
-                ) as f:
-                    if Image.objects.filter(title=line[0]).count() > 0:
-                        image = Image.objects.get(title=line[0])
-                    else:
-                        image = Image(
-                            title=line[0],
-                            file=ImageFile(File(f), name=filename)
-                        )
-                        image.save()
-                    if image and resource:
-                        ri = FieldTimelineResourceImage(
-                            resource=resource,
-                            image=image
-                        )
-                        ri.save()
-            except FileNotFoundError:
-                self.stdout.write('File {} not found!'.format(filename))
+            self.add_image(resource, line[0], filename)
+
+    def add_image(self, resource, title, filename):
+        try:
+            with open(
+                    settings.MEDIA_ROOT
+                    + settings.TIMELINE_IMAGE_FOLDER
+                    + '/' + filename + '.'
+                    + settings.TIMELINE_IMAGE_FORMAT,
+                    'rb'
+            ) as f:
+                if Image.objects.filter(title=title).count() > 0:
+                    image = Image.objects.get(title=title)
+                else:
+                    image = Image(
+                        title=title,
+                        file=ImageFile(File(f), name=filename)
+                    )
+                    image.save()
+                if image and resource:
+                    ri = FieldTimelineResourceImage(
+                        resource=resource,
+                        image=image
+                    )
+                    ri.save()
+        except FileNotFoundError:
+            self.stdout.write('File {} not found!'.format(filename))
 
     def parse_event_csv_line(self, line) -> None:
         # check for event id

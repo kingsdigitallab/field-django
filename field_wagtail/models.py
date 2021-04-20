@@ -20,9 +20,14 @@ from wagtail.admin.edit_handlers import (
 from wagtail.contrib.routable_page.models import route, RoutablePageMixin
 from wagtail.core.models import (Page, Orderable)
 from wagtail.images.edit_handlers import ImageChooserPanel
-from wagtail.images.models import (Image)
+from wagtail.images.models import (
+    Image,
+    AbstractImage,
+    AbstractRendition
+)
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
 from wagtail.snippets.models import register_snippet
+
 
 from django_kdl_timeline.models import (
     AbstractTimelineEventSnippet,
@@ -443,6 +448,25 @@ class FieldTimelinePage(AbstractTimelinePage):
         return context
 
 
+class FieldImage(AbstractImage):
+    alt_text = models.CharField(max_length=256, null=True, blank=True)
+
+    admin_form_fields = Image.admin_form_fields + (
+        'alt_text',
+    )
+
+
+class FieldImageRendition(AbstractRendition):
+    image = models.ForeignKey(
+        FieldImage, on_delete=models.CASCADE, related_name='renditions'
+    )
+
+    class Meta:
+        unique_together = (
+            ('image', 'filter_spec', 'focal_point_key'),
+        )
+
+
 # hiding this for now, shouldn't need to be accessed directly
 # register_snippet(FieldTimelineResourceImage)
 register_snippet(DublinCoreAgent)
@@ -451,37 +475,3 @@ register_snippet(FieldTimelineResource)
 register_snippet(FieldTimelineEvent)
 register_snippet(FieldOralHistory)
 register_snippet(FieldTimelineCategory)
-# class AbstractDublinCoreResourcePage(Page):
-#     """ Abstract Page to present a resource as a stand alone detail page
-#         Also useful to allow a friendlier way of editing the resource"""
-#
-#     class Meta:
-#         abstract = True
-#
-#
-# class FieldDublinCoreResourceItem(Orderable, models.Model):
-#     """List Item for dublin core resources"""
-#     page = ParentalKey('field_wagtail.FieldDublinCoreResourceListPage',
-#                        on_delete=models.CASCADE,
-#                        related_name='resource_items')
-#     resource = models.ForeignKey('field_wagtail.FieldDublinCoreResource',
-#                                  on_delete=models.CASCADE, related_name='+')
-#
-#     class Meta(Orderable.Meta):
-#         verbose_name = 'Media Resource'
-#         verbose_name_plural = 'Media Resources'
-#
-#     panels = [
-#         SnippetChooserPanel('resource')
-#     ]
-#
-#     def __str__(self):
-#         return self.resource
-#
-#
-# class FieldDublinCoreResourceListPage(BaseRichTextPage):
-#     """Page to list all resources"""
-#
-#     content_panels = BaseRichTextPage.content_panels + [
-#         InlinePanel('resource_items', label="Media Resources"),
-#     ]

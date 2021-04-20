@@ -66,7 +66,9 @@ class AbstractTimelineSlide(models.Model):
 
     def serialise_end_date(self):
         """Get only relevant start dates, return as dict"""
-        dates = {"year": self.end_date_year}
+        dates = {}
+        if self.end_date_year > 0:
+            dates["year"] = self.end_date_year
         if self.end_date_month > 0:
             dates['month'] = self.end_date_month
         if self.end_date_day > 0:
