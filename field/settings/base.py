@@ -15,6 +15,7 @@ import os
 from django_auth_ldap.config import LDAPGroupQuery
 from kdl_ldap.settings import *  # noqa
 
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 
@@ -403,3 +404,10 @@ DUBLINCORE_RESOURCE_ABSTRACT_ONLY = False
 
 # The path where resource file are uploaded, relative to your MEDIA path
 DUBLINCORE_RESOURCE_UPLOAD_PATH = 'uploads/dublin_core/'
+
+# ----------------------------------------------------------------------------
+# Wagtail extra settings
+# ----------------------------------------------------------------------------
+
+
+WAGTAILIMAGES_IMAGE_MODEL = "field_wagtail.FieldImage"
