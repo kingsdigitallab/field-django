@@ -458,7 +458,10 @@ class FieldImage(AbstractImage):
     @property
     def default_alt_text(self):
         # Use the model's alt text as default
-        return self.alt_text
+        if self.alt_text and len(self.alt_text) > 0:
+            return self.alt_text
+        else:
+            return self.title
 
 
 class FieldImageRendition(AbstractRendition):
