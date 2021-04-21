@@ -455,6 +455,11 @@ class FieldImage(AbstractImage):
         'alt_text',
     )
 
+    @property
+    def default_alt_text(self):
+        # Use the model's alt text as default
+        return self.alt_text
+
 
 class FieldImageRendition(AbstractRendition):
     image = models.ForeignKey(
