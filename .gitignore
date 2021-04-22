@@ -69,6 +69,8 @@ logs/
 static/
 media/original_images/
 media/images/
+media/uploaded_images/*
+media/vocabularies/*
 # Dev of django-kdl-wagtail package
 /django-kdl-wagtail
 /kdl_wagtail
