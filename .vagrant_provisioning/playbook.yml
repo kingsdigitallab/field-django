@@ -96,11 +96,13 @@
     - vars.yml
   gather_facts: false
   tasks:
-  - name: python | install pipenv
+  - name: python | install pip and pipenv
+    command: "{{ item }}"
+    with_items:
+      - curl -sSL https://bootstrap.pypa.io/pip/3.5/get-pip.py -o /tmp/get-pip.py
+      - python3 /tmp/get-pip.py
+      - pip install "pipenv<2019"
     become: yes
-    pip:
-      name: pipenv
-      state: latest
     tags:
       - python
 

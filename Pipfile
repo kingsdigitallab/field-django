@@ -37,6 +37,7 @@ flake8 = "*"
 factory-boy = "*"
 django-dublincore-resource = "*"
 django-kdl-wagtail = {ref = "field-1", editable = true, git = "https://github.com/kingsdigitallab/django-kdl-wagtail.git"}
+importlib-metadata = "<3"
 
 [requires]
 python_version = "3.5"
