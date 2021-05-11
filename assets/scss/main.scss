@@ -1227,6 +1227,15 @@ web page (vertical)
         }
     }
 
+    #nav:target {      
+    padding-top:1rem;
+          a.hide-nav{
+                margin-top: 0.5rem;
+                font-size: 2.5rem;
+                transition: 0.5s ease;
+          }
+    }//#nav:target
+      
     #nav:not(:target)>ul {
         display: block;
         background-color: rgba(0, 0, 0, 0.8);
@@ -1238,7 +1247,7 @@ web page (vertical)
     #nav:target>ul {
         display: block;
         transition: 0.5s ease;
-        top: 63px;
+        top: 153px;
         left: 0;
         margin:0;
     }
