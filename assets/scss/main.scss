@@ -1188,6 +1188,7 @@ web page (vertical)
         width: 100%;
         margin-left: -40px;
         background: $primary;
+        z-index:1;
         >li {
             width: 100%;
             margin: 0 0 0 -40px;
