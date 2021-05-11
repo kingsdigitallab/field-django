@@ -514,7 +514,7 @@ h2{
         height: 1px;
         background-image: linear-gradient(to right, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0));
     }
-}
+}//.rich-text
 
 /* Introduction */
 .introduction{
@@ -635,8 +635,8 @@ h2{
                         width:50%;
                         float: right;
                     }
-                }
-            }
+                }//.rich-text
+            }// section
             footer{
                 text-align: left;
                 padding:0;
@@ -1364,9 +1364,20 @@ web page (vertical)
             width:58%;
             padding:1%;
         }
-    }
+    }//introduction
 
-
+    /* Rich text */
+    .rich-text{
+          img{
+            .richtext-image.left{
+                  width:100%;
+                  height:auto;
+            }
+            .richtext-image.right{
+                  width:100%;
+                  height:auto;
+            }
+    }//.rich-text
 
 
     /* Footer */
