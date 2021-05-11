@@ -614,6 +614,8 @@ h2{
                         font-size: 0.9rem;
                         padding: 0.4rem 1.3rem 0.4rem 1rem;
                         font-family: 'Jura', sans-serif;
+                        display: inline-block;
+                        margin-bottom: 2rem;
                         &:hover{
                             background:$primary;
                             color: $white;
