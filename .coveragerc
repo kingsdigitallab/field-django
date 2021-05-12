@@ -1,5 +1,0 @@
-[run]
-include = field_timeline/*, django_kdl_timeline/*, field_wagtail/*
-omit = *migrations*, *tests*, *settings*
-plugins =
-    django_coverage_plugin
