@@ -27,6 +27,7 @@ from wagtail.images.models import (
 )
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
 from wagtail.snippets.models import register_snippet
+from wagtail.core.fields import RichTextField
 
 
 from django_kdl_timeline.models import (
@@ -450,9 +451,10 @@ class FieldTimelinePage(AbstractTimelinePage):
 
 class FieldImage(AbstractImage):
     alt_text = models.CharField(max_length=256, null=True, blank=True)
+    caption = RichTextField(blank=True, null=True)
 
     admin_form_fields = Image.admin_form_fields + (
-        'alt_text',
+        'alt_text', 'caption'
     )
 
     @property
