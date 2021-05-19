@@ -8,7 +8,9 @@
         {% for resource_item in page.resource_items.all %}
             <li>
             {% if resource_item.resource.wagtail_image %}
-                {% image resource_item.resource.wagtail_image width-400 %}
+                {% image resource_item.resource.wagtail_image width-400 as custom_image %}
+                <img src="{{ custom_image.url }}" width="{{ custom_image.width }}"
+    height="{{ custom_image.height }}" alt="{{ custom_image.alt_text }}" />
             {% endif %}
             <br/>
             {{ resource_item.resource.title }}
