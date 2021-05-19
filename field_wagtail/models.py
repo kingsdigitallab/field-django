@@ -233,7 +233,7 @@ class FieldTimelineResource(ClusterableModel,
                 media_data['caption'] = self.caption
             if len(self.attached_media.image.default_alt_text) > 0:
                 media_data[
-                    'alt_text'] = self.attached_media.image.default_alt_text
+                    'alt'] = self.attached_media.image.default_alt_text
             photographer = ''
             if self.creators and self.creators.count() > 0:
                 photographer = ', '.join(
