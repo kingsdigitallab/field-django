@@ -19,7 +19,7 @@
             {% if blog_page.header_image %}
                 <span class="image featured">
                     {% image blog_page.header_image fill-1500x120 as header_image %}
-                    <img alt="{{ blog_page.header_image.title }}" src="{{ header_image.url }}" alt="{{ header_image.alt_text }}">
+                    <img src="{{ header_image.url }}" alt="{{ header_image.alt_text }}">
                 </span>
             {% endif %}
             <div class="container">
