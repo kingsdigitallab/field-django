@@ -18,6 +18,7 @@ from wagtail.admin.edit_handlers import (
     FieldPanel, InlinePanel
 )
 from wagtail.contrib.routable_page.models import route, RoutablePageMixin
+from wagtail.core.fields import RichTextField
 from wagtail.core.models import (Page, Orderable)
 from wagtail.images.edit_handlers import ImageChooserPanel
 from wagtail.images.models import (
@@ -27,8 +28,6 @@ from wagtail.images.models import (
 )
 from wagtail.snippets.edit_handlers import SnippetChooserPanel
 from wagtail.snippets.models import register_snippet
-from wagtail.core.fields import RichTextField
-
 
 from django_kdl_timeline.models import (
     AbstractTimelineEventSnippet,
@@ -232,6 +231,9 @@ class FieldTimelineResource(ClusterableModel,
                           'thumbnail': self.attached_media.thumbnail_url, }
             if len(self.caption) > 0:
                 media_data['caption'] = self.caption
+            if len(self.attached_media.image.default_alt_text) > 0:
+                media_data[
+                    'alt'] = self.attached_media.image.default_alt_text
             photographer = ''
             if self.creators and self.creators.count() > 0:
                 photographer = ', '.join(
