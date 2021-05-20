@@ -63,13 +63,17 @@ DJANGO_APPS = [
     # "django.contrib.humanize", # Handy template tags
     "django.contrib.admin",
     "django.forms",
+    # 'django_extensions', # legacy
 ]
 THIRD_PARTY_APPS = [
     "crispy_forms",
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+
     "django_elasticsearch_dsl",
+
+    # wagtail
     "wagtail.contrib.forms",
     "wagtail.contrib.redirects",
     "wagtail.contrib.settings",
@@ -81,14 +85,33 @@ THIRD_PARTY_APPS = [
     "wagtail.images",
     "wagtail.admin",
     "wagtail.core",
+    'wagtail.search', # legacy
+    'wagtail.contrib.modeladmin', # legacy
+    'wagtail.contrib.routable_page', # legacy
+    'wagtail.contrib.table_block', # legacy
     "modelcluster",
     "taggit",
+
+    'puput',  # legacy
+    'wagtailmenus', # legacy
+
+    'captcha',  # legacy, what for?
+
+    # KDL
+    'kdl_wagtail_page', # legacy, still used?
+
+    'controlled_vocabulary',
+    'dublincore_resource',
     "kdl_wagtail.core",
+    'kdl_wagtail.people',
+    'django_kdl_timeline',
 ]
 
 LOCAL_APPS = [
-    "field.users.apps.UsersConfig",
-    # Your stuff: custom apps go here
+    "field.users.apps.UsersConfig", # ?
+
+    'field_timeline',
+    'field_wagtail',
 ]
 # https://docs.djangoproject.com/en/dev/ref/settings/#installed-apps
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
