@@ -180,7 +180,10 @@ STATIC_ROOT = str(ROOT_DIR / "staticfiles")
 # https://docs.djangoproject.com/en/dev/ref/settings/#static-url
 STATIC_URL = "/static/"
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
-STATICFILES_DIRS = [str(APPS_DIR / "static")]
+STATICFILES_DIRS = [
+    str(ROOT_DIR / "assets"),
+    str(APPS_DIR / "static")
+]
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
 STATICFILES_FINDERS = [
     "django.contrib.staticfiles.finders.FileSystemFinder",
@@ -205,7 +208,7 @@ TEMPLATES = [
         # https://docs.djangoproject.com/en/dev/ref/settings/#std:setting-TEMPLATES-BACKEND
         "BACKEND": "django.template.backends.django.DjangoTemplates",
         # https://docs.djangoproject.com/en/dev/ref/settings/#template-dirs
-        "DIRS": [str(APPS_DIR / "templates")],
+        "DIRS": [str(ROOT_DIR / "templates"), str(APPS_DIR / "templates")],
         "OPTIONS": {
             # https://docs.djangoproject.com/en/dev/ref/settings/#template-loaders
             # https://docs.djangoproject.com/en/dev/ref/templates/api/#loader-types
@@ -324,3 +327,71 @@ WAGTAIL_SITE_NAME = "FIELD"
 
 # Your stuff...
 # ------------------------------------------------------------------------------
+
+USE_BULMA = True
+
+# 1: root, 2: site home page, 3: top level page
+# default is 3, we change to 2 because our default main menu
+# is just the home page, nothing else.
+WAGTAILMENUS_SECTION_ROOT_DEPTH = 2
+
+# Note that KCL was (still is?) the research grant recipient.
+# Please make sure logo removal is agreed first with Wellcome & KCL.
+HIDE_KCL_LOGO = True
+
+# those settings vars will be available in template contexts
+SETTINGS_VARS_IN_CONTEXT = [
+    'PROJECT_TITLE',
+    'GA_ID',
+    'USE_BULMA',
+    'MAILING_LIST_FORM_WEB_PATH',
+    'HIDE_KCL_LOGO',
+]
+
+# slug of the page which is the parent of the specific communities
+FIELD_COMMUNITIES_ROOT_SLUG = 'groups'
+
+if 1:
+    FABRIC_DEV_PACKAGES = [
+        {
+            'git': 'https://github.com/kingsdigitallab/django-kdl-wagtail.git',
+            'folder_git': 'django-kdl-wagtail',
+            'folder_package': 'kdl_wagtail',
+            'branch': 'develop',
+            'servers': ['lcl', 'dev', 'stg', 'liv'],
+        }
+    ]
+
+KDL_WAGTAIL_HIDDEN_PAGE_TYPES = [
+    ('kdl_wagtail_page.richpage'),
+    ('kdl_wagtail_core.streampage'),
+    ('kdl_wagtail_core.indexpage'),
+    ('kdl_wagtail_people.peopleindexpage'),
+    ('kdl_wagtail_people.personpage'),
+]
+
+MAILING_LIST_FORM_WEB_PATH = '/mailing-list/'
+
+# -----------------------------------------------------------------------------
+# Django Simple Captcha
+# -----------------------------------------------------------------------------
+
+CAPTCHA_FONT_SIZE = 36
+
+# Timeline settings
+
+TIMELINE_IMAGE_FOLDER = '/images/'
+TIMELINE_IMAGE_FORMAT = 'jpg'
+
+# dublin core settings
+# Set to True to disable the DublinCoreResource model and define your own
+DUBLINCORE_RESOURCE_ABSTRACT_ONLY = False
+
+# The path where resource file are uploaded, relative to your MEDIA path
+DUBLINCORE_RESOURCE_UPLOAD_PATH = 'uploads/dublin_core/'
+
+# ----------------------------------------------------------------------------
+# Wagtail extra settings
+# ----------------------------------------------------------------------------
+
+WAGTAILIMAGES_IMAGE_MODEL = "field_wagtail.FieldImage"

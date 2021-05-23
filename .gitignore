@@ -282,3 +282,4 @@ field/media/
 /config/settings/local.py
 /legacy/.vagrant_provisioning/playbook.yml.bk
 /legacy/python.tar.xz
+/tmp/

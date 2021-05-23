@@ -13,10 +13,10 @@ from puput import urls as puput_urls
 # admin.autodiscover()
 
 urlpatterns = [
-    path(r'timeline/', include('field_timeline.urls')),
-    path(r'wagtail/', include('wagtail.admin.urls')),
-    path(r'documents/', include('wagtail.documents.urls')),
-    path(r'captcha/', include('captcha.urls')),
+    path('timeline/', include('field_timeline.urls')),
+    path('wagtail/', include('wagtail.admin.urls')),
+    path('documents/', include('wagtail.documents.urls')),
+    path('captcha/', include('captcha.urls')),
     path('vocabularies/', include('controlled_vocabulary.urls')),
 
     # Django Admin, use {% url 'admin:index' %}
