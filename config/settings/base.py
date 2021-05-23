@@ -233,6 +233,8 @@ TEMPLATES = [
                 "django.template.context_processors.tz",
                 "django.contrib.messages.context_processors.messages",
                 "field.utils.context_processors.settings_context",
+                'field_wagtail.context_processor.project_settings',
+                'field_wagtail.context_processor.mailing_list_footer',
             ],
         },
     }
@@ -340,6 +342,11 @@ ELASTICSEARCH_DSL = {"default": {"hosts": "elasticsearch:9200"}}
 # ------------------------------------------------------------------------------
 # https://docs.wagtail.io/en/v2.7.1/getting_started/integrating_into_django.html
 WAGTAIL_SITE_NAME = "FIELD"
+PROJECT_TITLE = 'FIELD'
+
+# PUPUT
+# ------------------------------------------------------------------------------
+PUPUT_AS_PLUGIN = True
 
 # Your stuff...
 # ------------------------------------------------------------------------------
@@ -411,3 +418,6 @@ DUBLINCORE_RESOURCE_UPLOAD_PATH = 'uploads/dublin_core/'
 # ----------------------------------------------------------------------------
 
 WAGTAILIMAGES_IMAGE_MODEL = "field_wagtail.FieldImage"
+
+# Google Analytics ID
+GA_ID = 'UA-67707155-9'
