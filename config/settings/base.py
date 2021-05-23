@@ -90,8 +90,9 @@ THIRD_PARTY_APPS = [
     'wagtail.contrib.routable_page', # legacy
     'wagtail.contrib.table_block', # legacy
     "modelcluster",
-    "taggit",
 
+    "django_social_share", # for puput
+    "taggit", # for puput
     'puput',  # legacy
     'wagtailmenus', # legacy
 
