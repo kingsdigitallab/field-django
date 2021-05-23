@@ -224,6 +224,8 @@ libsass==0.21.0
     # via
     #   -r requirements/base.txt
     #   django-libsass
+mailchimp3==3.0.14
+    # via -r requirements/base.txt
 matplotlib-inline==0.1.2
     # via ipython
 mccabe==0.6.1
@@ -351,6 +353,7 @@ requests==2.25.1
     # via
     #   -r requirements/base.txt
     #   django-allauth
+    #   mailchimp3
     #   requests-oauthlib
     #   wagtail
 rjsmin==1.1.0
