@@ -108,7 +108,7 @@ THIRD_PARTY_APPS = [
 ]
 
 LOCAL_APPS = [
-    "field.users.apps.UsersConfig", # ?
+    # "field.users.apps.UsersConfig", # ?
 
     'field_timeline',
     'field_wagtail',
@@ -128,12 +128,16 @@ AUTHENTICATION_BACKENDS = [
     "django.contrib.auth.backends.ModelBackend",
     "allauth.account.auth_backends.AuthenticationBackend",
 ]
-# https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
-AUTH_USER_MODEL = "users.User"
-# https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
-LOGIN_REDIRECT_URL = "users:redirect"
-# https://docs.djangoproject.com/en/dev/ref/settings/#login-url
-LOGIN_URL = "account_login"
+
+if 0:
+    # https://docs.djangoproject.com/en/dev/ref/settings/#auth-user-model
+    AUTH_USER_MODEL = "users.User"
+    # https://docs.djangoproject.com/en/dev/ref/settings/#login-redirect-url
+    LOGIN_REDIRECT_URL = "users:redirect"
+    # https://docs.djangoproject.com/en/dev/ref/settings/#login-url
+    LOGIN_URL = "account_login"
+
+LOGIN_URL = '/wagtail/login/'
 
 # PASSWORDS
 # ------------------------------------------------------------------------------
@@ -182,7 +186,8 @@ STATIC_URL = "/static/"
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#std:setting-STATICFILES_DIRS
 STATICFILES_DIRS = [
     str(ROOT_DIR / "assets"),
-    str(APPS_DIR / "static")
+    str(APPS_DIR / "static"),
+    str(ROOT_DIR / "node_modules"),
 ]
 # https://docs.djangoproject.com/en/dev/ref/contrib/staticfiles/#staticfiles-finders
 STATICFILES_FINDERS = [
@@ -315,6 +320,16 @@ SOCIALACCOUNT_ADAPTER = "field.users.adapters.SocialAccountAdapter"
 # https://django-compressor.readthedocs.io/en/latest/quickstart/#installation
 INSTALLED_APPS += ["compressor"]
 STATICFILES_FINDERS += ["compressor.finders.CompressorFinder"]
+
+COMPRESS_CSS_FILTERS = [
+    # CSS minimizer
+    'compressor.filters.cssmin.CSSMinFilter'
+]
+
+COMPRESS_PRECOMPILERS = (
+    ('text/x-scss', 'django_libsass.SassCompiler'),
+)
+
 # Elasticsearch
 # ------------------------------------------------------------------------------
 # https://github.com/django-es/django-elasticsearch-dsl
