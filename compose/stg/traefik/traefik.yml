@@ -9,7 +9,7 @@ entryPoints:
 http:
   routers:
     web-router:
-      rule: "Host(`field-stg.kdl.kcl.ac.uk`)"
+      rule: "Host(`field2-stg.kdl.kcl.ac.uk`)"
       entryPoints:
         - web
       middlewares:
@@ -17,7 +17,7 @@ http:
       service: django
 
     web-media-router:
-      rule: "Host(`field-stg.kdl.kcl.ac.uk`) && PathPrefix(`/media/`) || PathPrefix(`/robots.txt`)"
+      rule: "Host(`field2-stg.kdl.kcl.ac.uk`) && PathPrefix(`/media/`) || PathPrefix(`/robots.txt`)"
       entryPoints:
         - web
       middlewares:

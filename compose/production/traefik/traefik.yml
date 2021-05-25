@@ -28,7 +28,7 @@ certificatesResolvers:
 http:
   routers:
     web-secure-router:
-      rule: "Host(`field-wt.co.uk`)"
+      rule: "Host(`field2-stg.kdl.kcl.ac.uk`)"
       entryPoints:
         - web-secure
       middlewares:
@@ -39,7 +39,7 @@ http:
         certResolver: letsencrypt
 
     web-media-router:
-      rule: "Host(`field-wt.co.uk`) && PathPrefix(`/media/`)"
+      rule: "Host(`field2-stg.kdl.kcl.ac.uk`) && PathPrefix(`/media/`)"
       entryPoints:
         - web-secure
       middlewares:

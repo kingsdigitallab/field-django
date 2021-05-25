@@ -6,6 +6,7 @@ set -o nounset
 
 python /app/manage.py migrate
 python /app/manage.py collectstatic --noinput
+python /app/manage.py wagtail_update_index
 
 compress_enabled() {
 python << END

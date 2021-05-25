@@ -1,3 +1,9 @@
+FROM node:10-stretch-slim as image-npm
+
+WORKDIR /app
+COPY ./package*.json /app/
+RUN npm ci && npm cache clean --force
+RUN tar czf node_modules.tar.gz node_modules
 
 FROM python:3.8-slim-buster
 
@@ -37,5 +43,7 @@ COPY --chown=django:django . /app
 USER django
 
 WORKDIR /app
+
+COPY --from=image-npm /app/node_modules.tar.gz /
 
 ENTRYPOINT ["/entrypoint"]
