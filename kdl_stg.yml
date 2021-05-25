@@ -12,7 +12,7 @@ services:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
     image: field_stg_django
-    name: field_stg_django
+    container_name: field_stg_django
     volumes:
       - django_media:/app/field/media
     depends_on:
@@ -29,7 +29,7 @@ services:
       context: .
       dockerfile: ./compose/production/nginx/Dockerfile
     image: field_stg_nginx
-    name: field_stg_nginx
+    container_name: field_stg_nginx
     depends_on:
       - django
     volumes:
@@ -41,7 +41,7 @@ services:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
     image: field_stg_postgres
-    name: field_stg_postgres
+    container_name: field_stg_postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data:Z
       - postgres_data_backups:/backups:z
@@ -54,7 +54,7 @@ services:
       context: .
       dockerfile: ./compose/stg/traefik/Dockerfile
     image: field_stg_traefik
-    name: field_stg_traefik
+    container_name: field_stg_traefik
     depends_on:
       - django
     volumes:
@@ -65,12 +65,12 @@ services:
 
   redis:
     image: redis:5.0
-    name: field_stg_redis
+    container_name: field_stg_redis
     restart: unless-stopped
 
   elasticsearch:
     image: elasticsearch:7.9.1
-    name: field_stg_elasticsearch
+    container_name: field_stg_elasticsearch
     env_file:
       - ./.envs/.production/.elasticsearch
     ports:
