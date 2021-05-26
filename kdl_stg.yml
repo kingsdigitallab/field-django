@@ -24,6 +24,7 @@ services:
       - ./.envs/.stg/.postgres
     command: /start
     restart: unless-stopped
+
   nginx:
     build:
       context: .

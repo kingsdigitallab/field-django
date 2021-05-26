@@ -46,5 +46,6 @@ USER django
 WORKDIR /app
 
 COPY --from=image-npm /app/node_modules.tar.gz /
+RUN tar xzf /node_modules.tar.gz
 
 ENTRYPOINT ["/entrypoint"]
