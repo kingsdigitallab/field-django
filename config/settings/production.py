@@ -133,6 +133,7 @@ COMPRESS_FILTERS = {
     ],
     "js": ["compressor.filters.jsmin.JSMinFilter"],
 }
+del COMPRESS_CSS_FILTERS
 
 # LOGGING
 # ------------------------------------------------------------------------------
