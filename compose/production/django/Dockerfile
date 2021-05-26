@@ -34,13 +34,12 @@ COPY --chown=django:django ./compose/production/django/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint
 RUN chmod +x /entrypoint
 
-
 COPY --chown=django:django ./compose/production/django/start /start
 RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
 COPY --chown=django:django . /app
 
-RUN mkdir -p /app/tvof/media && chmod -R ugo+rwx /app/tvof/media && chown -R django:django /app/tvof/media
+RUN mkdir -p /app/field/media && chmod -R ugo+rwx /app/field/media && chown -R django:django /app/field/media
 
 USER django
 
