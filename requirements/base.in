@@ -16,7 +16,7 @@ django-allauth  # https://github.com/pennersr/django-allauth
 django-crispy-forms  # https://github.com/django-crispy-forms/django-crispy-forms
 django-compressor<3  # https://github.com/django-compressor/django-compressor
 django-libsass # for scss
-# django-redis==4.12.1  # https://github.com/jazzband/django-redis
+django-redis  # https://github.com/jazzband/django-redis
 
 # KDL
 # ------------------------------------------------------------------------------
