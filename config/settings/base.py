@@ -87,13 +87,16 @@ THIRD_PARTY_APPS = [
     "wagtail.core",
     'wagtail.search', # legacy
     'wagtail.contrib.modeladmin', # legacy
+    "wagtail.contrib.sitemaps", # puput
     'wagtail.contrib.routable_page', # legacy
     'wagtail.contrib.table_block', # legacy
     "modelcluster",
 
     "django_social_share", # for puput
+    "django_comments", #  for puput
     "taggit", # for puput
     'puput',  # legacy
+    'colorful', # for puput
     'wagtailmenus', # legacy
 
     'captcha',  # legacy, what for?
@@ -347,6 +350,9 @@ PROJECT_TITLE = 'FIELD'
 # PUPUT
 # ------------------------------------------------------------------------------
 PUPUT_AS_PLUGIN = True
+
+# https://github.com/APSL/puput/issues/222
+PUPUT_COMMENTS_PROVIDER = 'puput.comments.DjangoCommentsCommentsProvider'
 
 # Your stuff...
 # ------------------------------------------------------------------------------

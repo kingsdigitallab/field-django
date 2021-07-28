@@ -35,6 +35,7 @@ django-simple-captcha
 kdl-wagtail-page # should remove this dependency at some point, deprecated
 
 puput
+django-contrib-comments # needed for manage.py compress to process puput templates
 wagtailmenus
 
 django-dublincore-resource

@@ -19,6 +19,8 @@ urlpatterns = [
     path('captcha/', include('captcha.urls')),
     path('vocabularies/', include('controlled_vocabulary.urls')),
 
+    path('comments/', include('django_comments.urls')),
+
     # Django Admin, use {% url 'admin:index' %}
     path(settings.ADMIN_URL, admin.site.urls),
 
