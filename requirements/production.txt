@@ -38,6 +38,8 @@ django-compressor==2.4.1
     # via
     #   -r requirements/./base.in
     #   django-libsass
+django-contrib-comments==2.1.0
+    # via -r requirements/./base.in
 django-controlled-vocabulary==0.11
     # via django-dublincore-resource
 django-crispy-forms==1.11.2
@@ -78,6 +80,7 @@ django==2.2.23
     #   django-appconf
     #   django-auth-ldap
     #   django-colorful
+    #   django-contrib-comments
     #   django-controlled-vocabulary
     #   django-dublincore-resource
     #   django-el-pagination
