@@ -17,7 +17,7 @@ services:
       - django_media:/app/field/media
     depends_on:
       - postgres
-#      - redis
+      - redis
       - elasticsearch
     env_file:
       - ./.envs/.stg/.django

@@ -113,7 +113,6 @@ THIRD_PARTY_APPS = [
 
 LOCAL_APPS = [
     # "field.users.apps.UsersConfig", # ?
-
     'field_timeline',
     'field_wagtail',
 ]
@@ -279,7 +278,8 @@ EMAIL_TIMEOUT = 5
 # Django Admin URL.
 ADMIN_URL = "admin/"
 # https://docs.djangoproject.com/en/dev/ref/settings/#admins
-ADMINS = [("""King's Digital Lab""", "kdl-info@kcl.ac.uk")]
+# ADMINS = [("""King's Digital Lab""", "kdl-info@kcl.ac.uk")]
+ADMINS = [("Geoffroy", "geoffroy.noel@kcl.ac.uk")]
 # https://docs.djangoproject.com/en/dev/ref/settings/#managers
 MANAGERS = ADMINS
 
@@ -427,3 +427,7 @@ WAGTAILIMAGES_IMAGE_MODEL = "field_wagtail.FieldImage"
 
 # Google Analytics ID
 GA_ID = 'UA-67707155-9'
+
+# Field Mailchimp settings (May 2019)
+MAILCHIMP_LIST_ID = env('MAILCHIMP_LIST_ID', default='')
+MAILCHIMP_API_KEY = env('MAILCHIMP_API_KEY', default='')

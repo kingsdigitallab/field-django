@@ -12,6 +12,7 @@ services:
       context: .
       dockerfile: ./compose/production/django/Dockerfile
     image: field_liv_django
+    container_name: field_liv_django
     volumes:
       - django_media:/app/field/media
     depends_on:
@@ -23,11 +24,13 @@ services:
       - ./.envs/.liv/.postgres
     command: /start
     restart: unless-stopped
+
   nginx:
     build:
       context: .
       dockerfile: ./compose/production/nginx/Dockerfile
     image: field_liv_nginx
+    container_name: field_liv_nginx
     depends_on:
       - django
     volumes:
@@ -39,6 +42,7 @@ services:
       context: .
       dockerfile: ./compose/production/postgres/Dockerfile
     image: field_liv_postgres
+    container_name: field_liv_postgres
     volumes:
       - postgres_data:/var/lib/postgresql/data:Z
       - postgres_data_backups:/backups:z
@@ -51,35 +55,26 @@ services:
       context: .
       dockerfile: ./compose/liv/traefik/Dockerfile
     image: field_liv_traefik
+    container_name: field_liv_traefik
     depends_on:
       - django
     volumes:
-        - traefik:/etc/traefik/acme:z
+      - traefik:/etc/traefik/acme
     ports:
       - '127.0.0.1:8201:80'
     restart: unless-stopped
 
   redis:
     image: redis:5.0
+    container_name: field_liv_redis
     restart: unless-stopped
-
-  
 
   elasticsearch:
     image: elasticsearch:7.9.1
+    container_name: field_liv_elasticsearch
     env_file:
-      - ./.envs/.liv/.elasticsearch
+      - ./.envs/.production/.elasticsearch
     ports:
       - '127.0.0.1:9200:9200'
       - '127.0.0.1:9300:9300'
-    restart: unless-stopped
-
-  kibana:
-    image: kibana:7.9.1
-    depends_on:
-      - elasticsearch
-    env_file:
-      - ./.envs/.liv/.kibana
-    ports:
-      - '5601:5601'
     restart: unless-stopped
