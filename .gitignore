@@ -274,7 +274,9 @@ field/media/
 .ipython/
 .env
 .envs/*
-!.envs/.local/
+# GN: removed from repo as we don't want secret keys like mailchimp to leak
+# by accident.
+# !.envs/.local/
 
 # field
 .idea
