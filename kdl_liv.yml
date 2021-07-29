@@ -74,7 +74,4 @@ services:
     container_name: field_liv_elasticsearch
     env_file:
       - ./.envs/.production/.elasticsearch
-    ports:
-      - '127.0.0.1:9200:9200'
-      - '127.0.0.1:9300:9300'
     restart: unless-stopped
