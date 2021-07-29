@@ -17,7 +17,8 @@
   {% endcompress %}
 
   {# % include 'includes/favicon.html' % #}
-<link rel="icon" type="image/png" href="{% static 'images/field-favicon.png' %}">
+
+  <link rel="icon" type="image/png" href="{% static 'images/field-favicon.png' %}">
 
   {% block css %}
     {% comment %}
@@ -45,19 +46,19 @@
 
   <footer class="footer">
     {% block footer %}
-    {% include 'includes/footer.html' %}
+      {% include 'includes/footer.html' %}
     {% endblock %}
   </footer>
 
-  {% compress js %}
-    {% if GA_ID %}
-        <script src="{% static 'js/google_analytics.js' %}"></script>
-        <script>
-          ga('create', '{{ GA_ID }}', 'auto');
-          ga('send', 'pageview');
-        </script>
-    {% endif %}
+  {% if GA_ID and not DEBUG %}
+    <script src="{% static 'js/google_analytics.js' %}"></script>
+    <script>
+      ga('create', '{{ GA_ID }}', 'auto');
+      ga('send', 'pageview');
+    </script>
+  {% endif %}
 
+  {% compress js %}
     <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
     <script type="text/javascript">
       // Notice how this gets configured before we load Font Awesome
