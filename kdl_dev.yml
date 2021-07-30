@@ -61,7 +61,7 @@ services:
     volumes:
       - traefik:/etc/traefik/acme
     ports:
-      - '127.0.0.1:8202:80'
+      - '127.0.0.1:8203:80'
     restart: unless-stopped
 
   redis:
