@@ -1,19 +1,19 @@
 {% load menu_tags wagtailcore_tags %}{% load staticfiles %}
 
-  <nav id="nav" role="navigation">
-        <div class="logo">
-        <a href="/">
-        <img src="{% static 'images/field-logo.svg' %}" alt="Field logo" >
-        <!-- TO: Added full title-->
-        <!--<h1><a href="/">{{ PROJECT_TITLE }}</a></h1>-->
-        <h1>Farm-level Interdisciplinary approaches to Endemic Livestock Disease</h1>
-        </a>
-    </div>
-    <a href="#nav" title="Show navigation">☰</a>
-    <a class="hide-nav" href="#" title="Hide navigation">×</a>
-    <ul>
-      {% block main_menu %}
-          {% main_menu template="menus/main_menu.html" %}
-      {% endblock %}
-    </ul>
-  </nav>
+<nav id="nav" role="navigation">
+  <div class="logo">
+    <a href="/">
+      <img src="{% static 'images/field-logo.svg' %}" alt="Field logo" >
+      <h1>Farm-level Interdisciplinary approaches to Endemic Livestock Disease</h1>
+    </a>
+  </div>
+  <a href="#nav" title="Show navigation">☰</a>
+  <a class="hide-nav" href="#" title="Hide navigation">×</a>
+  <ul>
+    {% block main_menu %}
+      {% if request %}
+        {% main_menu template="menus/main_menu.html" %}
+      {% endif %}
+    {% endblock %}
+  </ul>
+</nav>
