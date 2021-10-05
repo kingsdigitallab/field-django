@@ -83,6 +83,7 @@ INSTALLED_APPS = [
 INSTALLED_APPS += [  # your project apps here
     'kdl_ldap',
     'rest_framework',
+
     'wagtail.core',
     'wagtail.admin',
     'wagtail.documents',
@@ -100,21 +101,21 @@ INSTALLED_APPS += [  # your project apps here
     'wagtail.search',
     'wagtail.contrib.modeladmin',
     'wagtailmenus',
+
     'kdl_wagtail_page',
     'controlled_vocabulary',
     'dublincore_resource',
-    'wagtail.contrib.sitemaps',
-    'django_social_share',
+    'wagtail.contrib.sitemaps', # ?
+    'django_social_share', # ?
     'puput',
-    'colorful',
+    'colorful', # unused?
     'wagtail.contrib.settings',
     'kdl_wagtail.core',
     'kdl_wagtail.people',
     'field_timeline',
     'django_kdl_timeline',
     'field_wagtail',
-    'captcha',
-
+    'captcha', # ?
 ]
 
 

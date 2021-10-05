@@ -1,12 +1,10 @@
 {% extends "kdl_wagtail_core/base_page.html" %}
 {% load kdl_wagtail_core_tags wagtailcore_tags wagtailimages_tags %}
 
-
 {% block meta_title %}{% endblock %}
 
 {% block page-header %}
 {% endblock page-header %}
-
 
 {% block page-body %}
   <div class="home">
@@ -16,7 +14,7 @@
         <img alt="" src="https://images.pexels.com/photos/1276237/pexels-photo-1276237.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260">
         <img alt="" src="https://cdn.pixabay.com/photo/2018/05/28/23/05/animal-3437467_1280.jpg">
         <img alt="" src="https://images.pexels.com/photos/288621/pexels-photo-288621.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260">
-        <img alt="cows-in-field-sunset-banner.jpg" src="/static/media/images/cows-in-field-sunset-banner.width-1500.jpg" >
+        <img alt="cows-in-field-sunset-banner.jpg" src="/media/images/cows-in-field-sunset-banner.width-1500.jpg" >
       </div>
 
       {{ page.body|richtext }}
@@ -36,8 +34,7 @@
           <div class="card">
             <a href="{{ community.get_url }}">
               {% image community.image width-400 as tmp_photo %}
-<img src="{{ tmp_photo.url }}" width="{{ tmp_photo.width }}"
-    height="{{ tmp_photo.height }}" alt="{{ tmp_photo.alt_text }}" />
+              <img src="{{ tmp_photo.url }}" width="{{ tmp_photo.width }}" height="{{ tmp_photo.height }}" alt="{{ tmp_photo.alt_text }}" />
               <div class="overlay">
                 <h3>{{ community.title }}</h3>
               </div>

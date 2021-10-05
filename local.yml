@@ -1,0 +1,48 @@
+version: '3'
+
+volumes:
+  local_postgres_data: {}
+  local_postgres_data_backups: {}
+
+services:
+  django:
+    build:
+      context: .
+      dockerfile: ./compose/local/django/Dockerfile
+    image: field_local_django
+    container_name: field_django
+    depends_on:
+      - postgres
+      - elasticsearch
+    volumes:
+      - .:/app:z
+    env_file:
+      - ./.envs/.local/.django
+      - ./.envs/.local/.postgres
+    ports:
+      - "8000:8000"
+    command: /start
+    restart: unless-stopped
+
+  postgres:
+    build:
+      context: .
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: field_local_postgres
+    container_name: field_postgres
+    volumes:
+      - local_postgres_data:/var/lib/postgresql/data:Z
+      - ./.volumes/local_postgres_data_backups:/backups:z
+    env_file:
+      - ./.envs/.local/.postgres
+    restart: unless-stopped
+
+  elasticsearch:
+    image: elasticsearch:7.9.1
+    container_name: field_elasticsearch
+    env_file:
+      - ./.envs/.local/.elasticsearch
+    ports:
+      - '9200:9200'
+      - '9300:9300'
+    restart: unless-stopped
