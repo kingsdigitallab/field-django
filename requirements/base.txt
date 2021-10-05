@@ -5,103 +5,30 @@
 #    pip-compile requirements/base.txt
 #
 argon2-cffi==20.1.0
-    # via -r requirements/base.txt
+    # via -r base.in
 beautifulsoup4==4.8.2
-    # via
-    #   -r requirements/base.txt
-    #   wagtail
+    # via wagtail
 certifi==2020.12.5
     # via
-    #   -r requirements/base.txt
     #   elasticsearch
     #   requests
 cffi==1.14.5
     # via
-    #   -r requirements/base.txt
     #   argon2-cffi
     #   cryptography
 chardet==4.0.0
-    # via
-    #   -r requirements/base.txt
-    #   requests
+    # via requests
 cryptography==3.4.7
-    # via
-    #   -r requirements/base.txt
-    #   pyjwt
+    # via pyjwt
 defusedxml==0.7.1
+    # via python3-openid
+django==2.2.24
     # via
-    #   -r requirements/base.txt
-    #   python3-openid
-django-allauth==0.44.0
-    # via -r requirements/base.txt
-django-appconf==1.0.4
-    # via
-    #   -r requirements/base.txt
-    #   django-compressor
-django-cogwheels==0.3
-    # via
-    #   -r requirements/base.txt
-    #   wagtailmenus
-django-colorful==1.3
-    # via
-    #   -r requirements/base.txt
-    #   puput
-django-compressor==2.4.1
-    # via
-    #   -r requirements/base.txt
-    #   django-libsass
-django-controlled-vocabulary==0.11
-    # via
-    #   -r requirements/base.txt
-    #   django-dublincore-resource
-django-crispy-forms==1.11.2
-    # via -r requirements/base.txt
-django-dublincore-resource==0.1.4
-    # via -r requirements/base.txt
-django-el-pagination==3.3.0
-    # via
-    #   -r requirements/base.txt
-    #   puput
-django-elasticsearch-dsl==7.2.0
-    # via -r requirements/base.txt
-django-environ==0.4.5
-    # via -r requirements/base.txt
-django-kdl-wagtail==0.9.1
-    # via -r requirements/base.txt
-django-libsass==0.8
-    # via -r requirements/base.txt
-django-model-utils==4.1.1
-    # via -r requirements/base.txt
-django-modelcluster==5.1
-    # via
-    #   -r requirements/base.txt
-    #   wagtail
-django-ranged-response==0.2.0
-    # via
-    #   -r requirements/base.txt
-    #   django-simple-captcha
-django-redis==5.0.0
-    # via -r requirements/base.txt
-django-simple-captcha==0.5.14
-    # via -r requirements/base.txt
-django-social-share==2.2.1
-    # via
-    #   -r requirements/base.txt
-    #   puput
-django-taggit==1.4.0
-    # via
-    #   -r requirements/base.txt
-    #   wagtail
-django-treebeard==4.5.1
-    # via
-    #   -r requirements/base.txt
-    #   wagtail
-django==2.2.23
-    # via
-    #   -r requirements/base.txt
+    #   -r base.in
     #   django-allauth
     #   django-appconf
     #   django-colorful
+    #   django-contrib-comments
     #   django-controlled-vocabulary
     #   django-dublincore-resource
     #   django-el-pagination
@@ -114,103 +41,111 @@ django==2.2.23
     #   djangorestframework
     #   puput
     #   wagtail
-djangorestframework==3.12.4
+django-allauth==0.44.0
+    # via -r base.in
+django-appconf==1.0.4
+    # via django-compressor
+django-cogwheels==0.3
+    # via wagtailmenus
+django-colorful==1.3
+    # via puput
+django-compressor==2.4.1
     # via
-    #   -r requirements/base.txt
-    #   wagtail
-draftjs-exporter==2.1.7
-    # via
-    #   -r requirements/base.txt
-    #   wagtail
-elasticsearch-dsl==7.3.0
-    # via
-    #   -r requirements/base.txt
-    #   django-elasticsearch-dsl
-elasticsearch==7.12.1
-    # via
-    #   -r requirements/base.txt
-    #   elasticsearch-dsl
-html5lib==1.1
-    # via
-    #   -r requirements/base.txt
-    #   wagtail
-idna==2.10
-    # via
-    #   -r requirements/base.txt
-    #   requests
-kdl-wagtail-page==0.1.2
-    # via -r requirements/base.txt
-l18n==2020.6.1
-    # via
-    #   -r requirements/base.txt
-    #   wagtail
-libsass==0.21.0
-    # via
-    #   -r requirements/base.txt
+    #   -r base.in
     #   django-libsass
+django-contrib-comments==2.1.0
+    # via -r base.in
+django-controlled-vocabulary==0.11
+    # via django-dublincore-resource
+django-crispy-forms==1.11.2
+    # via -r base.in
+django-dublincore-resource==0.1.4
+    # via -r base.in
+django-el-pagination==3.3.0
+    # via puput
+django-elasticsearch-dsl==7.2.0
+    # via -r base.in
+django-environ==0.4.5
+    # via -r base.in
+django-kdl-wagtail==0.9.1
+    # via -r base.in
+django-libsass==0.8
+    # via -r base.in
+django-model-utils==4.1.1
+    # via -r base.in
+django-modelcluster==5.1
+    # via wagtail
+django-ranged-response==0.2.0
+    # via django-simple-captcha
+django-redis==5.0.0
+    # via -r base.in
+django-simple-captcha==0.5.14
+    # via -r base.in
+django-social-share==2.2.1
+    # via puput
+django-taggit==1.4.0
+    # via wagtail
+django-treebeard==4.5.1
+    # via wagtail
+djangorestframework==3.12.4
+    # via wagtail
+draftjs-exporter==2.1.7
+    # via wagtail
+elasticsearch==7.12.1
+    # via elasticsearch-dsl
+elasticsearch-dsl==7.3.0
+    # via django-elasticsearch-dsl
+html5lib==1.1
+    # via wagtail
+idna==2.10
+    # via requests
+kdl-wagtail-page==0.1.2
+    # via -r base.in
+l18n==2020.6.1
+    # via wagtail
+libsass==0.21.0
+    # via django-libsass
 mailchimp3==3.0.14
-    # via -r requirements/base.txt
+    # via -r base.in
 oauthlib==3.1.0
-    # via
-    #   -r requirements/base.txt
-    #   requests-oauthlib
+    # via requests-oauthlib
 pillow==7.2.0
     # via
-    #   -r requirements/base.txt
     #   django-simple-captcha
     #   wagtail
 puput==1.1.1
-    # via -r requirements/base.txt
+    # via -r base.in
 pycparser==2.20
-    # via
-    #   -r requirements/base.txt
-    #   cffi
+    # via cffi
 pyjwt[crypto]==2.1.0
-    # via
-    #   -r requirements/base.txt
-    #   django-allauth
+    # via django-allauth
 python-dateutil==2.8.1
-    # via
-    #   -r requirements/base.txt
-    #   elasticsearch-dsl
+    # via elasticsearch-dsl
 python-slugify==4.0.1
-    # via -r requirements/base.txt
+    # via -r base.in
 python3-openid==3.2.0
-    # via
-    #   -r requirements/base.txt
-    #   django-allauth
+    # via django-allauth
 pytz==2021.1
     # via
-    #   -r requirements/base.txt
     #   django
     #   django-modelcluster
     #   l18n
 rcssmin==1.0.6
-    # via
-    #   -r requirements/base.txt
-    #   django-compressor
+    # via django-compressor
 redis==3.5.3
-    # via
-    #   -r requirements/base.txt
-    #   django-redis
-requests-oauthlib==1.3.0
-    # via
-    #   -r requirements/base.txt
-    #   django-allauth
+    # via django-redis
 requests==2.25.1
     # via
-    #   -r requirements/base.txt
     #   django-allauth
     #   mailchimp3
     #   requests-oauthlib
     #   wagtail
+requests-oauthlib==1.3.0
+    # via django-allauth
 rjsmin==1.1.0
-    # via
-    #   -r requirements/base.txt
-    #   django-compressor
+    # via django-compressor
 six==1.16.0
     # via
-    #   -r requirements/base.txt
     #   argon2-cffi
     #   django-compressor
     #   django-elasticsearch-dsl
@@ -221,46 +156,31 @@ six==1.16.0
     #   libsass
     #   python-dateutil
 soupsieve==2.2.1
-    # via
-    #   -r requirements/base.txt
-    #   beautifulsoup4
+    # via beautifulsoup4
 sqlparse==0.4.1
-    # via
-    #   -r requirements/base.txt
-    #   django
+    # via django
 text-unidecode==1.3
-    # via
-    #   -r requirements/base.txt
-    #   python-slugify
+    # via python-slugify
 unidecode==1.2.0
-    # via
-    #   -r requirements/base.txt
-    #   wagtail
+    # via wagtail
 urllib3==1.26.4
     # via
-    #   -r requirements/base.txt
     #   django-controlled-vocabulary
     #   elasticsearch
     #   requests
 wagtail==2.9.3
     # via
-    #   -r requirements/base.txt
+    #   -r base.in
     #   django-kdl-wagtail
     #   kdl-wagtail-page
     #   puput
 wagtailmenus==3.0.2
-    # via -r requirements/base.txt
+    # via -r base.in
 webencodings==0.5.1
-    # via
-    #   -r requirements/base.txt
-    #   html5lib
+    # via html5lib
 whitenoise==5.2.0
-    # via -r requirements/base.txt
+    # via -r base.in
 willow==1.3
-    # via
-    #   -r requirements/base.txt
-    #   wagtail
+    # via wagtail
 xlsxwriter==1.4.3
-    # via
-    #   -r requirements/base.txt
-    #   wagtail
+    # via wagtail
