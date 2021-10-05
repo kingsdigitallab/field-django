@@ -35,7 +35,9 @@
           {% with child.specific as community %}
           <div class="card">
             <a href="{{ community.get_url }}">
-              {% image community.image width-400 %}
+              {% image community.image width-400 as tmp_photo %}
+<img src="{{ tmp_photo.url }}" width="{{ tmp_photo.width }}"
+    height="{{ tmp_photo.height }}" alt="{{ tmp_photo.alt_text }}" />
               <div class="overlay">
                 <h3>{{ community.title }}</h3>
               </div>
