@@ -52,7 +52,7 @@ django-elasticsearch-dsl==7.2.0
     # via -r requirements/./base.in
 django-environ==0.4.5
     # via -r requirements/./base.in
-django-kdl-wagtail==0.9.1
+django-kdl-wagtail==0.10.1
     # via -r requirements/./base.in
 django-libsass==0.8
     # via -r requirements/./base.in
