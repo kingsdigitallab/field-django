@@ -1,0 +1,118 @@
+{% load staticfiles compress %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Phaser Game</title>
+  <script src="{% static 'phaser/dist/phaser.js' %}"></script>
+  <style type="text/css">
+    body {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+<h1>Phaser Game</h1>
+<script type="text/javascript">
+  //Game rules
+  const cowHerdTotal = 30;
+  const window_width=800;
+  const window_height=600;
+
+
+  // Game classes
+  class Farmer {
+    id = 0;
+    name = '';
+    balance = 0;
+
+    constructor(id,name,balance) {
+      this.id = id;
+      this.name = name;
+      this.balance = balance;
+    }
+  }
+
+  class Player extends Farmer{
+    constructor(id,name,balance) {
+      super(id,name,balance);
+    }
+  }
+
+  class Cow{
+    owner = null;
+    isBoviFree = false;
+    isSick = false;
+    constructor(owner,boviFree,isSick) {
+      this.owner = owner;
+      this.isBoviFree = boviFree;
+      this.isSick=isSick;
+    }
+  }
+
+  // Game variables
+
+  /* Main player*/
+  let player;
+  // Computer farmers (Farmer)
+  let AIfarmers = {};
+  //Herd of cows (Cow)
+  let herd = {}
+
+  /* setup functions */
+
+  //Setup game board
+
+
+  //Setup player and AI farmers
+
+
+  // Setup herd
+
+
+
+  /* Gameplay flow functions */
+
+  /**
+   *  Main game config
+   *
+   */
+
+  let config = {
+    type: Phaser.AUTO,
+    width: window_width,
+    height: window_height,
+    scene: {
+      preload: preload,
+      create: create,
+      update: update
+    }
+  };
+
+  let game = new Phaser.Game(config);
+
+  function preload() {
+
+    this.load.image('grass', '{% static 'assets/game/textures/grass_2.png' %}');
+
+    this.load.spritesheet('forest',
+            '{% static 'assets/game/textures/forest_tiles.png' %}',
+            {frameWidth: 16, frameHeight: 16}
+    );
+  }
+
+  function create() {
+    this.add.image(400, 300, 'sky');
+    for (let x=0;x<(window_width/16);x++){
+      for (let y=0;y<(window_height/16);y++) {
+        this.add.image(x * 16, y*16, 'grass').setOrigin(0, 0)
+      }
+    }
+  }
+
+  function update() {
+  }
+
+</script>
+</body>
+</html>

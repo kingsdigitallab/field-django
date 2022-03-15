@@ -12,7 +12,7 @@ urlpatterns = [
     path('documents/', include('wagtail.documents.urls')),
     path('captcha/', include('captcha.urls')),
     path('vocabularies/', include('controlled_vocabulary.urls')),
-
+    path('game/', include('field_game.urls')),
     path('comments/', include('django_comments.urls')),
 
     # Django Admin, use {% url 'admin:index' %}
