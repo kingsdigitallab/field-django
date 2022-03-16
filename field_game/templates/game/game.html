@@ -6,13 +6,19 @@
   <title>BoviFlu Game</title>
   <script src="{% static 'phaser/dist/phaser.js' %}"></script>
   <style type="text/css">
+    @font-face {
+      font-family: PressStart2P;
+      src: url({% static 'assets/game/fonts/PressStart2P-vaV7.ttf'%});
+      font-weight: normal;
+    }
+
     body {
       margin: 0;
     }
   </style>
 </head>
 <body>
-<h1>Phaser Game</h1>
+<h1 style="font-family: PressStart2P;">Phaser Game</h1>
 <script type="text/javascript">
 
   // Game classes
@@ -118,11 +124,10 @@
     /**
      * Scoreboard with all player/AI totals
      */
-    createScoreboard(){
+    createScoreboard() {
       this.scoreboardContainer = this.add.container(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2);
-      let scoreboardBackground = this.add.rectangle(0,0,this.GAME_WIDTH / 2,this.GAME_HEIGHT / 2,0x000000,0.3);
-      let text = this.add.text(0, 0, 'Testing');
-      text.font = "Arial";
+      let scoreboardBackground = this.add.rectangle(0, 0, this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2, 0x000000, 0.3);
+      let text = this.add.text(0, 0, 'Testing', {fontFamily:'PressStart2P'});
       text.setOrigin(0.5, 0.5);
       this.scoreboardContainer.add(scoreboardBackground);
       this.scoreboardContainer.add(text);
@@ -133,16 +138,20 @@
     /**
      * Main Title screen
      */
-    createTitleScreen(){
+    createTitleScreen() {
       this.titleContainer = this.add.container(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2);
       // Background
-      let titleBackground = this.add.rectangle(0,0,this.GAME_WIDTH,this.GAME_HEIGHT,0x000000,0.5);
+      let titleBackground = this.add.rectangle(0, 0, this.GAME_WIDTH, this.GAME_HEIGHT, 0x000000, 0.5);
       this.titleContainer.add(titleBackground);
-      let titleText = this.add.text(0,0, 'BoviFree Game');
+      let titleText = this.add.text(0, 0, 'BoviFree Game', { fontFamily: '"PressStart2P"', fontSize:'300%', });
       titleText.setOrigin(0.5, 0.5);
-      console.log(this.GAME_HEIGHT /4 *-1);
-      titleText.setY(this.GAME_HEIGHT /4 *-1); //, this.GAME_HEIGHT / 4
+      console.log(this.GAME_HEIGHT / 4 * -1);
+      titleText.setY(this.GAME_HEIGHT / 4 * -1);
+      let promptText= this.add.text(0, 0, 'Press Start', { fontFamily: '"PressStart2P"', fontSize:'200%', });
+      promptText.setOrigin(0.5, 0.5);
+      promptText.setY(this.GAME_HEIGHT / 4);
       this.titleContainer.add(titleText);
+      this.titleContainer.add(promptText);
     }
 
     //Setup game board
@@ -157,13 +166,13 @@
 
     createPlayer() {
       // Player farm
-      let playerFarm = this.add.image(this.GAME_WIDTH / 2, 0, 'player_farm').setOrigin(0.5,0);
-      let sprite =  this.physics.add.sprite(playerFarm.getCenter().x, playerFarm.getCenter().y, 'farmer_1');
+      let playerFarm = this.add.image(this.GAME_WIDTH / 2, 0, 'player_farm').setOrigin(0.5, 0);
+      let sprite = this.physics.add.sprite(playerFarm.getCenter().x, playerFarm.getCenter().y, 'farmer_1');
       sprite.setCollideWorldBounds(true);
       this.player = new Player(1, 'Player', 0, sprite, playerFarm)
     }
 
-    createCow(owner, boviFree, isSick){
+    createCow(owner, boviFree, isSick) {
       let sprite = this.physics.add.sprite(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2, 'cow_1');
       let cow = new Cow(owner, boviFree, isSick, sprite)
     }
@@ -191,10 +200,10 @@
 
     createFarmers() {
       //let farm = this.add.image(this.GAME_WIDTH, 0, 'AI_farm').setOrigin(1, 0);
-      for (let x = 0; x <= (this.AIFarmerTotal/2); x++) {
+      for (let x = 0; x <= (this.AIFarmerTotal / 2); x++) {
         // Split evenly on left  and right side
-          this.createAIFarmer(x, 'AI ' + (x+1), 0, 0, (this.GAME_HEIGHT / 4) * x, true);
-          this.createAIFarmer(x+1, 'AI ' + (x+2), 0, this.GAME_WIDTH, (this.GAME_HEIGHT / 4) * x, false);
+        this.createAIFarmer(x, 'AI ' + (x + 1), 0, 0, (this.GAME_HEIGHT / 4) * x, true);
+        this.createAIFarmer(x + 1, 'AI ' + (x + 2), 0, this.GAME_WIDTH, (this.GAME_HEIGHT / 4) * x, false);
       }
     }
 
@@ -319,6 +328,7 @@
 
 
 </script>
+<div style="font-family:PressStart2P; position: absolute; left:-1000px; visibility:hidden;">.</div>
 <div id="phaser-fieldgame">
 
 </div>
