@@ -238,8 +238,8 @@
 
   class GameScene extends FieldScene {
 
-
-    layer;
+    map;
+    layers;
     scoreboardContainer;
     titleContainer;
 
@@ -261,6 +261,7 @@
       super('Game');
       this.AIfarmers = [];
       this.herd = [];
+      this.layers = [];
     }
 
     /* setup functions */
@@ -281,19 +282,36 @@
     }
 
 
-    //Setup game board
+    /**
+     * Setup game board
+     * -Load tile map
+     * - Manually create ground layer from single tiles
+     * (may change later)
+     * -parse building and decoration layers
+     * -set collision for collidable tiles if necessary
+     * -Parse player layer, getting where player and AI starts
+     */
     createGameBoard() {
-      // Grass layer
+      this.map = this.make.tilemap({ key: 'map' });
+
+      // Ground layer
+      let groundLayer = this.add.layer();
       for (let x = 0; x < (this.MAX_WIDTH / 16); x++) {
         for (let y = 0; y < (this.MAX_HEIGHT / 16); y++) {
-          this.add.image(x * 16, y * 16, 'grass').setOrigin(0, 0)
+          groundLayer.add(this.add.image(x * 16, y * 16, 'grass').setOrigin(0, 0));
         }
       }
+
+      // simple_farm = tileset name we've used in Tiled
+      const tileset = this.map.addTilesetImage('simple_farm', 'tiles');
+      // Buildings and fences
+      this.layers['buildingLayer'] = this.map.createLayer('Buildings', tileset,0,0);
+
     }
 
     createPlayer() {
       // Player farm
-      let playerFarm = this.add.image(this.GAME_WIDTH / 2, 0, 'player_farm').setOrigin(0.5, 0);
+      //let playerFarm = this.add.image(this.GAME_WIDTH / 2, 0, 'player_farm').setOrigin(0.5, 0);
       let sprite = this.physics.add.sprite(playerFarm.getCenter().x, playerFarm.getCenter().y - this.BOARD_TILE_SIZE, 'farmer_1');
       sprite.setCollideWorldBounds(true);
       this.player = new Player(1, 'Player', 0, sprite, playerFarm)
@@ -337,7 +355,7 @@
         originX = 1;
         imageKey = 'AI_farm_right';
       }
-      let farm = this.add.image(createX, createY, imageKey).setOrigin(originX, 0);
+      // let farm = this.add.image(createX, createY, imageKey).setOrigin(originX, 0);
       // todo figure out where the AI starts
       let startX = createX + (farm.displayWidth / 2);
       if (!isLeft) {
@@ -366,6 +384,10 @@
 
       // Sprites and images
       this.loadAssets(this);
+
+      // Load the export Tiled JSON
+      this.load.image('tiles', '{% static 'assets/game/textures/simple_farm.png' %}');
+      this.load.tilemapTiledJSON('map', '{% static 'assets/game/maps/fieldfarm.json' %}');
     }
 
     createAnimations(){
@@ -402,9 +424,9 @@
 
       // Main game board
       this.createGameBoard();
-      this.createHerd();
-      this.createPlayer();
-      this.createFarmers()
+      //this.createHerd();
+      //this.createPlayer();
+      //this.createFarmers()
 
       // UI Containers
       this.createScoreboard();
@@ -413,6 +435,7 @@
 
       //const cow = this.herd[0];
       //cow.sprite.play('cow_walk_left');
+
 
     }
 
