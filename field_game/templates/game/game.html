@@ -19,7 +19,7 @@
   </style>
 </head>
 <body>
-<h1 style="font-family: PressStart2P;">Phaser Game</h1>
+<h4 style="font-family: PressStart2P;">Phaser Game</h4>
 <script type="text/javascript">
 
 
@@ -50,7 +50,9 @@
     owner = null;
     isBoviFree = false;
     isSick = false;
-    sprite = null
+    sprite = null;
+    isMoving = false;
+    movePath = null;
 
     constructor(owner, boviFree, isSick, sprite) {
       this.owner = owner;
@@ -58,6 +60,153 @@
       this.isSick = isSick;
       this.sprite = sprite;
     }
+
+    // Move to 5, 10
+    /*
+
+      this.debug(startTile);
+
+      this.finder.calculate();*/
+
+    getMoveDirection(startX, startY, newX, newY) {
+      // Figure out the change in direction
+      let deltaX = newX - startX;
+      let deltaY = newY - startY;
+      let angle = 0;
+
+      if (deltaX === 0) {
+        if (deltaY < 0) {
+          // Up
+          angle = 0;
+        } else if (deltaY > 0) {
+          //Down
+          angle = 180
+        }
+      }
+      if (deltaY === 0) {
+        if (deltaX < 0) {
+          // left
+          angle = 270;
+        } else if (deltaX > 0) {
+          //right
+          angle = 90
+        }
+      }
+      if (deltaX > 0 && deltaY < 0) {
+        //up-right
+        angle = 45;
+      }
+      if (deltaX > 0 && deltaY > 0) {
+        //bottom-right
+        angle = 135;
+      }
+      if (deltaX < 0 && deltaY < 0) {
+        //up-left
+        angle = 315;
+      }
+      if (deltaX < 0 && deltaY > 0) {
+        //bottom-left
+        angle = 225;
+      }
+      return angle;
+
+    }
+
+    /**
+     * Move the cow the next step in its path
+     * @param path easystarjs path
+     */
+
+
+    updateCowSprite(tween) {
+      let sprite = tween.targets[0];
+      let angle = tween.data[0].getEndValue();
+
+      let animationName = null;
+      if (angle > 270 && angle <= 90){
+        animationName = 'cow_walk_up';
+      }else if (angle > 90 && angle <= 270){
+        animationName = 'cow_walk_down';
+      }
+      if (animationName){
+        //onsole.log(animationName);
+        //sprite.anims.play(animationName);
+      }
+
+
+    }
+    startCowSprite(tween) {
+      tween.targets[0].play('cow_walk_up');
+    }
+
+
+    stopCowSprite(tween) {
+      tween.targets[0].anims.stop();
+    }
+
+    /**
+     * Move the cow from current position with easystarjs
+     *
+     * @param {Tile} DestinationTile
+     */
+    calculateCowPath(destinationTile) {
+      let cow = this;
+      let scene = cow.sprite.scene;
+      let startTile = cow.sprite.scene.map.getTileAtWorldXY(cow.sprite.x, cow.sprite.y, cow.sprite.scene.layers['pathLayer']);
+      cow.sprite.scene.finder.findPath(startTile.x, startTile.y, destinationTile.x, destinationTile.y, function (path) {
+        if (path === null) {
+          console.log("Path was not found.");
+        } else {
+          let timeline = cow.sprite.scene.tweens.createTimeline();
+          //let currentRotation= cow.sprite.rotation;
+          let startX = (startTile.x * cow.sprite.scene.BOARD_TILE_SIZE);
+          let startY = (startTile.y * cow.sprite.scene.BOARD_TILE_SIZE);
+          let currentAngle = cow.sprite.angle;
+          for (let i = 0; i < path.length - 1; i++) {
+            let ex = path[i + 1].x;
+            let ey = path[i + 1].y;
+            let newX = ex * cow.sprite.scene.BOARD_TILE_SIZE
+            let newY = ey * cow.sprite.scene.BOARD_TILE_SIZE
+            let angle = cow.getMoveDirection(startX, startY, newX, newY);
+            let diff = angle - currentAngle;
+            //console.log(currentAngle + diff);
+            if (angle !== currentAngle) {
+              if (diff < -180) {
+                diff += 360;
+              } else if (diff > 180) {
+                diff -= 360;
+              }
+              timeline.add({
+                targets: cow.sprite,
+                ease: 'Linear',
+                angle: {value: currentAngle + diff, duration: 200},
+              });
+              currentAngle = currentAngle + diff;
+            }
+            let moveTween = {
+              targets: cow.sprite,
+              ease: 'Power1',
+              x: {value: newX, duration: 200},
+              y: {value: newY, duration: 200},
+            }
+            if (i ===0){
+              moveTween.onStart = cow.startCowSprite;
+            }else if (i === path.length - 2) {
+              // Last step, add stop sprite on complete
+              moveTween.onComplete = cow.stopCowSprite;
+            }
+            timeline.add(moveTween);
+            // Update starting point for next tween
+            startX = newX;
+            startY = newY;
+
+          }
+          timeline.play();
+        }
+      });
+      cow.sprite.scene.finder.calculate();
+    }
+
   }
 
   class FieldScene extends Phaser.Scene {
@@ -197,7 +346,6 @@
     }
 
 
-
     create() {
       const width = this.scale.gameSize.width;
       const height = this.scale.gameSize.height;
@@ -278,13 +426,14 @@
       this.scoreboardContainer.add(scoreboardBackground);
       this.scoreboardContainer.add(text);
       // Start hidden
-      this.scoreboardContainer.setVisible(false);
+      //this.scoreboardContainer.setVisible(false);
     }
 
 
     /**
      * Setup game board
      * -Load tile map
+     * https://stackabuse.com/phaser-3-and-tiled-building-a-platformer/
      * - Manually create ground layer from single tiles
      * (may change later)
      * -parse building and decoration layers
@@ -292,7 +441,7 @@
      * -Parse player layer, getting where player and AI starts
      */
     createGameBoard() {
-      this.map = this.make.tilemap({ key: 'map' });
+      this.map = this.make.tilemap({key: 'map'});
 
       // Ground layer
       let groundLayer = this.add.layer();
@@ -305,7 +454,43 @@
       // simple_farm = tileset name we've used in Tiled
       const tileset = this.map.addTilesetImage('simple_farm', 'tiles');
       // Buildings and fences
-      this.layers['buildingLayer'] = this.map.createLayer('Buildings', tileset,0,0);
+      this.layers['buildingLayer'] = this.map.createLayer('Buildings', tileset, 0, 0);
+      this.layers['pathLayer'] = this.map.createLayer('Paths', tileset, 0, 0);
+      this.layers['playerLayer'] = this.map.createLayer('Players', tileset, 0, 0);
+      // Hidden as we only want information about starting points here
+      //this.layers['playerLayer'].setVisible(false);
+      //Build Easyjs map
+      // from https://www.dynetisgames.com/2018/03/06/pathfinding-easystar-phaser-3/
+      // obstacles = 0, road = 1 , grass = 2
+      let grid = [];
+      for (var y = 0; y < (this.GAME_HEIGHT / this.BOARD_TILE_SIZE); y++) {
+        let col = [];
+        for (var x = 0; x < (this.GAME_WIDTH / this.BOARD_TILE_SIZE); x++) {
+          // In each cell we store the ID of the tile, which corresponds
+          // to its index in the tileset of the map ("ID" field in Tiled)
+          //
+          let tile = this.map.getTileAt(x, y, true, this.layers['buildingLayer']);
+          if (tile.index >= 0) {
+            // Building, fence, or other obstacle
+            col.push(0);
+          } else {
+            tile = this.map.getTileAt(x, y, true, this.layers['pathLayer']);
+            if (tile.index >= 0) {
+              // Road/path
+              col.push(1)
+            } else {
+              // Assume grass in our basic map
+              col.push(2);
+            }
+          }
+        }
+        grid.push(col);
+      }
+      this.finder.setGrid(grid);
+      this.finder.enableDiagonals();
+      this.finder.setAcceptableTiles([1, 2]);
+      this.finder.setTileCost(2, 2);
+
 
     }
 
@@ -390,19 +575,31 @@
       this.load.tilemapTiledJSON('map', '{% static 'assets/game/maps/fieldfarm.json' %}');
     }
 
-    createAnimations(){
+    createAnimations() {
       this.anims.create({
-            key: 'cow_walk_up',
-            frames: this.anims.generateFrameNumbers('cow_1', { frames: [ 0, 1, 2, 3 ] }),
-            frameRate: 8,
-            repeat: -1
-        });
-       this.anims.create({
-            key: 'cow_walk_left',
-            frames: this.anims.generateFrameNumbers('cow_1', { frames: [ 4, 5, 6, 7 ] }),
-            frameRate: 8,
-            repeat: -1
-        });
+        key: 'cow_walk_up',
+        frames: this.anims.generateFrameNumbers('cow_1', {frames: [0, 1, 2, 3]}),
+        frameRate: 8,
+        repeat: -1
+      });
+      this.anims.create({
+        key: 'cow_walk_left',
+        frames: this.anims.generateFrameNumbers('cow_1', {frames: [4, 5, 6, 7]}),
+        frameRate: 8,
+        repeat: -1
+      });
+      this.anims.create({
+        key: 'cow_walk_down',
+        frames: this.anims.generateFrameNumbers('cow_1', {frames: [8, 9, 10, 11]}),
+        frameRate: 8,
+        repeat: -1
+      });
+      this.anims.create({
+        key: 'cow_walk_right',
+        frames: this.anims.generateFrameNumbers('cow_1', {frames: [12, 13, 14, 15]}),
+        frameRate: 8,
+        repeat: -1
+      });
 
     }
 
@@ -422,9 +619,14 @@
 
       this.scale.on('resize', this.resize, this);
 
+      // ### Pathfinding stuff ###
+      // Initializing the pathfinder
+      this.finder = new EasyStar.js();
+
+
       // Main game board
       this.createGameBoard();
-      //this.createHerd();
+      this.createHerd();
       //this.createPlayer();
       //this.createFarmers()
 
@@ -433,13 +635,61 @@
 
       this.createAnimations();
 
-      //const cow = this.herd[0];
+      const cow = this.herd[0];
+      /*for (let x = 0; x < (this.MAX_WIDTH / 16); x++) {
+        for (let y = 0; y < (this.MAX_HEIGHT / 16); y++) {
+          if (this.map.getTileAt(x,y, true, this.layers['Paths']) != null){
+            console.log(x+'::'+y);
+          }
+        }
+      }*/
+      //console.log(this.map.getTileAt(7,12, true, this.layers['Paths']));
+      //cow.calculateCowPath(this.map.getTileAt(30, 30, true, this.layers['Paths']));
       //cow.sprite.play('cow_walk_left');
+
+      /*let tween = this.tweens.add({
+              targets: cow,
+              ease: 'Power1',
+              x: {value: 800, duration: 500},
+              y: {value: 600, duration: 500}
+            });
+      tween.play();*/
 
 
     }
 
     update() {
+      // Move any cows that should be moved
+      // todo only call during move phase!
+      /*let stillMoving = false;
+      let maxSteps = 0;
+      for (let c = 0; c < this.herd.length; c++) {
+        if (this.herd[c].isMoving) {
+          if (this.herd[c].movePath.length > maxSteps) {
+            maxSteps = this.herd[c].movePath.length;
+          }
+        }
+      }
+      let herd = this.herd
+      if (maxSteps > 0) {
+         let timer = this.time.addEvent({
+            delay: 500,                // ms
+            callback: function () {
+              for (let c = 0; c < herd.length; c++) {
+                if (herd[c].isMoving) {
+                  herd[c].moveCow(timer.getRepeatCount());
+                }
+              }
+              console.log(timer.getRepeatCount());
+            },
+            loop: false,
+            repeat: maxSteps,
+            startAt: 0,
+            timeScale: 1,
+            paused: false
+          });
+      }*/
+
     }
 
 
