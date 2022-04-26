@@ -388,15 +388,27 @@
 
     map;
     layers;
+
+    // UI objects
     scoreboardContainer;
+    scoreboardTitle;
+    scoreboardText;
     titleContainer;
 
-    // Board creations settings
+    // Board creation settings
     farmPaddingX = 16;
 
-    //Game rules
-    cowHerdTotal = 28;
+    //Game rules and constants
+    startHerdSize = 20;
+    startFarmerBalance = 200;
     AIFarmerTotal = 6;
+    totalRounds = 8;
+
+    bfreeJoinCost = 40; // Cost to join scheme
+    // Cow prices, buy and sell
+    bfreeCowPrice = 30;
+    normalCowPrice = 20;
+
 
     /* Main player*/
     player;
@@ -420,11 +432,18 @@
      */
     createScoreboard() {
       this.scoreboardContainer = this.add.container(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2);
-      let scoreboardBackground = this.add.rectangle(0, 0, this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2, 0x000000, 0.3);
-      let text = this.add.text(0, 0, 'Testing', {fontFamily: 'PressStart2P'});
-      text.setOrigin(0.5, 0.5);
+      let scoreboardBackground = this.add.rectangle(0, 0, this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2, 0x000000, 0.5);
+      this.scoreboardTitle = this.add.text(0,0,'BoviFlu game', {fontFamily: 'PressStart2P'});
+      this.scoreboardText = this.add.text(0,0,'Press Start', {fontFamily: 'PressStart2P'});
+      this.scoreboardText.setOrigin(0.5,0.5);
+      this.scoreboardTitle.setOrigin(0.5, 0.5);
       this.scoreboardContainer.add(scoreboardBackground);
-      this.scoreboardContainer.add(text);
+      this.scoreboardContainer.add(this.scoreboardTitle);
+      this.scoreboardContainer.add(this.scoreboardText);
+
+      Phaser.Display.Align.In.TopCenter(
+              this.scoreboardTitle, scoreboardBackground
+      );
       // Start hidden
       //this.scoreboardContainer.setVisible(false);
     }
@@ -515,7 +534,7 @@
     createHerd() {
       this.debug('Creating herd...')
       // Even split for now
-      let cowsPerPlayer = Math.floor(this.cowHerdTotal / (this.AIFarmerTotal + 1));
+      let cowsPerPlayer = Math.floor(this.startHerdSize / (this.AIFarmerTotal + 1));
       this.debug(cowsPerPlayer + ' cows per player')
       let owner = this.player;
       let startingX = (this.GAME_WIDTH / 2) - (cowsPerPlayer / 2 * 34);
@@ -559,8 +578,8 @@
       //let farm = this.add.image(this.GAME_WIDTH, 0, 'AI_farm').setOrigin(1, 0);
       for (let x = 0; x <= (this.AIFarmerTotal / 2); x++) {
         // Split evenly on left  and right side
-        this.createAIFarmer(x, 'AI ' + (x + 1), 0, this.farmPaddingX, (this.GAME_HEIGHT / 4) * x, true);
-        this.createAIFarmer(x + 1, 'AI ' + (x + 2), 0, this.GAME_WIDTH - this.farmPaddingX, (this.GAME_HEIGHT / 4) * x, false);
+        this.createAIFarmer(x, 'AI ' + (x + 1), this.startFarmerBalance, this.farmPaddingX, (this.GAME_HEIGHT / 4) * x, true);
+        this.createAIFarmer(x + 1, 'AI ' + (x + 2), this.startFarmerBalance, this.GAME_WIDTH - this.farmPaddingX, (this.GAME_HEIGHT / 4) * x, false);
       }
     }
 
@@ -655,6 +674,8 @@
             });
       tween.play();*/
 
+      this.bovifreePhase();
+
 
     }
 
@@ -692,6 +713,47 @@
 
     }
 
+    /* Gameplay flow functions */
+    /*
+    Each round of the game is as follows:
+
+    1. Ask player if they wish to join the Bovifree scheme
+      If so, set cows to bovifree and deduct fee
+
+    2. Player chooses which farm to purchase cow from
+
+    3.Calculate cow infection rate
+
+    4.  Calculate balance totals
+
+    5. End round
+
+    If round max is reached:
+      Display results of game
+      Prompt to play again /share?
+
+     */
+
+    bovifreePhase(){
+      this.scoreboardTitle.text = "Pay Bovifree fee?"
+      this.scoreboardText.text = "Pay £"+this.bfreeJoinCost+" to join scheme this turn? \n\n ";
+      const prompt_yes = this.add.text(0,0,'Yes', {fontFamily: 'PressStart2P'});
+      const prompt_no = this.add.text(0,0,'No', {fontFamily: 'PressStart2P'});
+      // helloButton.on('pointerover', () => { console.log('pointerover'); });
+      this.scoreboardContainer.add(prompt_yes);
+    }
+
+    cowTradingPhase(){
+
+    }
+
+    cowInfectionPhase() {
+
+    }
+
+    updateFarmers(){
+
+    }
 
   };
 
@@ -702,7 +764,9 @@
   // Setup herd
 
 
-  /* Gameplay flow functions */
+
+
+
 
   /**
    *  Main game config
