@@ -11,20 +11,21 @@ class Farmer {
     name = '';
     balance = 0;
     sprite = null;
-    farm = null;
+    farmerStart;
 
-    constructor(id, name, balance, sprite, farm) {
+
+    constructor(id, name, balance, sprite, farmerStart) {
         this.id = id;
         this.name = name;
         this.balance = balance;
         this.sprite = sprite;
-        this.farm = farm;
+        this.farmerStart =farmerStart;
     }
 }
 
 class Player extends Farmer {
-    constructor(id, name, balance, sprite, farm) {
-        super(id, name, balance, sprite);
+    constructor(id, name, balance, sprite, farmerStart) {
+        super(id, name, balance, sprite, farmerStart);
     }
 }
 
@@ -62,7 +63,7 @@ class Cow {
                 angle = 0;
             } else if (deltaY > 0) {
                 //Down
-                angle = 180
+                angle = 180;
             }
         }
         if (deltaY === 0) {
@@ -71,7 +72,7 @@ class Cow {
                 angle = 270;
             } else if (deltaX > 0) {
                 //right
-                angle = 90
+                angle = 90;
             }
         }
         if (deltaX > 0 && deltaY < 0) {
@@ -128,15 +129,27 @@ class Cow {
     }
 
     /**
+     * Move the cow from its current position to tile dx, dy
+     * @param dX destination tile x
+     * @param dY destination tile y
+     */
+    moveCow(dX, dY){
+        // todo change to fast/normal speeds if necessary
+        let cowSpeed = 50;
+        this.calculateCowPath(dX, dY, cowSpeed);
+    }
+
+    /**
      * Move the cow from current position with easystarjs
      *
      * @param {Tile} DestinationTile
      */
-    calculateCowPath(destinationTile) {
+    calculateCowPath(dX, dY, cowSpeed) {
         let cow = this;
         let scene = cow.sprite.scene;
         let startTile = cow.sprite.scene.map.getTileAtWorldXY(cow.sprite.x, cow.sprite.y, cow.sprite.scene.layers['pathLayer']);
-        cow.sprite.scene.finder.findPath(startTile.x, startTile.y, destinationTile.x, destinationTile.y, function (path) {
+
+        cow.sprite.scene.finder.findPath(startTile.x, startTile.y, dX, dY, function (path) {
             if (path === null) {
                 console.log("Path was not found.");
             } else {
@@ -162,15 +175,15 @@ class Cow {
                         timeline.add({
                             targets: cow.sprite,
                             ease: 'Linear',
-                            angle: {value: currentAngle + diff, duration: 200},
+                            angle: {value: currentAngle + diff, duration: cowSpeed},
                         });
                         currentAngle = currentAngle + diff;
                     }
                     let moveTween = {
                         targets: cow.sprite,
                         ease: 'Power1',
-                        x: {value: newX, duration: 200},
-                        y: {value: newY, duration: 200},
+                        x: {value: newX, duration: cowSpeed},
+                        y: {value: newY, duration: cowSpeed},
                     }
                     if (i === 0) {
                         moveTween.onStart = cow.startCowSprite;
@@ -204,6 +217,8 @@ export default class GameScene extends FieldScene {
     scoreboardTitle;
     scoreboardText;
     titleContainer;
+    // Player/farmer starts, where the cow pens are etc.
+    gameboardInfo;
 
     // Board creation settings
     farmPaddingX = 16;
@@ -232,6 +247,18 @@ export default class GameScene extends FieldScene {
         this.AIfarmers = [];
         this.herd = [];
         this.layers = [];
+        this.gameboardInfo= {
+            playerCowPen:[[16,9], 5, 7],
+            farmerCowPens:[
+                [[1,9], 5, 7],
+                [[33,9], 5, 7],
+                [[1,33], 5, 7],
+                [[33,33], 5, 7],
+                [[1,51], 5, 7],
+                [[33,51], 5, 7],
+            ],
+            farmerStarts:[]
+        };
     }
 
     /* setup functions */
@@ -283,11 +310,13 @@ export default class GameScene extends FieldScene {
         // simple_farm = tileset name we've used in Tiled
         const tileset = this.map.addTilesetImage('simple_farm', 'tiles');
         // Buildings and fences
-        this.layers['buildingLayer'] = this.map.createLayer('Buildings', tileset, 0, 0);
         this.layers['pathLayer'] = this.map.createLayer('Paths', tileset, 0, 0);
-        this.layers['playerLayer'] = this.map.createLayer('Players', tileset, 0, 0);
+        this.layers['buildingLayer'] = this.map.createLayer('Buildings', tileset, 0, 0);
+
+        // this.layers['playerLayer'] = this.map.createLayer('Players', tileset, 0, 0);
+        // this.layers['playerLayer'].setVisible(false);
         // Hidden as we only want information about starting points here
-        //this.layers['playerLayer'].setVisible(false);
+        //
         //Build Easyjs map
         // from https://www.dynetisgames.com/2018/03/06/pathfinding-easystar-phaser-3/
         // obstacles = 0, road = 1 , grass = 2
@@ -298,15 +327,24 @@ export default class GameScene extends FieldScene {
                 // In each cell we store the ID of the tile, which corresponds
                 // to its index in the tileset of the map ("ID" field in Tiled)
                 //
-                let tile = this.map.getTileAt(x, y, true, this.layers['buildingLayer']);
+                let tile = this.map.getTileAt(x, y, true, this.layers.buildingLayer);
+                // Check for player/farmer start squares to use later
+                if (tile && tile.properties){
+                    if (tile.properties.playerStart && tile.properties.playerStart === true){
+                        this.gameboardInfo.playerStart = [x, y];
+                    }
+                    if (tile.properties.farmerStart && tile.properties.farmerStart === true){
+                        this.gameboardInfo.farmerStarts.push([x,y]);
+                    }
+                }
                 if (tile.index >= 0) {
                     // Building, fence, or other obstacle
                     col.push(0);
                 } else {
-                    tile = this.map.getTileAt(x, y, true, this.layers['pathLayer']);
+                    tile = this.map.getTileAt(x, y, true, this.layers.pathLayer);
                     if (tile.index >= 0) {
                         // Road/path
-                        col.push(1)
+                        col.push(1);
                     } else {
                         // Assume grass in our basic map
                         col.push(2);
@@ -325,15 +363,35 @@ export default class GameScene extends FieldScene {
 
     createPlayer() {
         // Player farm
-        //let playerFarm = this.add.image(this.GAME_WIDTH / 2, 0, 'player_farm').setOrigin(0.5, 0);
-        let sprite = this.physics.add.sprite(playerFarm.getCenter().x, playerFarm.getCenter().y - this.BOARD_TILE_SIZE, 'farmer_1');
+        const startX = this.gameboardInfo.playerStart[0]*this.BOARD_TILE_SIZE;
+        const startY = (this.gameboardInfo.playerStart[1]+1)*this.BOARD_TILE_SIZE;
+        let sprite = this.physics.add.sprite(startX, startY, 'farmer_1');
         sprite.setCollideWorldBounds(true);
-        this.player = new Player(1, 'Player', 0, sprite, playerFarm)
+        this.player = new Player(1, 'Player', this.startFarmerBalance, sprite, this.gameboardInfo.playerStart);
     }
 
-    createCow(owner, boviFree, isSick) {
-        let sprite = this.physics.add.sprite(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2, 'cow_1');
-        let cow = new Cow(owner, boviFree, isSick, sprite)
+    createCow(owner, boviFree, isSick, startX, startY) {
+        let sprite = this.physics.add.sprite(startX, startY,  'cow_1');
+        sprite.setCollideWorldBounds(true);
+        return new Cow(owner, boviFree, isSick, sprite);
+    }
+
+    /**
+     * Find a point in a player pen for a cow
+     * that IS NOT currently occupied by another cow
+     * @param penTileCoords top left of pen
+     * @param width width of pen
+     * @param height of pen
+     * @return [x,y] coordinates
+     */
+    findFreePenPoint(penTileCoords,width,height){
+        let freePenPoint = [
+            penTileCoords[0] + Math.round(Math.random()*width),
+            penTileCoords[1] + Math.round(Math.random()*height)
+        ];
+        // todo Make sure no cow shares this?
+
+        return freePenPoint;
     }
 
     /**
@@ -342,54 +400,61 @@ export default class GameScene extends FieldScene {
      * Currently default cows are NOT sick and NOT bovifree
      */
     createHerd() {
-        this.debug('Creating herd...')
+        this.debug('Creating herd...');
         // Even split for now
         let cowsPerPlayer = Math.floor(this.startHerdSize / (this.AIFarmerTotal + 1));
-        this.debug(cowsPerPlayer + ' cows per player')
+        this.debug(cowsPerPlayer + ' cows per player');
         let owner = this.player;
+        let pen = this.gameboardInfo.playerCowPen;
+        for (let p = -1; p < this.AIFarmerTotal; p++) {
+            if (p >= 0) {
+                owner = this.AIfarmers[p];
+                pen = this.gameboardInfo.farmerCowPens[p];
+            }
+            for (let c = 0; c < cowsPerPlayer; c++) {
+                let cow = this.createCow(owner, false, false, this.GAME_WIDTH / 2, (this.GAME_HEIGHT / 2) + (c * this.COW_TILE_SIZE));
+                // Pick
+                let penPoint = this.findFreePenPoint(
+                    pen[0], pen[1], pen[2]
+                );
+                cow.moveCow(
+                    penPoint[0], penPoint[1]
+                );
+
+                this.herd.push(cow);
+            }
+        }
+
+        /*
         let startingX = (this.GAME_WIDTH / 2) - (cowsPerPlayer / 2 * 34);
         let startingY = this.GAME_HEIGHT / 2;
         //this.player
         //this.AIfarmers
-        for (let p = -1; p < this.AIFarmerTotal; p++) {
-            if (p >= 0) {
-                owner = this.AIfarmers[p];
-            }
-            for (let c = 0; c < cowsPerPlayer; c++) {
-                this.herd.push(new Cow(owner, false, false, this.physics.add.sprite(startingX + (c * 34), startingY + (p * 34), 'cow_1')));
-            }
-        }
+
+
+        }*/
+
+
+
+        //cow.moveCow(18,18);
 
     }
 
-    createAIFarmer(id, name, balance, createX, createY, isLeft) {
-        let originX = 0;
-        let imageKey = 'AI_farm_left';
-        if (!isLeft) {
-            originX = 1;
-            imageKey = 'AI_farm_right';
-        }
-        // let farm = this.add.image(createX, createY, imageKey).setOrigin(originX, 0);
-        // todo figure out where the AI starts
-        let startX = createX + (farm.displayWidth / 2);
-        if (!isLeft) {
-            startX = createX - (farm.displayWidth / 2);
-        }
-        //6Y
-        //3X
-        let startY = createY + (farm.displayHeight / 2) - this.BOARD_TILE_SIZE;
-        let AISprite = this.physics.add.sprite(startX, startY, 'farmer_2');
+    createAIFarmer(id, name, balance, farmerStart) {
+
+        let AISprite = this.physics.add.sprite(farmerStart[0] * this.BOARD_TILE_SIZE, (farmerStart[1]+1)  * this.BOARD_TILE_SIZE, 'farmer_2');
         AISprite.setCollideWorldBounds(true);
         //AISprite.setVisible(false);
-        this.AIfarmers.push(new Farmer(id, name, balance, AISprite, farm));
+        this.AIfarmers.push(new Farmer(id, name, balance, AISprite, farmerStart));
     }
 
     createFarmers() {
         //let farm = this.add.image(this.GAME_WIDTH, 0, 'AI_farm').setOrigin(1, 0);
-        for (let x = 0; x <= (this.AIFarmerTotal / 2); x++) {
+        for (let x = 0; x < this.AIFarmerTotal; x++) {
             // Split evenly on left  and right side
-            this.createAIFarmer(x, 'AI ' + (x + 1), this.startFarmerBalance, this.farmPaddingX, (this.GAME_HEIGHT / 4) * x, true);
-            this.createAIFarmer(x + 1, 'AI ' + (x + 2), this.startFarmerBalance, this.GAME_WIDTH - this.farmPaddingX, (this.GAME_HEIGHT / 4) * x, false);
+
+            this.createAIFarmer(x, 'AI ' + (x + 1), this.startFarmerBalance, this.gameboardInfo.farmerStarts[x]);
+
         }
     }
 
@@ -425,35 +490,16 @@ export default class GameScene extends FieldScene {
 
         // Main game board
         this.createGameBoard();
+
+        // Pieces
+        this.createPlayer();
+        this.createFarmers();
         this.createHerd();
-        //this.createPlayer();
-        //this.createFarmers()
 
         // UI Containers
         //this.createScoreboard();
 
-        const cow = this.herd[0];
-        /*for (let x = 0; x < (this.MAX_WIDTH / 16); x++) {
-          for (let y = 0; y < (this.MAX_HEIGHT / 16); y++) {
-            if (this.map.getTileAt(x,y, true, this.layers['Paths']) != null){
-              console.log(x+'::'+y);
-            }
-          }
-        }*/
-        //console.log(this.map.getTileAt(7,12, true, this.layers['Paths']));
-        //cow.calculateCowPath(this.map.getTileAt(30, 30, true, this.layers['Paths']));
-        //cow.sprite.play('cow_walk_left');
-
-        /*let tween = this.tweens.add({
-                targets: cow,
-                ease: 'Power1',
-                x: {value: 800, duration: 500},
-                y: {value: 600, duration: 500}
-              });
-        tween.play();*/
-
-
-        this.bovifreePhase();
+        //this.bovifreePhase();
 
 
     }
@@ -515,41 +561,9 @@ export default class GameScene extends FieldScene {
      */
 
     bovifreePhase() {
-        //this.scoreboardTitle.text = "Pay Bovifree fee (£" + this.bfreeJoinCost + ") this turn ?";
-        //const prompt_yes = this.add.text(50, 0, 'Yes', {fontFamily: 'PressStart2P'});
-        //const prompt_no = this.add.text(-50, 0, 'No', {fontFamily: 'PressStart2P'});
-        // helloButton.on('pointerover', () => { console.log('pointerover'); });
-        /*this.scoreboardContainer.add(prompt_yes);
-        this.scoreboardContainer.add(prompt_no);
-        prompt_yes.on('pointerdown', function (pointer) {
-            this.setTint(0xff0000);
-            console.log('sdf');
-        });*/
-        /*let buttons = this.rexUI.add.buttons({
-            x: 100, y: 300,
-            orientation: 'x',
-
-            buttons: [
-                this.createButton(this, 'No'),
-                this.createButton(this, 'Yes'),
-            ],
-            expand: true,
-
-            space: {item: 8}
-
-        });
-
-        buttons
-            .on('button.click', function (button, index, pointer, event) {
-                console.log(button.text);
-
-            });*/
-
-
         this.createBoviDialog();
-
-
     }
+
 
     createBoviDialog() {
         let boviDialog = this.createDialog(
@@ -558,10 +572,24 @@ export default class GameScene extends FieldScene {
             [this.createLabel(this, 'Yes'),
                 this.createLabel(this, 'No')]
         );
+        let player = this.player;
+
         boviDialog
             .on('button.click', function (button, groupName, index) {
-                //this.print.text += index + ': ' + button.text + '\n';
-                console.log(button.text);
+                let decision = button.text;
+                if (decision === "Yes") {
+                    // Subtract the cost
+                    console.log("Joining Bovi Free");
+                    player.balance -= this.bfreeJoinCost;
+                    // Remove infection from cattle
+                    for (let h = 0; h < this.herd.length; h++) {
+                        if (this.herd[h].owner === player) {
+                            this.herd[h].isBoviFree = true;
+                            this.herd[h].isSick = false;
+                        }
+                    }
+                }
+
             }, this)
             .on('button.over', function (button, groupName, index) {
                 button.getElement('background').setStrokeStyle(1, 0xffffff);
@@ -572,6 +600,7 @@ export default class GameScene extends FieldScene {
 
         return boviDialog;
     }
+
 
     createDialog(title, text, buttons) {
         const w = this.scale.width;
