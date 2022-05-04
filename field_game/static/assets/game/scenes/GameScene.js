@@ -1,209 +1,15 @@
 /*jshint esversion: 6 */
 import FieldScene from './FieldScene.js';
+import Cow from '../actors/Cow.js';
+import {Farmer, Player} from '../actors/Farmer.js'
 
 const COLOR_PRIMARY = 0x4e342e;
 const COLOR_LIGHT = 0x7b5e57;
 const COLOR_DARK = 0x260e04;
 
-// Game classes
-class Farmer {
-    id = 0;
-    name = '';
-    balance = 0;
-    sprite = null;
-    farmerStart;
 
 
-    constructor(id, name, balance, sprite, farmerStart) {
-        this.id = id;
-        this.name = name;
-        this.balance = balance;
-        this.sprite = sprite;
-        this.farmerStart =farmerStart;
-    }
-}
 
-class Player extends Farmer {
-    constructor(id, name, balance, sprite, farmerStart) {
-        super(id, name, balance, sprite, farmerStart);
-    }
-}
-
-class Cow {
-    owner = null;
-    isBoviFree = false;
-    isSick = false;
-    sprite = null;
-    isMoving = false;
-    movePath = null;
-
-    constructor(owner, boviFree, isSick, sprite) {
-        this.owner = owner;
-        this.isBoviFree = boviFree;
-        this.isSick = isSick;
-        this.sprite = sprite;
-    }
-
-    // Move to 5, 10
-    /*
-
-      this.debug(startTile);
-
-      this.finder.calculate();*/
-
-    getMoveDirection(startX, startY, newX, newY) {
-        // Figure out the change in direction
-        let deltaX = newX - startX;
-        let deltaY = newY - startY;
-        let angle = 0;
-
-        if (deltaX === 0) {
-            if (deltaY < 0) {
-                // Up
-                angle = 0;
-            } else if (deltaY > 0) {
-                //Down
-                angle = 180;
-            }
-        }
-        if (deltaY === 0) {
-            if (deltaX < 0) {
-                // left
-                angle = 270;
-            } else if (deltaX > 0) {
-                //right
-                angle = 90;
-            }
-        }
-        if (deltaX > 0 && deltaY < 0) {
-            //up-right
-            angle = 45;
-        }
-        if (deltaX > 0 && deltaY > 0) {
-            //bottom-right
-            angle = 135;
-        }
-        if (deltaX < 0 && deltaY < 0) {
-            //up-left
-            angle = 315;
-        }
-        if (deltaX < 0 && deltaY > 0) {
-            //bottom-left
-            angle = 225;
-        }
-        return angle;
-
-    }
-
-    /**
-     * Move the cow the next step in its path
-     * @param path easystarjs path
-     */
-
-
-    updateCowSprite(tween) {
-        let sprite = tween.targets[0];
-        let angle = tween.data[0].getEndValue();
-
-        let animationName = null;
-        if (angle > 270 && angle <= 90) {
-            animationName = 'cow_walk_up';
-        } else if (angle > 90 && angle <= 270) {
-            animationName = 'cow_walk_down';
-        }
-        if (animationName) {
-            //onsole.log(animationName);
-            //sprite.anims.play(animationName);
-        }
-
-
-    }
-
-    startCowSprite(tween) {
-        tween.targets[0].play('cow_walk_up');
-    }
-
-
-    stopCowSprite(tween) {
-        tween.targets[0].anims.stop();
-    }
-
-    /**
-     * Move the cow from its current position to tile dx, dy
-     * @param dX destination tile x
-     * @param dY destination tile y
-     */
-    moveCow(dX, dY){
-        // todo change to fast/normal speeds if necessary
-        let cowSpeed = 50;
-        this.calculateCowPath(dX, dY, cowSpeed);
-    }
-
-    /**
-     * Move the cow from current position with easystarjs
-     *
-     * @param {Tile} DestinationTile
-     */
-    calculateCowPath(dX, dY, cowSpeed) {
-        let cow = this;
-        let scene = cow.sprite.scene;
-        let startTile = cow.sprite.scene.map.getTileAtWorldXY(cow.sprite.x, cow.sprite.y, cow.sprite.scene.layers['pathLayer']);
-
-        cow.sprite.scene.finder.findPath(startTile.x, startTile.y, dX, dY, function (path) {
-            if (path === null) {
-                console.log("Path was not found.");
-            } else {
-                let timeline = cow.sprite.scene.tweens.createTimeline();
-                //let currentRotation= cow.sprite.rotation;
-                let startX = (startTile.x * cow.sprite.scene.BOARD_TILE_SIZE);
-                let startY = (startTile.y * cow.sprite.scene.BOARD_TILE_SIZE);
-                let currentAngle = cow.sprite.angle;
-                for (let i = 0; i < path.length - 1; i++) {
-                    let ex = path[i + 1].x;
-                    let ey = path[i + 1].y;
-                    let newX = ex * cow.sprite.scene.BOARD_TILE_SIZE
-                    let newY = ey * cow.sprite.scene.BOARD_TILE_SIZE
-                    let angle = cow.getMoveDirection(startX, startY, newX, newY);
-                    let diff = angle - currentAngle;
-                    //console.log(currentAngle + diff);
-                    if (angle !== currentAngle) {
-                        if (diff < -180) {
-                            diff += 360;
-                        } else if (diff > 180) {
-                            diff -= 360;
-                        }
-                        timeline.add({
-                            targets: cow.sprite,
-                            ease: 'Linear',
-                            angle: {value: currentAngle + diff, duration: cowSpeed},
-                        });
-                        currentAngle = currentAngle + diff;
-                    }
-                    let moveTween = {
-                        targets: cow.sprite,
-                        ease: 'Power1',
-                        x: {value: newX, duration: cowSpeed},
-                        y: {value: newY, duration: cowSpeed},
-                    }
-                    if (i === 0) {
-                        moveTween.onStart = cow.startCowSprite;
-                    } else if (i === path.length - 2) {
-                        // Last step, add stop sprite on complete
-                        moveTween.onComplete = cow.stopCowSprite;
-                    }
-                    timeline.add(moveTween);
-                    // Update starting point for next tween
-                    startX = newX;
-                    startY = newY;
-
-                }
-                timeline.play();
-            }
-        });
-        cow.sprite.scene.finder.calculate();
-    }
-
-}
 
 
 export default class GameScene extends FieldScene {
@@ -538,32 +344,25 @@ export default class GameScene extends FieldScene {
 
     }
 
-    /* Gameplay flow functions */
+    createLabel(scene, text) {
+        return scene.rexUI.add.label({
+            // width: 40,
+            // height: 40,
 
-    /*
-    Each round of the game is as follows:
+            background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, 0x5e92f3),
 
-    1. Ask player if they wish to join the Bovifree scheme
-      If so, set cows to bovifree and deduct fee
+            text: scene.add.text(0, 0, text, {
+                fontSize: '24px'
+            }),
 
-    2. Player chooses which farm to purchase cow from
-
-    3.Calculate cow infection rate
-
-    4.  Calculate balance totals
-
-    5. End round
-
-    If round max is reached:
-      Display results of game
-      Prompt to play again /share?
-
-     */
-
-    bovifreePhase() {
-        this.createBoviDialog();
+            space: {
+                left: 10,
+                right: 10,
+                top: 10,
+                bottom: 10
+            }
+        });
     }
-
 
     createBoviDialog() {
         let boviDialog = this.createDialog(
@@ -662,10 +461,46 @@ export default class GameScene extends FieldScene {
         return dialog;
     }
 
+    /**
+
+    Gameplay flow functions
+
+    Each round of the game is as follows:
+
+    1. Ask player if they wish to join the Bovifree scheme
+      If so, set cows to bovifree and deduct fee
+
+    2. Player chooses which farm to purchase cow from
+
+    3.Calculate cow infection rate
+
+    4.  Calculate balance totals
+
+    5. End round
+
+    If round max is reached:
+      Display results of game
+      Prompt to play again /share?
+
+     */
+
+    bovifreePhase() {
+        this.createBoviDialog();
+    }
+
+
 
     cowTradingPhase() {
 
     }
+
+    /*
+    For farm in {0,1,…,8}
+        Use N = cows[farm] - infections[farm]
+        p = β * infections[farm] ÷ Cows[farm]
+    Select n from Binomial distribution B( N,p)
+        Increase Infections[farm] by n
+     */
 
     cowInfectionPhase() {
 
@@ -675,25 +510,7 @@ export default class GameScene extends FieldScene {
 
     }
 
-    createLabel(scene, text) {
-        return scene.rexUI.add.label({
-            // width: 40,
-            // height: 40,
 
-            background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, 0x5e92f3),
-
-            text: scene.add.text(0, 0, text, {
-                fontSize: '24px'
-            }),
-
-            space: {
-                left: 10,
-                right: 10,
-                top: 10,
-                bottom: 10
-            }
-        });
-    }
 
 
 };
