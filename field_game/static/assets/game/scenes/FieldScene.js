@@ -21,6 +21,7 @@ export default class FieldScene extends Phaser.Scene {
 
     constructor(sceneName) {
       super(sceneName);
+
     }
 
     debug(message) {
@@ -30,11 +31,7 @@ export default class FieldScene extends Phaser.Scene {
 
     }
 
-    // Write to api
-    // todo refactor with object
-    log(message) {
 
-    }
 
 
     //  ------------------------

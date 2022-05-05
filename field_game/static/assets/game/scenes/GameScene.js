@@ -8,10 +8,6 @@ const COLOR_LIGHT = 0x7b5e57;
 const COLOR_DARK = 0x260e04;
 
 
-
-
-
-
 export default class GameScene extends FieldScene {
 
     map;
@@ -23,51 +19,59 @@ export default class GameScene extends FieldScene {
     scoreboardTitle;
     scoreboardText;
     titleContainer;
-    // Player/farmer starts, where the cow pens are etc.
-    gameboardInfo;
-
-    // Board creation settings
-    farmPaddingX = 16;
-
-    //Game rules and constants
-    startHerdSize = 20;
-    startFarmerBalance = 200;
-    AIFarmerTotal = 6;
-    totalRounds = 8;
-
-    bfreeJoinCost = 40; // Cost to join scheme
-    // Cow prices, buy and sell
-    bfreeCowPrice = 30;
-    normalCowPrice = 20;
-
-
-    /* Main player*/
-    player;
-    // Computer farmers (Farmer)
-    AIfarmers;
-    //Herd of cows (Cow)
-    herd;
 
     constructor() {
         super('Game');
         this.AIfarmers = [];
         this.herd = [];
         this.layers = [];
-        this.gameboardInfo= {
-            playerCowPen:[[16,9], 5, 7],
-            farmerCowPens:[
-                [[1,9], 5, 7],
-                [[33,9], 5, 7],
-                [[1,33], 5, 7],
-                [[33,33], 5, 7],
-                [[1,51], 5, 7],
-                [[33,51], 5, 7],
+        // Player/farmer starts, where the cow pens are etc.
+        this.gameboardInfo = {
+            playerCowPen: [[16, 9], 5, 7],
+            farmerCowPens: [
+                [[1, 9], 5, 7],
+                [[33, 9], 5, 7],
+                [[1, 33], 5, 7],
+                [[33, 33], 5, 7],
+                [[1, 51], 5, 7],
+                [[33, 51], 5, 7],
             ],
-            farmerStarts:[]
+            farmerStarts: []
         };
+        //Game rules and constants
+        this.gameRules = {
+            startHerdSize: 20,
+            startFarmerBalance: 200,
+            AIFarmerTotal: 6,
+            totalRounds: 8,
+            // AI farmer will join scheme at least once per this many turns
+            bfreeTrigger: 4,
+            bfreeJoinCost: 40, // Cost to join scheme
+            // Cow prices, buy and sell
+            bfreeCowPrice: 30,
+            normalCowPrice: 20,
+        };
+
+        // Log of all transactions in the game
+        // For later export;
+        this.gameLog = "";
+
+        /* Main player*/
+        this.player = null;
+        // Computer farmers (Farmer)
+        this.AIfarmers = [];
+        //Herd of cows (Cow)
+        this.herd = [];
     }
 
-    /* setup functions */
+
+    /**
+     * Write to game log
+     * @param message
+     */
+    gameLog(message) {
+        this.gameLog += "\n" + message;
+    }
 
 
     /**
@@ -89,6 +93,12 @@ export default class GameScene extends FieldScene {
         );
         // Start hidden
         //this.scoreboardContainer.setVisible(false);
+    }
+
+    getAllFarmers() {
+        let allFarmers = this.AIfarmers;
+        allFarmers.append(this.player);
+        return allFarmers;
     }
 
 
@@ -116,13 +126,9 @@ export default class GameScene extends FieldScene {
         // simple_farm = tileset name we've used in Tiled
         const tileset = this.map.addTilesetImage('simple_farm', 'tiles');
         // Buildings and fences
-        this.layers['pathLayer'] = this.map.createLayer('Paths', tileset, 0, 0);
-        this.layers['buildingLayer'] = this.map.createLayer('Buildings', tileset, 0, 0);
+        this.layers.pathLayer = this.map.createLayer('Paths', tileset, 0, 0);
+        this.layers.buildingLayer = this.map.createLayer('Buildings', tileset, 0, 0);
 
-        // this.layers['playerLayer'] = this.map.createLayer('Players', tileset, 0, 0);
-        // this.layers['playerLayer'].setVisible(false);
-        // Hidden as we only want information about starting points here
-        //
         //Build Easyjs map
         // from https://www.dynetisgames.com/2018/03/06/pathfinding-easystar-phaser-3/
         // obstacles = 0, road = 1 , grass = 2
@@ -135,12 +141,12 @@ export default class GameScene extends FieldScene {
                 //
                 let tile = this.map.getTileAt(x, y, true, this.layers.buildingLayer);
                 // Check for player/farmer start squares to use later
-                if (tile && tile.properties){
-                    if (tile.properties.playerStart && tile.properties.playerStart === true){
+                if (tile && tile.properties) {
+                    if (tile.properties.playerStart && tile.properties.playerStart === true) {
                         this.gameboardInfo.playerStart = [x, y];
                     }
-                    if (tile.properties.farmerStart && tile.properties.farmerStart === true){
-                        this.gameboardInfo.farmerStarts.push([x,y]);
+                    if (tile.properties.farmerStart && tile.properties.farmerStart === true) {
+                        this.gameboardInfo.farmerStarts.push([x, y]);
                     }
                 }
                 if (tile.index >= 0) {
@@ -169,36 +175,20 @@ export default class GameScene extends FieldScene {
 
     createPlayer() {
         // Player farm
-        const startX = this.gameboardInfo.playerStart[0]*this.BOARD_TILE_SIZE;
-        const startY = (this.gameboardInfo.playerStart[1]+1)*this.BOARD_TILE_SIZE;
+        const startX = this.gameboardInfo.playerStart[0] * this.BOARD_TILE_SIZE;
+        const startY = (this.gameboardInfo.playerStart[1] + 1) * this.BOARD_TILE_SIZE;
         let sprite = this.physics.add.sprite(startX, startY, 'farmer_1');
         sprite.setCollideWorldBounds(true);
         this.player = new Player(1, 'Player', this.startFarmerBalance, sprite, this.gameboardInfo.playerStart);
     }
 
-    createCow(owner, boviFree, isSick, startX, startY) {
-        let sprite = this.physics.add.sprite(startX, startY,  'cow_1');
+    createCow(owner, startX, startY) {
+        //console.log(startX+'::'+startY);
+        let sprite = this.physics.add.sprite(startX, startY, 'cow_1');
         sprite.setCollideWorldBounds(true);
-        return new Cow(owner, boviFree, isSick, sprite);
+        return new Cow(owner, sprite);
     }
 
-    /**
-     * Find a point in a player pen for a cow
-     * that IS NOT currently occupied by another cow
-     * @param penTileCoords top left of pen
-     * @param width width of pen
-     * @param height of pen
-     * @return [x,y] coordinates
-     */
-    findFreePenPoint(penTileCoords,width,height){
-        let freePenPoint = [
-            penTileCoords[0] + Math.round(Math.random()*width),
-            penTileCoords[1] + Math.round(Math.random()*height)
-        ];
-        // todo Make sure no cow shares this?
-
-        return freePenPoint;
-    }
 
     /**
      * Creat the default herd
@@ -208,47 +198,40 @@ export default class GameScene extends FieldScene {
     createHerd() {
         this.debug('Creating herd...');
         // Even split for now
-        let cowsPerPlayer = Math.floor(this.startHerdSize / (this.AIFarmerTotal + 1));
+        let cowsPerPlayer = Math.floor(this.gameRules.startHerdSize / (this.gameRules.AIFarmerTotal + 1));
         this.debug(cowsPerPlayer + ' cows per player');
         let owner = this.player;
         let pen = this.gameboardInfo.playerCowPen;
-        for (let p = -1; p < this.AIFarmerTotal; p++) {
+        owner.pen = pen;
+        for (let p = -1; p < this.gameRules.AIFarmerTotal; p++) {
             if (p >= 0) {
                 owner = this.AIfarmers[p];
                 pen = this.gameboardInfo.farmerCowPens[p];
+                // Assign pen to the farmer
+                owner.pen = pen;
             }
             for (let c = 0; c < cowsPerPlayer; c++) {
-                let cow = this.createCow(owner, false, false, this.GAME_WIDTH / 2, (this.GAME_HEIGHT / 2) + (c * this.COW_TILE_SIZE));
+                let cow = this.createCow(owner, this.GAME_WIDTH / 2, (this.GAME_HEIGHT / 2) + (c * this.COW_TILE_SIZE));
                 // Pick
-                let penPoint = this.findFreePenPoint(
-                    pen[0], pen[1], pen[2]
-                );
-                cow.moveCow(
-                    penPoint[0], penPoint[1]
-                );
+                let penPoint = owner.findRandomPenPoint();
+                if (penPoint) {
+                    cow.moveCow(
+                        penPoint[0], penPoint[1]
+                    );
+                    owner.herdTotal += 1;
+                    this.herd.push(cow);
+                } else {
+                    this.debug("ERROR: Pen not assigned for " + owner.name);
+                }
 
-                this.herd.push(cow);
             }
         }
-
-        /*
-        let startingX = (this.GAME_WIDTH / 2) - (cowsPerPlayer / 2 * 34);
-        let startingY = this.GAME_HEIGHT / 2;
-        //this.player
-        //this.AIfarmers
-
-
-        }*/
-
-
-
-        //cow.moveCow(18,18);
 
     }
 
     createAIFarmer(id, name, balance, farmerStart) {
 
-        let AISprite = this.physics.add.sprite(farmerStart[0] * this.BOARD_TILE_SIZE, (farmerStart[1]+1)  * this.BOARD_TILE_SIZE, 'farmer_2');
+        let AISprite = this.physics.add.sprite(farmerStart[0] * this.BOARD_TILE_SIZE, (farmerStart[1] + 1) * this.BOARD_TILE_SIZE, 'farmer_2');
         AISprite.setCollideWorldBounds(true);
         //AISprite.setVisible(false);
         this.AIfarmers.push(new Farmer(id, name, balance, AISprite, farmerStart));
@@ -256,10 +239,10 @@ export default class GameScene extends FieldScene {
 
     createFarmers() {
         //let farm = this.add.image(this.GAME_WIDTH, 0, 'AI_farm').setOrigin(1, 0);
-        for (let x = 0; x < this.AIFarmerTotal; x++) {
+        for (let x = 0; x < this.gameRules.AIFarmerTotal; x++) {
             // Split evenly on left  and right side
 
-            this.createAIFarmer(x, 'AI ' + (x + 1), this.startFarmerBalance, this.gameboardInfo.farmerStarts[x]);
+            this.createAIFarmer(x, 'AI ' + (x + 1), this.gameRules.startFarmerBalance, this.gameboardInfo.farmerStarts[x]);
 
         }
     }
@@ -287,12 +270,10 @@ export default class GameScene extends FieldScene {
         });
     }
 
-
     create() {
         // ### Pathfinding stuff ###
         // Initializing the pathfinder
         this.finder = new EasyStar.js();
-
 
         // Main game board
         this.createGameBoard();
@@ -305,9 +286,7 @@ export default class GameScene extends FieldScene {
         // UI Containers
         //this.createScoreboard();
 
-        //this.bovifreePhase();
-
-
+        this.bovifreePhase();
     }
 
     update() {
@@ -379,15 +358,14 @@ export default class GameScene extends FieldScene {
                 if (decision === "Yes") {
                     // Subtract the cost
                     console.log("Joining Bovi Free");
-                    player.balance -= this.bfreeJoinCost;
+                    player.balance -= this.gameRules.bfreeJoinCost;
                     // Remove infection from cattle
-                    for (let h = 0; h < this.herd.length; h++) {
-                        if (this.herd[h].owner === player) {
-                            this.herd[h].isBoviFree = true;
-                            this.herd[h].isSick = false;
-                        }
-                    }
+                    player.setBFree(true);
+
                 }
+                // Todo info before nicer close
+                boviDialog.visible=false;
+
 
             }, this)
             .on('button.over', function (button, groupName, index) {
@@ -400,13 +378,15 @@ export default class GameScene extends FieldScene {
         return boviDialog;
     }
 
+    createPlayerPurchaseCowDialog() {
+
+    }
+
 
     createDialog(title, text, buttons) {
         const w = this.scale.width;
         const h = this.scale.height;
         let dialog = this.rexUI.add.dialog({
-
-
             background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x1565c0),
 
             title: this.rexUI.add.label({
@@ -463,34 +443,117 @@ export default class GameScene extends FieldScene {
 
     /**
 
-    Gameplay flow functions
+     Gameplay flow functions
 
-    Each round of the game is as follows:
+     Each round of the game is as follows:
 
-    1. Ask player if they wish to join the Bovifree scheme
-      If so, set cows to bovifree and deduct fee
+     1. Ask player if they wish to join the Bovifree scheme
+     If so, set cows to bovifree and deduct fee
 
-    2. Player chooses which farm to purchase cow from
+     2. Player chooses which farm to purchase cow from
 
-    3.Calculate cow infection rate
+     3.Calculate cow infection rate
 
-    4.  Calculate balance totals
+     4.  Calculate balance totals
 
-    5. End round
+     5. End round
 
-    If round max is reached:
-      Display results of game
-      Prompt to play again /share?
+     If round max is reached:
+     Display results of game
+     Prompt to play again /share?
 
      */
 
+    /**
+     *  Ask player if they wish to join the Bovifree scheme
+     *  If so, set cows to bovifree and deduct fee
+     */
     bovifreePhase() {
         this.createBoviDialog();
     }
 
+    /**
+     * Buy a cow from another AI or the player
+     * If the player has the money
+     *
+     * @param farmers
+     */
+    purchaseCow(buyer, sellers) {
+        if (this.balance < this.gameRules.premiumPrice) {
+            this.transaction(buyer, buyer.calculatePurchaseChoice(sellers));
+        } else if (this.balance < this.gameRules.premiumPrice) {
+            // Player can't afford premium cows, only buy from nonbfree
+            let normalSellers = [];
+            for (let s = 0; s < sellers.length; s++) {
+                if (!sellers[s].isBoviFree) {
+                    normalSellers.append(sellers[s]);
+                }
+            }
+            this.transaction(buyer, buyer.calculatePurchaseChoice(normalSellers));
+        }
+        this.gameLog(buyer.name + " can't afford to buy a cow");
+    }
 
+    /**
+     * A sale of a cow between buyer and seller
+     * If the cow is not part of the bfree game it may be infected
+     *
+     * @param buyer of cow
+     * @param seller of cow
+     */
+    transaction(buyer, seller) {
+        let cowType = '';
+        if (seller.isBoviFree) {
+            // Bovi free, pay premium, no infection
+            cowType = 'Premium';
+            seller.balance += this.gameRules.bfreeCowPrice;
+            buyer.balance -= this.gameRules.bfreeCowPrice;
+        } else {
+            // Normal, pay normal, increase infection
+            cowType = 'Normal';
+            seller.balance += this.gameRules.normalCowPrice;
+            buyer.balance -= this.gameRules.normalCowPrice;
+            // is the cow infected?
+            // todo tie break?
+            if (Math.Random() < (seller.herdTotal / seller.infections)) {
+                // Buyer bought an infected cow!
+                buyer.infections += 1;
+                seller.infections -= 1;
+                cowType = "Infected";
+            }
 
+        }
+        buyer.herdTotal += 1;
+        seller.herdTotal -= 1;
+        // Set the ownership of cow to seller and move it
+        for (let c = 0; c < this.herd.length; c++) {
+            if (this.herd[c].owner === seller) {
+                this.herd[c].owner = buyer;
+                let penPoint = buyer.findRandomPenPoint();
+                this.herd[c].moveCow(penPoint);
+                break;
+            }
+
+        }
+        // Reset time since last sale for seller
+        seller.timeSinceLastSale = -1;
+        this.gameLog(cowType + ' cow bought by ' + buyer.name + ' from ' + seller.name);
+    }
+
+    /**
+     * This phase has two parts:
+     *
+     * 1. Player chooses which farm to purchase cow from
+     * 2. AI farmers purchase cows from player and/or each other
+     *
+     */
     cowTradingPhase() {
+        this.createPlayerPurchaseCowDialog();
+        let sellers = this.AIfarmers;
+        sellers.append(this.player);
+        for (let x = 0; x < this.AIfarmers.length; x++) {
+            this.purchaseCow(this.AIfarmers[x], sellers);
+        }
 
     }
 
@@ -503,14 +566,26 @@ export default class GameScene extends FieldScene {
      */
 
     cowInfectionPhase() {
+        let allFarmers = this.getAllFarmers();
+        for (let f = 0; f < allFarmers.length; f++) {
+            // Determine number of infections in farmer herd
+            let newInfections = 0;
+            if ((!allFarmers[f].bfree) && (allFarmers[f].herd.length - allFarmers[f].infections >= 0)) {
+                for (let c = 0; c < (allFarmers[f].herd.length - allFarmers[f].infections); c++) {
+                    if (Math.Random() < (allFarmers[f].herdTotal / allFarmers[f].infections)) {
+                        newInfections += 1;
+                    }
+                }
+            }
+        }
 
     }
 
     updateFarmers() {
-
+        let allFarmers = this.getAllFarmers();
+        for (let f = 0; f < allFarmers.length; f++) {
+            allFarmers[f].balance += (allFarmers[f].herdTotal - allFarmers[f].infections);
+            allFarmers[f].timeSinceLastSale += 1;
+        }
     }
-
-
-
-
-};
+}

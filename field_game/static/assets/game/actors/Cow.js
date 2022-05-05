@@ -3,10 +3,8 @@
 export default class Cow {
 
 
-    constructor(owner, boviFree, isSick, sprite) {
+    constructor(owner, sprite) {
         this.owner = owner;
-        this.isBoviFree = boviFree;
-        this.isSick = isSick;
         this.sprite = sprite;
         this.isMoving = false;
         this.movePath = null;
