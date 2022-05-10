@@ -3,10 +3,6 @@ import FieldScene from './FieldScene.js';
 import Cow from '../actors/Cow.js';
 import {Farmer, Player} from '../actors/Farmer.js'
 
-const COLOR_PRIMARY = 0x4e342e;
-const COLOR_LIGHT = 0x7b5e57;
-const COLOR_DARK = 0x260e04;
-
 
 export default class GameScene extends FieldScene {
 
@@ -73,27 +69,6 @@ export default class GameScene extends FieldScene {
         this.gameLog += "\n" + message;
     }
 
-
-    /**
-     * Scoreboard with all player/AI totals
-     */
-    createScoreboard() {
-        this.scoreboardContainer = this.add.container(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2);
-        this.scoreboardBackground = this.add.rectangle(0, 0, this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2, 0x000000, 0.5);
-        this.scoreboardTitle = this.add.text(0, 0, 'BoviFlu game', {fontFamily: 'PressStart2P'});
-        this.scoreboardText = this.add.text(0, 0, 'Press Start', {fontFamily: 'PressStart2P'});
-        this.scoreboardText.setOrigin(0.5, 0.5);
-        this.scoreboardTitle.setOrigin(0.5, 0.5);
-        this.scoreboardContainer.add(this.scoreboardBackground);
-        this.scoreboardContainer.add(this.scoreboardTitle);
-        this.scoreboardContainer.add(this.scoreboardText);
-
-        Phaser.Display.Align.In.TopCenter(
-            this.scoreboardTitle, this.scoreboardBackground
-        );
-        // Start hidden
-        //this.scoreboardContainer.setVisible(false);
-    }
 
     getAllFarmers() {
         let allFarmers = this.AIfarmers;
@@ -284,44 +259,17 @@ export default class GameScene extends FieldScene {
         this.createHerd();
 
         // UI Containers
-        //this.createScoreboard();
+        this.UI = this.scene.get('UIScene');
+
 
         this.bovifreePhase();
     }
 
     update() {
-        // Move any cows that should be moved
-        // todo only call during move phase!
-        /*let stillMoving = false;
-        let maxSteps = 0;
-        for (let c = 0; c < this.herd.length; c++) {
-          if (this.herd[c].isMoving) {
-            if (this.herd[c].movePath.length > maxSteps) {
-              maxSteps = this.herd[c].movePath.length;
-            }
-          }
-        }
-        let herd = this.herd
-        if (maxSteps > 0) {
-           let timer = this.time.addEvent({
-              delay: 500,                // ms
-              callback: function () {
-                for (let c = 0; c < herd.length; c++) {
-                  if (herd[c].isMoving) {
-                    herd[c].moveCow(timer.getRepeatCount());
-                  }
-                }
-                console.log(timer.getRepeatCount());
-              },
-              loop: false,
-              repeat: maxSteps,
-              startAt: 0,
-              timeScale: 1,
-              paused: false
-            });
-        }*/
+        // todo add farm idle animations
 
     }
+
 
     createLabel(scene, text) {
         return scene.rexUI.add.label({
@@ -329,7 +277,6 @@ export default class GameScene extends FieldScene {
             // height: 40,
 
             background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, 0x5e92f3),
-
             text: scene.add.text(0, 0, text, {
                 fontSize: '24px'
             }),
@@ -341,6 +288,13 @@ export default class GameScene extends FieldScene {
                 bottom: 10
             }
         });
+    }
+
+    /**
+     * Create player cow buy dialogue
+     */
+    createTradingDialogs() {
+
     }
 
     createBoviDialog() {
@@ -364,7 +318,7 @@ export default class GameScene extends FieldScene {
 
                 }
                 // Todo info before nicer close
-                boviDialog.visible=false;
+                boviDialog.visible = false;
 
 
             }, this)
@@ -441,6 +395,25 @@ export default class GameScene extends FieldScene {
         return dialog;
     }
 
+    createButton(scene, text) {
+        return scene.rexUI.add.label({
+            width: 40,
+            height: 40,
+            background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, this.COLOR_LIGHT),
+            text: scene.add.text(0, 0, text, {
+                fontSize: 18,
+                fontFamily: 'PressStart2P'
+            }),
+            space: {
+                left: 10,
+                right: 10,
+            },
+            align: 'center',
+            name: text
+        });
+    }
+
+
     /**
 
      Gameplay flow functions
@@ -515,7 +488,7 @@ export default class GameScene extends FieldScene {
             buyer.balance -= this.gameRules.normalCowPrice;
             // is the cow infected?
             // todo tie break?
-            if (Math.Random() < (seller.herdTotal / seller.infections)) {
+            if (Math.Random() < (seller.infections / seller.herdTotal)) {
                 // Buyer bought an infected cow!
                 buyer.infections += 1;
                 seller.infections -= 1;

@@ -3,6 +3,7 @@
 
 import BootScene from './scenes/BootScene.js';
 import TitleScene from './scenes/TitleScene.js';
+import UIScene from './scenes/UIScene.js';
 import GameScene from './scenes/GameScene.js';
 
 
@@ -65,5 +66,6 @@ let game = new Phaser.Game(config);
 game.scene.add('BootScene', bootScene);
 game.scene.add('TitleScene', titleScene);
 game.scene.add('GameScene', gameScene);
+game.scene.add('UIScene', new UIScene());
 //game.scene.start('Game');
 game.scene.start('BootScene');
