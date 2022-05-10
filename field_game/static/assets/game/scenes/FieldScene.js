@@ -26,13 +26,9 @@ export default class FieldScene extends Phaser.Scene {
 
     debug(message) {
       if (this.DEBUG) {
-        console.log(message)
+        console.log(message);
       }
-
     }
-
-
-
 
     //  ------------------------
     //  ------------------------

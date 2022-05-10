@@ -259,10 +259,9 @@ export default class GameScene extends FieldScene {
         this.createHerd();
 
         // UI Containers
-        this.UI = this.scene.get('UIScene');
+        this.scene.bringToTop('UIScene');
 
-
-        this.bovifreePhase();
+        //this.bovifreePhase();
     }
 
     update() {
