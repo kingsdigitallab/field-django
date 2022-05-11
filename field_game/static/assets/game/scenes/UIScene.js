@@ -9,11 +9,13 @@ export default class UIScene extends Phaser.Scene {
         this.COLOR_PRIMARY = 0x4e342e;
         this.COLOR_LIGHT = 0x7b5e57;
         this.COLOR_DARK = 0x260e04;
+        this.balanceText="£ ";
+        this.herdText="Cows: ";
     }
 
 
     preload() {
-        this.load.scenePlugin('rexuiplugin', 'https://raw.githubusercontent.com/rexrainbow/phaser3-rex-notes/master/dist/rexuiplugin.min.js', 'rexUI', 'rexUI');
+        this.load.scenePlugin('rexuiplugin', '/static/assets/game/plugins/rexuiplugin.min.js', 'rexUI', 'rexUI');
     }
 
     create() {
@@ -24,6 +26,21 @@ export default class UIScene extends Phaser.Scene {
 
     }
 
+    updateBalance(balance){
+        this.scoreboardBalance.setText(this.balanceText + balance);
+        Phaser.Display.Align.To.BottomLeft(
+            this.scoreboardBalance, this.scoreboardTitle
+        );
+
+    }
+
+    updateHerd(herdTotal){
+        this.scoreboardHerd.setText(this.herdText + herdTotal);
+        Phaser.Display.Align.To.BottomLeft(
+            this.scoreboardHerd, this.scoreboardBalance
+        );
+    }
+
 
     /**
      * Scoreboard with all player/AI totals
@@ -32,11 +49,11 @@ export default class UIScene extends Phaser.Scene {
         let board_width=this.GAME_WIDTH / 4;
         let board_height=this.GAME_HEIGHT / 8;
         this.scoreboardContainer = this.add.container(board_width, board_height);
-        this.scoreboardBackground = this.add.rectangle(0, 0, board_width, board_height, 0x000000, 0.5);
+        this.scoreboardBackground = this.add.rectangle(0, 0, board_width, board_height, 0x000000, 0.4);
         this.scoreboardTitle = this.add.text(0, 0, 'Player', {fontFamily: 'PressStart2P'});
 
-        this.scoreboardBalance = this.add.text(0, 1, '£ 0', {fontFamily: 'PressStart2P'});
-        this.scoreboardHerd = this.add.text(0, 22, 'Cows: 0', {fontFamily: 'PressStart2P'});
+        this.scoreboardBalance = this.add.text(0, 1, this.balanceText, {fontFamily: 'PressStart2P'});
+        this.scoreboardHerd = this.add.text(0, 22, this.herdText, {fontFamily: 'PressStart2P'});
         this.scoreboardHerd.setOrigin(0, 0);
         this.scoreboardBalance.setOrigin(0.5, 0);
         this.scoreboardTitle.setOrigin(0.5, 0);
@@ -45,8 +62,6 @@ export default class UIScene extends Phaser.Scene {
         this.scoreboardContainer.add(this.scoreboardTitle);
         this.scoreboardContainer.add(this.scoreboardBalance);
         this.scoreboardContainer.add(this.scoreboardHerd);
-
-
 
         Phaser.Display.Align.In.TopCenter(
             this.scoreboardTitle, this.scoreboardBackground
@@ -58,9 +73,13 @@ export default class UIScene extends Phaser.Scene {
             this.scoreboardHerd, this.scoreboardBalance
         );
 
+        this.scoreboardContainer.x = this.GAME_WIDTH / 2;
+        this.scoreboardContainer.y = board_height / 2 + 10;
 
         // Start hidden
         //this.scoreboardContainer.setVisible(false);
     }
+
+
 
 }

@@ -1,7 +1,8 @@
 /*jshint esversion: 6 */
+import {UISCENENAME, BFREESCENENAME} from "../cst.js";
 import FieldScene from './FieldScene.js';
 import Cow from '../actors/Cow.js';
-import {Farmer, Player} from '../actors/Farmer.js'
+import {Farmer, Player} from '../actors/Farmer.js';
 
 
 export default class GameScene extends FieldScene {
@@ -154,7 +155,17 @@ export default class GameScene extends FieldScene {
         const startY = (this.gameboardInfo.playerStart[1] + 1) * this.BOARD_TILE_SIZE;
         let sprite = this.physics.add.sprite(startX, startY, 'farmer_1');
         sprite.setCollideWorldBounds(true);
-        this.player = new Player(1, 'Player', this.startFarmerBalance, sprite, this.gameboardInfo.playerStart);
+        this.player = new Player(1, 'Player', this.gameRules.startFarmerBalance, sprite, this.gameboardInfo.playerStart);
+        this.updatePlayerBalance(this.player.balance);
+    }
+
+    updatePlayerBalance(balance){
+        this.updateFarmerBalance(this.player, balance);
+        this.scene.get(UISCENENAME).updateBalance(this.player.balance);
+    }
+
+    updateFarmerBalance(farmer, balance){
+        farmer.balance=balance;
     }
 
     createCow(owner, startX, startY) {
@@ -202,6 +213,9 @@ export default class GameScene extends FieldScene {
             }
         }
 
+        //Update ui
+        this.scene.get(UISCENENAME).updateHerd(this.player.herdTotal);
+
     }
 
     createAIFarmer(id, name, balance, farmerStart) {
@@ -227,23 +241,7 @@ export default class GameScene extends FieldScene {
         this.load.scenePlugin('rexuiplugin', '/static/assets/game/plugins/rexuiplugin.min.js', 'rexUI', 'rexUI');
     }
 
-    createButton(scene, text) {
-        return scene.rexUI.add.label({
-            width: 40,
-            height: 40,
-            background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, COLOR_LIGHT),
-            text: scene.add.text(0, 0, text, {
-                fontSize: 18,
-                fontFamily: 'PressStart2P'
-            }),
-            space: {
-                left: 10,
-                right: 10,
-            },
-            align: 'center',
-            name: text
-        });
-    }
+
 
     create() {
         // ### Pathfinding stuff ###
@@ -253,15 +251,16 @@ export default class GameScene extends FieldScene {
         // Main game board
         this.createGameBoard();
 
+        // UI Containers
+
+        this.scene.bringToTop('UIScene');
+
         // Pieces
         this.createPlayer();
         this.createFarmers();
         this.createHerd();
 
-        // UI Containers
-        this.scene.bringToTop('UIScene');
-
-        //this.bovifreePhase();
+        //this.scene.start(BFREESCENENAME);
     }
 
     update() {
@@ -270,24 +269,7 @@ export default class GameScene extends FieldScene {
     }
 
 
-    createLabel(scene, text) {
-        return scene.rexUI.add.label({
-            // width: 40,
-            // height: 40,
 
-            background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, 0x5e92f3),
-            text: scene.add.text(0, 0, text, {
-                fontSize: '24px'
-            }),
-
-            space: {
-                left: 10,
-                right: 10,
-                top: 10,
-                bottom: 10
-            }
-        });
-    }
 
     /**
      * Create player cow buy dialogue
@@ -296,121 +278,14 @@ export default class GameScene extends FieldScene {
 
     }
 
-    createBoviDialog() {
-        let boviDialog = this.createDialog(
-            'Join BoviFree?',
-            '£40 to innoculate your herd this turn',
-            [this.createLabel(this, 'Yes'),
-                this.createLabel(this, 'No')]
-        );
-        let player = this.player;
 
-        boviDialog
-            .on('button.click', function (button, groupName, index) {
-                let decision = button.text;
-                if (decision === "Yes") {
-                    // Subtract the cost
-                    console.log("Joining Bovi Free");
-                    player.balance -= this.gameRules.bfreeJoinCost;
-                    // Remove infection from cattle
-                    player.setBFree(true);
-
-                }
-                // Todo info before nicer close
-                boviDialog.visible = false;
-
-
-            }, this)
-            .on('button.over', function (button, groupName, index) {
-                button.getElement('background').setStrokeStyle(1, 0xffffff);
-            })
-            .on('button.out', function (button, groupName, index) {
-                button.getElement('background').setStrokeStyle();
-            });
-
-        return boviDialog;
-    }
 
     createPlayerPurchaseCowDialog() {
 
     }
 
 
-    createDialog(title, text, buttons) {
-        const w = this.scale.width;
-        const h = this.scale.height;
-        let dialog = this.rexUI.add.dialog({
-            background: this.rexUI.add.roundRectangle(0, 0, 100, 100, 20, 0x1565c0),
 
-            title: this.rexUI.add.label({
-                background: this.rexUI.add.roundRectangle(0, 0, 100, 40, 20, 0x003c8f),
-                text: this.add.text(0, 0, title, {
-                    fontSize: '24px'
-                }),
-                space: {
-                    left: 15,
-                    right: 15,
-                    top: 10,
-                    bottom: 10
-                }
-            }),
-            anchor: {
-
-                centerX: 'center',
-                centerY: 'center',
-
-            },
-
-            content: this.add.text(0, 0, text, {
-                fontSize: '24px'
-            }),
-
-            actions: [this.createLabel(this, 'Yes'),
-                this.createLabel(this, 'No')],
-
-            space: {
-                title: 25,
-                content: 25,
-                action: 15,
-
-                left: 20,
-                right: 20,
-                top: 20,
-                bottom: 20,
-            },
-
-            align: {
-                actions: 'right', // 'center'|'left'|'right'
-            },
-
-            expand: {
-                content: false, // Content is a pure text object
-            }
-        })
-            .layout()
-            // .drawBounds(this.add.graphics(), 0xff0000)
-            .popUp(1000);
-
-        return dialog;
-    }
-
-    createButton(scene, text) {
-        return scene.rexUI.add.label({
-            width: 40,
-            height: 40,
-            background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, this.COLOR_LIGHT),
-            text: scene.add.text(0, 0, text, {
-                fontSize: 18,
-                fontFamily: 'PressStart2P'
-            }),
-            space: {
-                left: 10,
-                right: 10,
-            },
-            align: 'center',
-            name: text
-        });
-    }
 
 
     /**
@@ -436,13 +311,7 @@ export default class GameScene extends FieldScene {
 
      */
 
-    /**
-     *  Ask player if they wish to join the Bovifree scheme
-     *  If so, set cows to bovifree and deduct fee
-     */
-    bovifreePhase() {
-        this.createBoviDialog();
-    }
+
 
     /**
      * Buy a cow from another AI or the player

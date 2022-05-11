@@ -1,6 +1,6 @@
 /*jshint esversion: 6 */
 
-
+import {GAMESCENENAME, UISCENENAME, BFREESCENENAME, TRADINGSCENENAME} from "./cst.js";
 import BootScene from './scenes/BootScene.js';
 import TitleScene from './scenes/TitleScene.js';
 import UIScene from './scenes/UIScene.js';
@@ -65,7 +65,7 @@ let config = {
 let game = new Phaser.Game(config);
 game.scene.add('BootScene', bootScene);
 game.scene.add('TitleScene', titleScene);
-game.scene.add('GameScene', gameScene);
-game.scene.add('UIScene', new UIScene());
+game.scene.add(GAMESCENENAME, gameScene);
+game.scene.add(UISCENENAME, new UIScene());
 //game.scene.start('Game');
 game.scene.start('BootScene');
