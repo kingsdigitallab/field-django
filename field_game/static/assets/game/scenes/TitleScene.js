@@ -1,4 +1,5 @@
 /*jshint esversion: 6 */
+import {GAMESCENENAME, UISCENENAME, BFREESCENENAME, TRADINGSCENENAM, TITLESCENENAME} from "../cst.js";
 import FieldScene from './FieldScene.js';
 
 export default class TitleScene extends FieldScene {
@@ -27,7 +28,7 @@ export default class TitleScene extends FieldScene {
 
 
 	constructor() {
-		super('TitleScene');
+		super(TITLESCENENAME);
 	}
 
 	preload() {
@@ -83,7 +84,7 @@ export default class TitleScene extends FieldScene {
     }
 
     startGame() {
-        this.scene.switch('Game');
+        this.scene.switch(GAMESCENENAME);
     }
 
     update() {

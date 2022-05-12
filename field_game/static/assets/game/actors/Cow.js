@@ -114,6 +114,7 @@ export default class Cow {
         let cow = this;
         let scene = cow.sprite.scene;
         let startTile = cow.sprite.scene.map.getTileAtWorldXY(cow.sprite.x, cow.sprite.y, cow.sprite.scene.layers['pathLayer']);
+        cow.isMoving=true;
 
         cow.sprite.scene.finder.findPath(startTile.x, startTile.y, dX, dY, function (path) {
             if (path === null) {
@@ -163,7 +164,11 @@ export default class Cow {
                     startY = newY;
 
                 }
+                timeline.setCallback('onComplete',function (){
+                    cow.isMoving=false;
+                });
                 timeline.play();
+
             }
         });
         cow.sprite.scene.finder.calculate();

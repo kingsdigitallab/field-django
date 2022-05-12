@@ -1,4 +1,5 @@
 /*jshint esversion: 6 */
+import {GAMESCENENAME, UISCENENAME, BFREESCENENAME, TRADINGSCENENAME} from "../cst.js";
 
 export default class BFreeScene extends Phaser.Scene {
     constructor() {
@@ -15,6 +16,7 @@ export default class BFreeScene extends Phaser.Scene {
         };
 
 
+
     }
 
     preload() {
@@ -22,6 +24,8 @@ export default class BFreeScene extends Phaser.Scene {
     }
 
     create() {
+        this.gameScene=this.scene.get(GAMESCENENAME);
+        console.log(this.scene);
         this.bFreePhase();
     }
 
@@ -71,12 +75,15 @@ export default class BFreeScene extends Phaser.Scene {
     }
 
     joinBFree(decision) {
-        if (decision === "Yes") {
+
+        console.log(gameScene);
+        if (decision === "Yes" && gameScene) {
             // Subtract the cost
             console.log("Joining Bovi Free");
-            player.balance -= this.gameRules.bfreeJoinCost;
+
+            this.gameScene.player.balance -= this.gameScene.gameRules.bfreeJoinCost;
             // Remove infection from cattle
-            player.setBFree(true);
+            this.gameScene.setBFree(true);
             this.boviDialog.title.text = this.bFreeDialogTitles.yes;
         } else{
             this.boviDialog.title.text = this.bFreeDialogTitles.no;
@@ -85,23 +92,22 @@ export default class BFreeScene extends Phaser.Scene {
     }
 
     createBoviDialog() {
+
         this.boviDialog = this.createDialog(
             this.bFreeDialogTitles.start,
             this.bFreeDialogTexts.start,
             [this.createLabel(this, 'Yes'),
                 this.createLabel(this, 'No')]
         );
-        let player = this.player;
+        let scene=this;
 
         this.boviDialog
             .on('button.click', function (button, groupName, index) {
                 let decision = button.text;
-                this.joinBFree(decision);
+                scene.joinBFree.apply(scene,[decision]);
                 // Todo info before nicer close
                 //this.boviDialog.visible = false;
-
-
-            }, this)
+            })
             .on('button.over', function (button, groupName, index) {
                 button.getElement('background').setStrokeStyle(1, 0xffffff);
             })

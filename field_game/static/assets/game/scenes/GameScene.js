@@ -1,5 +1,5 @@
 /*jshint esversion: 6 */
-import {UISCENENAME, BFREESCENENAME} from "../cst.js";
+import {UISCENENAME, BFREESCENENAME, GAMESCENENAME} from "../cst.js";
 import FieldScene from './FieldScene.js';
 import Cow from '../actors/Cow.js';
 import {Farmer, Player} from '../actors/Farmer.js';
@@ -11,14 +11,11 @@ export default class GameScene extends FieldScene {
     layers;
 
     // UI objects
-    scoreboardContainer;
-    scoreboardBackground;
-    scoreboardTitle;
-    scoreboardText;
+
     titleContainer;
 
     constructor() {
-        super('Game');
+        super(GAMESCENENAME);
         this.AIfarmers = [];
         this.herd = [];
         this.layers = [];
@@ -48,6 +45,8 @@ export default class GameScene extends FieldScene {
             bfreeCowPrice: 30,
             normalCowPrice: 20,
         };
+
+
 
         // Log of all transactions in the game
         // For later export;
@@ -156,7 +155,7 @@ export default class GameScene extends FieldScene {
         let sprite = this.physics.add.sprite(startX, startY, 'farmer_1');
         sprite.setCollideWorldBounds(true);
         this.player = new Player(1, 'Player', this.gameRules.startFarmerBalance, sprite, this.gameboardInfo.playerStart);
-        this.updatePlayerBalance(this.player.balance);
+        //this.updatePlayerBalance(this.player.balance);
     }
 
     updatePlayerBalance(balance){
@@ -202,19 +201,20 @@ export default class GameScene extends FieldScene {
                 let penPoint = owner.findRandomPenPoint();
                 if (penPoint) {
                     cow.moveCow(
-                        penPoint[0], penPoint[1]
+                        penPoint[0], penPoint[1], this.animationTimeline
                     );
                     owner.herdTotal += 1;
                     this.herd.push(cow);
                 } else {
                     this.debug("ERROR: Pen not assigned for " + owner.name);
                 }
-
             }
+
         }
+        //this.animationTimeline.play();
 
         //Update ui
-        this.scene.get(UISCENENAME).updateHerd(this.player.herdTotal);
+        //this.scene.get(UISCENENAME).updateHerd(this.player.herdTotal);
 
     }
 
@@ -246,7 +246,11 @@ export default class GameScene extends FieldScene {
     create() {
         // ### Pathfinding stuff ###
         // Initializing the pathfinder
+        this.setupComplete = false;
         this.finder = new EasyStar.js();
+
+        // Main animation timeline for moving pieces (like cows) around the board
+        this.animationTimeline = this.tweens.createTimeline();
 
         // Main game board
         this.createGameBoard();
@@ -260,10 +264,36 @@ export default class GameScene extends FieldScene {
         this.createFarmers();
         this.createHerd();
 
-        //this.scene.start(BFREESCENENAME);
+
+    }
+
+    /**
+     * Board is set up and all pieces in place, start
+     */
+    startGame(){
+        this.debug('Begin Game');
+
+        this.scene.launch(BFREESCENENAME);
     }
 
     update() {
+        // Wait until all the pieces are in place before
+        // starting
+        if (!this.setupComplete){
+            let done=true;
+            for (let c=0;c<this.herd.length;c++){
+                if (this.herd[c].isMoving === true){
+                    done=false;
+                    break;
+                }
+            }
+            if (done){
+                this.setupComplete=true;
+                setTimeout(this.startGame.apply(this),1000);
+
+            }
+        }
+
         // todo add farm idle animations
 
     }

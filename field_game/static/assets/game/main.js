@@ -5,6 +5,7 @@ import BootScene from './scenes/BootScene.js';
 import TitleScene from './scenes/TitleScene.js';
 import UIScene from './scenes/UIScene.js';
 import GameScene from './scenes/GameScene.js';
+import BFreeScene from "./scenes/BFreeScene.js";
 
 
 
@@ -67,5 +68,6 @@ game.scene.add('BootScene', bootScene);
 game.scene.add('TitleScene', titleScene);
 game.scene.add(GAMESCENENAME, gameScene);
 game.scene.add(UISCENENAME, new UIScene());
+game.scene.add(BFREESCENENAME, new BFreeScene() );
 //game.scene.start('Game');
 game.scene.start('BootScene');
