@@ -1,5 +1,5 @@
 /*jshint esversion: 6 */
-import {GAMESCENENAME, UISCENENAME, BFREESCENENAME, TRADINGSCENENAME} from "../cst.js";
+import {GAMESCENENAME} from "../cst.js";
 
 export default class BFreeScene extends Phaser.Scene {
     constructor() {
@@ -11,22 +11,25 @@ export default class BFreeScene extends Phaser.Scene {
         };
         this.bFreeDialogTexts = {
             start: '£40 to innoculate your herd this turn',
-            yes: " cows have been cured.  Your herd is disease free",
+            yes: "Cows have been cured.  Your herd is disease free",
             no: "No infection cured. Your herd may still have disease"
         };
-
+        this.innoculationAnimationStart = false;
 
 
     }
 
     preload() {
-        this.load.scenePlugin('rexuiplugin', '/static/assets/game/plugins/rexuiplugin.min.js', 'rexUI', 'rexUI');
+        this.load.scenePlugin('rexuiplugin', '/static/assets/game/plugins/vendor/rexuiplugin.min.js', 'rexUI', 'rexUI');
     }
 
     create() {
-        this.gameScene=this.scene.get(GAMESCENENAME);
-        console.log(this.scene);
+        this.gameScene = this.scene.get(GAMESCENENAME);
         this.bFreePhase();
+    }
+
+    update(times,delta) {
+        this.gameScene.moveCows(delta);
     }
 
     /**
@@ -34,7 +37,36 @@ export default class BFreeScene extends Phaser.Scene {
      *  If so, set cows to bovifree and deduct fee
      */
     bFreePhase() {
-        this.createBoviDialog();
+        //this.createBoviDialog();
+        let myCows = this.gameScene.player.getCows(this.gameScene.herd);
+        this.sendCowToHospital(myCows[0]);
+        this.sendCowToHospital(myCows[1]);
+    }
+
+    /**
+     * Our super cool animated sequence to show cows
+     * joining the scheme
+     * @param farmer
+     */
+    innoculationAnimation(farmer) {
+        let myCows = farmer.getCows(this.gameScene.herd);
+        for (let c = 0; c < myCows.length; c++) {
+            this.sendCowToHospital(myCows[c]);
+        }
+    }
+
+    /**
+     * Animation to... send cow to hospital
+     */
+    sendCowToHospital(cow) {
+        /* cow.moveCow(
+                 this.gameScene.gameboardInfo.hospitalDoor[0],
+                 this.gameScene.gameboardInfo.hospitalDoor[1]
+             );*/
+        let startTile = cow.sprite.scene.map.getTileAtWorldXY(cow.sprite.x, cow.sprite.y, cow.sprite.scene.layers['pathLayer']);
+        cow.sprite.scene.finder.findPath(
+            startTile.x, startTile.y, this.gameScene.gameboardInfo.hospitalDoor[0], this.gameScene.gameboardInfo.hospitalDoor[1], cow.findPath.bind(cow));
+        cow.sprite.scene.finder.calculate();
     }
 
     createButton(scene, text) {
@@ -75,36 +107,39 @@ export default class BFreeScene extends Phaser.Scene {
     }
 
     joinBFree(decision) {
-
-        console.log(gameScene);
-        if (decision === "Yes" && gameScene) {
+        let titleText = "";
+        let contentText = "";
+        if (decision === "Yes" && this.gameScene) {
             // Subtract the cost
             console.log("Joining Bovi Free");
 
             this.gameScene.player.balance -= this.gameScene.gameRules.bfreeJoinCost;
             // Remove infection from cattle
-            this.gameScene.setBFree(true);
-            this.boviDialog.title.text = this.bFreeDialogTitles.yes;
-        } else{
-            this.boviDialog.title.text = this.bFreeDialogTitles.no;
+            this.gameScene.player.setBFree(true);
+            titleText = this.bFreeDialogTitles.yes;
+            contentText = this.bFreeDialogTexts.yes;
+        } else {
+            console.log("Not joining Bovi Free");
+            titleText = this.bFreeDialogTitles.no;
         }
-
+        this.boviDialog.visible = false;
+        this.innoculationAnimation(this.gameScene.player);
     }
 
     createBoviDialog() {
 
-        this.boviDialog = this.createDialog(
+        this.boviDialog = this.createYesNoDialog(
             this.bFreeDialogTitles.start,
             this.bFreeDialogTexts.start,
             [this.createLabel(this, 'Yes'),
                 this.createLabel(this, 'No')]
         );
-        let scene=this;
+        let scene = this;
 
         this.boviDialog
             .on('button.click', function (button, groupName, index) {
                 let decision = button.text;
-                scene.joinBFree.apply(scene,[decision]);
+                scene.joinBFree.apply(scene, [decision]);
                 // Todo info before nicer close
                 //this.boviDialog.visible = false;
             })
@@ -116,7 +151,7 @@ export default class BFreeScene extends Phaser.Scene {
             });
     }
 
-    createDialog(title, text, buttons) {
+    createYesNoDialog(title, text, buttons) {
         const w = this.scale.width;
         const h = this.scale.height;
         let dialog = this.rexUI.add.dialog({
@@ -142,7 +177,7 @@ export default class BFreeScene extends Phaser.Scene {
             },
 
             content: this.add.text(0, 0, text, {
-                fontSize: '24px'
+                fontSize: '18px'
             }),
 
             actions: [this.createLabel(this, 'Yes'),
@@ -174,21 +209,5 @@ export default class BFreeScene extends Phaser.Scene {
         return dialog;
     }
 
-    createButton(scene, text) {
-        return scene.rexUI.add.label({
-            width: 40,
-            height: 40,
-            background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, this.COLOR_LIGHT),
-            text: scene.add.text(0, 0, text, {
-                fontSize: 18,
-                fontFamily: 'PressStart2P'
-            }),
-            space: {
-                left: 10,
-                right: 10,
-            },
-            align: 'center',
-            name: text
-        });
-    }
+
 }

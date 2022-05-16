@@ -1,5 +1,6 @@
 /*jshint esversion: 6 */
-import {UISCENENAME, BFREESCENENAME, GAMESCENENAME} from "../cst.js";
+import {BFREESCENENAME, GAMESCENENAME, UISCENENAME} from "../cst.js";
+
 import FieldScene from './FieldScene.js';
 import Cow from '../actors/Cow.js';
 import {Farmer, Player} from '../actors/Farmer.js';
@@ -30,7 +31,11 @@ export default class GameScene extends FieldScene {
                 [[1, 51], 5, 7],
                 [[33, 51], 5, 7],
             ],
-            farmerStarts: []
+            playerStart: [20, 6],
+            farmerStarts: [
+                [4, 6], [4, 30], [4, 48], [36, 6], [36, 30], [36, 48]
+            ],
+            hospitalDoor: [19, 32]
         };
         //Game rules and constants
         this.gameRules = {
@@ -44,8 +49,8 @@ export default class GameScene extends FieldScene {
             // Cow prices, buy and sell
             bfreeCowPrice: 30,
             normalCowPrice: 20,
+            cowSpeed: 150
         };
-
 
 
         // Log of all transactions in the game
@@ -100,9 +105,10 @@ export default class GameScene extends FieldScene {
 
         // simple_farm = tileset name we've used in Tiled
         const tileset = this.map.addTilesetImage('simple_farm', 'tiles');
+        const modern = this.map.addTilesetImage('modern', 'modern');
         // Buildings and fences
         this.layers.pathLayer = this.map.createLayer('Paths', tileset, 0, 0);
-        this.layers.buildingLayer = this.map.createLayer('Buildings', tileset, 0, 0);
+        this.layers.buildingLayer = this.map.createLayer('Buildings', [tileset, modern], 0, 0);
 
         //Build Easyjs map
         // from https://www.dynetisgames.com/2018/03/06/pathfinding-easystar-phaser-3/
@@ -116,14 +122,14 @@ export default class GameScene extends FieldScene {
                 //
                 let tile = this.map.getTileAt(x, y, true, this.layers.buildingLayer);
                 // Check for player/farmer start squares to use later
-                if (tile && tile.properties) {
+                /*if (tile && tile.properties) {
                     if (tile.properties.playerStart && tile.properties.playerStart === true) {
                         this.gameboardInfo.playerStart = [x, y];
                     }
                     if (tile.properties.farmerStart && tile.properties.farmerStart === true) {
                         this.gameboardInfo.farmerStarts.push([x, y]);
                     }
-                }
+                }*/
                 if (tile.index >= 0) {
                     // Building, fence, or other obstacle
                     col.push(0);
@@ -158,13 +164,13 @@ export default class GameScene extends FieldScene {
         //this.updatePlayerBalance(this.player.balance);
     }
 
-    updatePlayerBalance(balance){
+    updatePlayerBalance(balance) {
         this.updateFarmerBalance(this.player, balance);
         this.scene.get(UISCENENAME).updateBalance(this.player.balance);
     }
 
-    updateFarmerBalance(farmer, balance){
-        farmer.balance=balance;
+    updateFarmerBalance(farmer, balance) {
+        farmer.balance = balance;
     }
 
     createCow(owner, startX, startY) {
@@ -196,18 +202,11 @@ export default class GameScene extends FieldScene {
                 owner.pen = pen;
             }
             for (let c = 0; c < cowsPerPlayer; c++) {
-                let cow = this.createCow(owner, this.GAME_WIDTH / 2, (this.GAME_HEIGHT / 2) + (c * this.COW_TILE_SIZE));
+                let cow = this.createCow(owner, (19 * this.BOARD_TILE_SIZE), (34 * this.BOARD_TILE_SIZE));
                 // Pick
-                let penPoint = owner.findRandomPenPoint();
-                if (penPoint) {
-                    cow.moveCow(
-                        penPoint[0], penPoint[1], this.animationTimeline
-                    );
-                    owner.herdTotal += 1;
-                    this.herd.push(cow);
-                } else {
-                    this.debug("ERROR: Pen not assigned for " + owner.name);
-                }
+                owner.sendCowToPen(cow);
+                this.herdTotal += 1;
+                this.herd.push(cow);
             }
 
         }
@@ -238,9 +237,8 @@ export default class GameScene extends FieldScene {
 
 
     preload() {
-        this.load.scenePlugin('rexuiplugin', '/static/assets/game/plugins/rexuiplugin.min.js', 'rexUI', 'rexUI');
+        //this.load.scenePlugin('rexuiplugin', '/static/assets/game/plugins/rexuiplugin.min.js', 'rexUI', 'rexUI');
     }
-
 
 
     create() {
@@ -249,15 +247,14 @@ export default class GameScene extends FieldScene {
         this.setupComplete = false;
         this.finder = new EasyStar.js();
 
-        // Main animation timeline for moving pieces (like cows) around the board
-        this.animationTimeline = this.tweens.createTimeline();
+
 
         // Main game board
         this.createGameBoard();
 
         // UI Containers
 
-        this.scene.bringToTop('UIScene');
+        this.scene.bringToTop(UISCENENAME);
 
         // Pieces
         this.createPlayer();
@@ -270,26 +267,51 @@ export default class GameScene extends FieldScene {
     /**
      * Board is set up and all pieces in place, start
      */
-    startGame(){
+    startGame() {
         this.debug('Begin Game');
-
         this.scene.launch(BFREESCENENAME);
     }
 
-    update() {
+    moveCows(delta) {
+        let herd = this.herd;
+        for (let c = 0; c < herd.length; c++) {
+            if (herd[c].isMoving === true && herd[c].movePath.length > 0) {
+                if (!herd[c].sprite.anims.isPlaying){
+                    herd[c].sprite.play('cow_walk_up');
+                }
+                if (herd[c].sinceLastMove >= this.gameRules.cowSpeed) {
+                    // Move the cow
+                    herd[c].doPathMove(herd[c].movePath[0], this.gameRules.cowSpeed);
+                    herd[c].movePath.shift();
+                    herd[c].sinceLastMove=0;
+                    if (herd[c].movePath.length === 0) {
+                        // Reset our cows, give them a rest
+                        herd[c].isMoving = false;
+                        herd[c].sinceLastMove=0;
+                        herd[c].sprite.stop();
+                    }
+                }else{
+                    //add delta
+                    herd[c].sinceLastMove+=delta;
+                }
+            }
+        }
+    }
+
+    update(time, delta) {
         // Wait until all the pieces are in place before
         // starting
-        if (!this.setupComplete){
-            let done=true;
-            for (let c=0;c<this.herd.length;c++){
-                if (this.herd[c].isMoving === true){
-                    done=false;
+        if (!this.setupComplete) {
+            let done = true;
+            for (let c = 0; c < this.herd.length; c++) {
+                if (this.herd[c].isMoving === true) {
+                    done = false;
                     break;
                 }
             }
-            if (done){
-                this.setupComplete=true;
-                setTimeout(this.startGame.apply(this),1000);
+            if (done) {
+                this.setupComplete = true;
+                setTimeout(this.startGame.apply(this), 1000);
 
             }
         }
@@ -297,8 +319,6 @@ export default class GameScene extends FieldScene {
         // todo add farm idle animations
 
     }
-
-
 
 
     /**
@@ -309,13 +329,9 @@ export default class GameScene extends FieldScene {
     }
 
 
-
     createPlayerPurchaseCowDialog() {
 
     }
-
-
-
 
 
     /**
@@ -340,7 +356,6 @@ export default class GameScene extends FieldScene {
      Prompt to play again /share?
 
      */
-
 
 
     /**

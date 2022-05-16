@@ -12,12 +12,12 @@ export class Farmer {
         this.name = name;
         this.balance = balance; // Current cash
         this.sprite = sprite;
-        this.farmerStart=farmerStart;
+        this.farmerStart = farmerStart;
         this.bfree = false; // Are they part of Bovifree this turn?
         this.timeSinceLastSale = 0; // Time in turns since they last sold a cow
         this.infections = 0; // Number of infected cows in herd
         this.herdTotal = 0; // Total number of cows Farmer owns
-        this.pen=[];
+        this.pen = [];
 
     }
 
@@ -26,12 +26,12 @@ export class Farmer {
      * If True - Also remove all infections from herd
      * @param isBFree boolean are they part of scheme
      */
-     setBFree(isBFree){
-        if (isBFree === true){
-            this.bfree=true;
-            this.infections=0;
-        }else{
-            this.bfree=false;
+    setBFree(isBFree) {
+        if (isBFree === true) {
+            this.bfree = true;
+            this.infections = 0;
+        } else {
+            this.bfree = false;
         }
     }
 
@@ -45,7 +45,7 @@ export class Farmer {
      * @return [x,y] coordinates
      */
     findRandomPenPoint(penTileCoords, width, height) {
-        if (this.pen){
+        if (this.pen) {
             let freePenPoint = [
                 this.pen[0][0] + Math.round(Math.random() * this.pen[1]),
                 this.pen[0][1] + Math.round(Math.random() * this.pen[2])
@@ -55,6 +55,32 @@ export class Farmer {
         }
         return null;
 
+    }
+
+    /**
+     * Send this cow to any point in this farmer's pen
+     * @param cow
+     */
+    sendCowToPen(cow) {
+        let penPoint = this.findRandomPenPoint();
+        if (penPoint) {
+            cow.moveCow(
+                penPoint[0], penPoint[1]
+            );
+
+        } else {
+            this.debug("ERROR: Pen not assigned for " + owner.name);
+        }
+    }
+
+    getCows(herd) {
+        let myCows = [];
+        for (let c = 0; c < herd.length; c++) {
+            if (herd[c].owner === this) {
+                myCows.push(herd[c]);
+            }
+        }
+        return myCows;
     }
 
 }
@@ -71,7 +97,7 @@ export class AIFarmer extends Farmer {
      * with probability Time_since_last_sale[farm] ÷ bfree trigger
      * return TRUE otherwise return FALSE
      */
-    calculateSchemeChoice(bfreeTrigger){
+    calculateSchemeChoice(bfreeTrigger) {
         return Math.random() <= (this.timeSinceLastSale / bfreeTrigger);
     }
 
@@ -85,11 +111,11 @@ export class AIFarmer extends Farmer {
      * @param farmers in the game
      * @return farmer we're buying from
      */
-    calculatePurchaseChoice(farmers){
+    calculatePurchaseChoice(farmers) {
         // Todo this must be changed
         // after discussions so random choice
         // for now as a placeholder
-        if (farmers &&farmers.length > 0){
+        if (farmers && farmers.length > 0) {
             let choice = Math.round(Math.random() * farmers.length);
             return farmers[choice];
         }

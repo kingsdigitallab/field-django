@@ -1,5 +1,6 @@
 /*jshint esversion: 6 */
 import FieldScene from './FieldScene.js';
+import {GAMESCENENAME, UISCENENAME, BFREESCENENAME, TITLESCENENAME} from "../cst.js";
 
 export default class BootScene extends FieldScene {
 
@@ -49,6 +50,7 @@ export default class BootScene extends FieldScene {
 
         // Load the export Tiled JSON
         this.load.image('tiles', this.ASSET_URL + '/textures/simple_farm.png');
+        this.load.image('modern', this.ASSET_URL + '/textures/statics.png');
         this.load.tilemapTiledJSON('map', this.ASSET_URL + '/maps/fieldfarm.json');
 
     }
@@ -85,8 +87,8 @@ export default class BootScene extends FieldScene {
         super.create();
         this.createAnimations();
         this.debug("BOOTING COMPLETE!");
-        this.scene.launch("UIScene");
-        this.scene.start("TitleScene");
+        this.scene.launch(UISCENENAME);
+        this.scene.start(GAMESCENENAME);
 
     }
 

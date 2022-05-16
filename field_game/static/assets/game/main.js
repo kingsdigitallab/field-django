@@ -1,6 +1,7 @@
 /*jshint esversion: 6 */
 
 import {GAMESCENENAME, UISCENENAME, BFREESCENENAME, TRADINGSCENENAME} from "./cst.js";
+
 import BootScene from './scenes/BootScene.js';
 import TitleScene from './scenes/TitleScene.js';
 import UIScene from './scenes/UIScene.js';
@@ -60,7 +61,8 @@ let config = {
             width: MAX_WIDTH,
             height: MAX_HEIGHT
         }
-    }
+    },
+
 };
 //scene: [FieldScene]
 let game = new Phaser.Game(config);

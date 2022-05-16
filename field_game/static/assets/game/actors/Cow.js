@@ -7,7 +7,9 @@ export default class Cow {
         this.owner = owner;
         this.sprite = sprite;
         this.isMoving = false;
-        this.movePath = null;
+        this.sinceLastMove=0;
+        this.movePath = [];
+        this.timeline = this.sprite.scene.tweens.createTimeline();
     }
 
     // Move to 5, 10
@@ -78,11 +80,9 @@ export default class Cow {
             animationName = 'cow_walk_down';
         }
         //if (animationName) {
-            //onsole.log(animationName);
-            //sprite.anims.play(animationName);
+        //onsole.log(animationName);
+        //sprite.anims.play(animationName);
         //}
-
-
     }
 
     startCowSprite(tween) {
@@ -99,10 +99,52 @@ export default class Cow {
      * @param dX destination tile x
      * @param dY destination tile y
      */
-    moveCow(dX, dY){
+    moveCow(dX, dY) {
         // todo change to fast/normal speeds if necessary
-        let cowSpeed = 50;
+        let cowSpeed = 20;
         this.calculateCowPath(dX, dY, cowSpeed);
+    }
+
+    doPathMove(step, cowSpeed) {
+        let startTile = this.sprite.scene.map.getTileAtWorldXY(this.sprite.x, this.sprite.y, this.sprite.scene.layers['pathLayer']);
+        console.log(this.sprite.x);
+        let startX = (startTile.x * this.sprite.scene.BOARD_TILE_SIZE);
+        let startY = (startTile.y * this.sprite.scene.BOARD_TILE_SIZE);
+        let currentAngle = this.sprite.angle;
+
+        let ex = step.x;
+        let ey = step.y;
+        let newX = ex * this.sprite.scene.BOARD_TILE_SIZE;
+        let newY = ey * this.sprite.scene.BOARD_TILE_SIZE;
+        let angle = this.getMoveDirection(startX, startY, newX, newY);
+        let diff = angle - currentAngle;
+
+        if (angle !== currentAngle) {
+            if (diff < -180) {
+                diff += 360;
+            } else if (diff > 180) {
+                diff -= 360;
+            }
+            /*timeline.add({
+                 targets: this.sprite,
+                 ease: 'Linear',
+                 angle: {value: currentAngle + diff, duration: cowSpeed},
+             });*/
+            currentAngle = currentAngle + diff;
+            this.sprite.angle = currentAngle;
+        }
+        this.sprite.x = newX;
+        this.sprite.y = newY;
+
+    }
+
+    findPath(path) {
+        if (path === null) {
+            console.log("Path was not found.");
+        } else {
+            this.isMoving = true;
+            this.movePath.push(...path);
+        }
     }
 
     /**
@@ -112,9 +154,9 @@ export default class Cow {
      */
     calculateCowPath(dX, dY, cowSpeed) {
         let cow = this;
-        let scene = cow.sprite.scene;
-        let startTile = cow.sprite.scene.map.getTileAtWorldXY(cow.sprite.x, cow.sprite.y, cow.sprite.scene.layers['pathLayer']);
-        cow.isMoving=true;
+        let scene = this.sprite.scene;
+        let startTile = this.sprite.scene.map.getTileAtWorldXY(this.sprite.x, this.sprite.y, this.sprite.scene.layers['pathLayer']);
+        this.isMoving = true;
 
         cow.sprite.scene.finder.findPath(startTile.x, startTile.y, dX, dY, function (path) {
             if (path === null) {
@@ -162,13 +204,11 @@ export default class Cow {
                     // Update starting point for next tween
                     startX = newX;
                     startY = newY;
-
                 }
-                timeline.setCallback('onComplete',function (){
-                    cow.isMoving=false;
+                timeline.setCallback('onComplete', function () {
+                    cow.isMoving = false;
                 });
                 timeline.play();
-
             }
         });
         cow.sprite.scene.finder.calculate();

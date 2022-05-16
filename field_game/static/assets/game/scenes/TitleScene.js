@@ -1,5 +1,5 @@
 /*jshint esversion: 6 */
-import {GAMESCENENAME, UISCENENAME, BFREESCENENAME, TRADINGSCENENAM, TITLESCENENAME} from "../cst.js";
+import {GAMESCENENAME, UISCENENAME, BFREESCENENAME, TRADINGSCENENAME, TITLESCENENAME} from "../cst.js";
 import FieldScene from './FieldScene.js';
 
 export default class TitleScene extends FieldScene {

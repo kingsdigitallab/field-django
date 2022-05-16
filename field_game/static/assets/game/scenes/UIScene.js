@@ -15,7 +15,7 @@ export default class UIScene extends Phaser.Scene {
 
 
     preload() {
-        this.load.scenePlugin('rexuiplugin', '/static/assets/game/plugins/rexuiplugin.min.js', 'rexUI', 'rexUI');
+        //this.load.scenePlugin('rexuiplugin', '/static/assets/game/plugins/rexuiplugin.min.js', 'rexUI', 'rexUI');
     }
 
     create() {
