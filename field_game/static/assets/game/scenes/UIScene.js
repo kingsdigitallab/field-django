@@ -1,5 +1,6 @@
 /*jshint esversion: 6 */
-
+import {BFREESCENENAME, GAMESCENENAME, UISCENENAME, EVENTS} from "../cst.js";
+import eventsCenter from "./EventsCenter.js";
 
 export default class UIScene extends Phaser.Scene {
 
@@ -11,20 +12,91 @@ export default class UIScene extends Phaser.Scene {
         this.COLOR_DARK = 0x260e04;
         this.balanceText="£ ";
         this.herdText="Cows: ";
+        this.texts=[];//Queue for dialog text
     }
 
 
     preload() {
         //this.load.scenePlugin('rexuiplugin', '/static/assets/game/plugins/rexuiplugin.min.js', 'rexUI', 'rexUI');
+        //this.load.plugin('DialogModalPlugin', DialogModalPlugin, true);
     }
 
     create() {
         this.GAME_WIDTH = this.scale.width;
         this.GAME_HEIGHT = this.scale.height;
+        this.gameScene = this.scene.get(GAMESCENENAME);
         // Main dialogue
         this.createPlayerInfo();
         this.createScoreboard();
+        // Set up main dialog window on the bottom of the screen
+        this.dialogWindow.createWindow(this);
+        //Start hidden
+        this.toggleDialogWindow();
+        this.setupListeners();
+        //this.dialogWindow.setText(this,'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', true);
 
+        this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+		    this.removeListeners();
+	    });
+    }
+
+    /**
+     * Add listeners, plus controls to on/off based on puse/resume of scene
+     * And finally remove on shutdown
+     */
+    setupListeners(){
+        this.addListeners();
+        this.events.on(Phaser.Scenes.Events.RESUME, () => {
+		    this.addListeners();
+	    });
+        this.events.on(Phaser.Scenes.Events.PAUSE, () => {
+		    this.removeListeners();
+	    });
+        this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
+		    this.removeListeners();
+	    });
+    }
+
+    addListeners(){
+        eventsCenter.on(EVENTS.ADVANCE, this.advanceDialogWindowSequence, this);
+    }
+
+    removeListeners(){
+        eventsCenter.off(EVENTS.ADVANCE, this.advanceDialogWindowSequence, this);
+    }
+
+    toggleDialogWindow(){
+        this.dialogWindow.toggleWindow();
+    }
+
+    advanceDialogWindowSequence(){
+        // Queued text is available
+        if (this.texts && this.texts.length > 0){
+            // If text isn't visible, toggle window
+            if (!this.dialogWindow.visible){
+                this.toggleDialogWindow();
+            }
+            //Set the text
+            this.dialogWindow.setText(this, this.texts[0], true);
+            // Remove it from queue
+            this.texts.shift();
+        }else if (this.texts.length === 0 && this.dialogWindow.visible){
+            // Queue empty, hide window
+            this.toggleDialogWindow();
+        }
+    }
+
+    /**
+     * Add text to the main dialog window queue.
+     * Remember to call Advance to start!
+     * @param moreText array of text
+     */
+    addDialogText(moreText){
+        this.texts.push(...moreText);
+    }
+
+    setDialogWindowText(text){
+        this.dialogWindow.setText(this,text, true);
     }
 
     updateBalance(balance){

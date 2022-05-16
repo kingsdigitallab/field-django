@@ -17,8 +17,8 @@ export default class BootScene extends FieldScene {
     }
 
     preload() {
-        this.loadAssets();
 
+        this.loadAssets();
     }
 
     loadAssets() {
@@ -89,6 +89,7 @@ export default class BootScene extends FieldScene {
         this.debug("BOOTING COMPLETE!");
         this.scene.launch(UISCENENAME);
         this.scene.start(GAMESCENENAME);
+
 
     }
 

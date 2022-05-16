@@ -1,5 +1,6 @@
 /*jshint esversion: 6 */
-import {GAMESCENENAME} from "../cst.js";
+import {GAMESCENENAME, UISCENENAME, EVENTS} from "../cst.js";
+import eventsCenter from "./EventsCenter.js";
 
 export default class BFreeScene extends Phaser.Scene {
     constructor() {
@@ -10,7 +11,8 @@ export default class BFreeScene extends Phaser.Scene {
             no: 'Bovifree not joined!',
         };
         this.bFreeDialogTexts = {
-            start: '£40 to innoculate your herd this turn',
+            onboards: ["Click on the hospital to join BoviFree -£40\n\nAll your cows will be cured, and fetch a higher price in trading.  (Lasts one turn)","Or touch your house to pass this turn \n\n Your cows will be worth less, and infections will grow."],
+            start: "BFree phase",
             yes: "Cows have been cured.  Your herd is disease free",
             no: "No infection cured. Your herd may still have disease"
         };
@@ -25,6 +27,7 @@ export default class BFreeScene extends Phaser.Scene {
 
     create() {
         this.gameScene = this.scene.get(GAMESCENENAME);
+        this.uiScene = this.scene.get(UISCENENAME);
         this.bFreePhase();
     }
 
@@ -38,9 +41,17 @@ export default class BFreeScene extends Phaser.Scene {
      */
     bFreePhase() {
         //this.createBoviDialog();
-        let myCows = this.gameScene.player.getCows(this.gameScene.herd);
-        this.sendCowToHospital(myCows[0]);
-        this.sendCowToHospital(myCows[1]);
+        //let myCows = this.gameScene.player.getCows(this.gameScene.herd);
+        //this.sendCowToHospital(myCows[0]);
+        //this.sendCowToHospital(myCows[1]);
+        if (this.gameScene.gameState.isOnBoarding){
+            this.uiScene.addDialogText(this.bFreeDialogTexts.onboards);
+            eventsCenter.emit(EVENTS.ADVANCE);
+        }else {
+            this.uiScene.addDialogText(this.bFreeDialogTexts.start);
+            eventsCenter.emit(EVENTS.ADVANCE);
+        }
+
     }
 
     /**

@@ -1,9 +1,10 @@
 /*jshint esversion: 6 */
-import {BFREESCENENAME, GAMESCENENAME, UISCENENAME} from "../cst.js";
+import {BFREESCENENAME, GAMESCENENAME, UISCENENAME, EVENTS} from "../cst.js";
 
 import FieldScene from './FieldScene.js';
 import Cow from '../actors/Cow.js';
 import {Farmer, Player} from '../actors/Farmer.js';
+import eventsCenter from "./EventsCenter.js";
 
 
 export default class GameScene extends FieldScene {
@@ -51,6 +52,12 @@ export default class GameScene extends FieldScene {
             normalCowPrice: 20,
             cowSpeed: 150
         };
+        // State of this instance of game
+        this.gameState={
+            currentTurn:0,
+            isOnBoarding:true, //Display help messages
+            isGameBoardActive:false // Is board clickable?
+        }
 
 
         // Log of all transactions in the game
@@ -269,7 +276,23 @@ export default class GameScene extends FieldScene {
      */
     startGame() {
         this.debug('Begin Game');
+        // Create events
+        this.addEvents();
         this.scene.launch(BFREESCENENAME);
+    }
+
+    /**
+     * Add global click/touch events
+     */
+    addEvents(){
+        this.input.on('pointerdown', this.handlePointerDown.bind(this));
+    }
+
+    handlePointerDown(){
+        // General advance used for dialogs
+        if (!this.gameState.isGameBoardActive){
+            eventsCenter.emit(EVENTS.ADVANCE);
+        }
     }
 
     moveCows(delta) {

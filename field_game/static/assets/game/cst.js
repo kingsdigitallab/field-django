@@ -5,3 +5,11 @@ export const UISCENENAME='UIScene';
 export const BFREESCENENAME='BFreeScene';
 export const TRADINGSCENENAME='TradingScene';
 export const TITLESCENENAME='TitleScene';
+
+/**
+ * Custom event string names
+ *
+ */
+export const EVENTS={
+    ADVANCE:'advance'
+};

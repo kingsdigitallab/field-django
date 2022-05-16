@@ -107,7 +107,6 @@ export default class Cow {
 
     doPathMove(step, cowSpeed) {
         let startTile = this.sprite.scene.map.getTileAtWorldXY(this.sprite.x, this.sprite.y, this.sprite.scene.layers['pathLayer']);
-        console.log(this.sprite.x);
         let startX = (startTile.x * this.sprite.scene.BOARD_TILE_SIZE);
         let startY = (startTile.y * this.sprite.scene.BOARD_TILE_SIZE);
         let currentAngle = this.sprite.angle;
