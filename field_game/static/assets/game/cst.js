@@ -1,4 +1,4 @@
-/*jshint esversion: 6 */
+/*jshint esversion: 8 */
 
 export const GAMESCENENAME='GameScene';
 export const UISCENENAME='UIScene';

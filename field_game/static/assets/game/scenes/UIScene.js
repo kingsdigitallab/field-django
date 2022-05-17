@@ -1,4 +1,4 @@
-/*jshint esversion: 6 */
+/*jshint esversion: 8 */
 import {BFREESCENENAME, GAMESCENENAME, UISCENENAME, EVENTS} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
 

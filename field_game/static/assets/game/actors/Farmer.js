@@ -1,4 +1,4 @@
-/*jshint esversion: 6 */
+/*jshint esversion: 8 */
 
 /**
  * The base farmer class, used by the AI and human players
@@ -60,16 +60,21 @@ export class Farmer {
     /**
      * Send this cow to any point in this farmer's pen
      * @param cow
+     *
      */
-    sendCowToPen(cow) {
+    async sendCowToPen(cow) {
+        cow.isMoving=true;
         let penPoint = this.findRandomPenPoint();
         if (penPoint) {
-            cow.moveCow(
+            let done = await cow.calculateMovePath(
                 penPoint[0], penPoint[1]
             );
-
+            if (done) {
+                done = cow.moveCowAlongPath(cow.cowSpeed);
+            }
         } else {
             this.debug("ERROR: Pen not assigned for " + owner.name);
+
         }
     }
 

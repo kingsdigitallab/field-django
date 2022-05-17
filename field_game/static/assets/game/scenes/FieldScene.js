@@ -1,4 +1,4 @@
-/*jshint esversion: 6 */
+/*jshint esversion: 8 */
 export default class FieldScene extends Phaser.Scene {
 
     // Debugger toggle

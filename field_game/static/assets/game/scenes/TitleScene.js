@@ -1,4 +1,4 @@
-/*jshint esversion: 6 */
+/*jshint esversion: 8 */
 import {GAMESCENENAME, UISCENENAME, BFREESCENENAME, TRADINGSCENENAME, TITLESCENENAME} from "../cst.js";
 import FieldScene from './FieldScene.js';
 

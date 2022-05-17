@@ -1,6 +1,5 @@
-/*jshint esversion: 6 */
-import {GAMESCENENAME, UISCENENAME, EVENTS} from "../cst.js";
-import eventsCenter from "./EventsCenter.js";
+/*jshint esversion: 8 */
+import {GAMESCENENAME, UISCENENAME} from "../cst.js";
 
 export default class BFreeScene extends Phaser.Scene {
     constructor() {
@@ -11,7 +10,7 @@ export default class BFreeScene extends Phaser.Scene {
             no: 'Bovifree not joined!',
         };
         this.bFreeDialogTexts = {
-            onboards: ["Click on the hospital to join BoviFree -£40\n\nAll your cows will be cured, and fetch a higher price in trading.  (Lasts one turn)","Or touch your house to pass this turn \n\n Your cows will be worth less, and infections will grow."],
+            onboards: ["Click on the hospital to join BoviFree -£40\n\nAll your cows will be cured, and fetch a higher price in trading.  (Lasts one turn)", "Or touch your house to pass this turn \n\n Your cows will be worth less, and infections will grow."],
             start: "BFree phase",
             yes: "Cows have been cured.  Your herd is disease free",
             no: "No infection cured. Your herd may still have disease"
@@ -31,26 +30,29 @@ export default class BFreeScene extends Phaser.Scene {
         this.bFreePhase();
     }
 
-    update(times,delta) {
-        this.gameScene.moveCows(delta);
+    update(times, delta) {
+        //this.gameScene.moveCows(delta);
     }
 
     /**
      *  Ask player if they wish to join the Bovifree scheme
      *  If so, set cows to bovifree and deduct fee
      */
-    bFreePhase() {
-        //this.createBoviDialog();
-        //let myCows = this.gameScene.player.getCows(this.gameScene.herd);
-        //this.sendCowToHospital(myCows[0]);
-        //this.sendCowToHospital(myCows[1]);
-        if (this.gameScene.gameState.isOnBoarding){
+    async bFreePhase() {
+        console.log('BFree phase start');
+        // Start text and onboarding if enabled
+        /*if (this.gameScene.gameState.isOnBoarding) {
             this.uiScene.addDialogText(this.bFreeDialogTexts.onboards);
             eventsCenter.emit(EVENTS.ADVANCE);
-        }else {
+        } else {
             this.uiScene.addDialogText(this.bFreeDialogTexts.start);
             eventsCenter.emit(EVENTS.ADVANCE);
-        }
+        }*/
+
+
+
+        this.innoculationAnimation(this.gameScene.player);
+
 
     }
 
@@ -59,25 +61,45 @@ export default class BFreeScene extends Phaser.Scene {
      * joining the scheme
      * @param farmer
      */
-    innoculationAnimation(farmer) {
+    async innoculationAnimation(farmer) {
+        // todo Zoom in a bit on the hospital
+
+        // Move cows one by one there and back with animation
         let myCows = farmer.getCows(this.gameScene.herd);
         for (let c = 0; c < myCows.length; c++) {
-            this.sendCowToHospital(myCows[c]);
+            await this.sendCowToHospital(myCows[c], 50);
         }
+
+        // todo Restore camera to default position
     }
 
     /**
      * Animation to... send cow to hospital
      */
-    sendCowToHospital(cow) {
-        /* cow.moveCow(
-                 this.gameScene.gameboardInfo.hospitalDoor[0],
-                 this.gameScene.gameboardInfo.hospitalDoor[1]
-             );*/
-        let startTile = cow.sprite.scene.map.getTileAtWorldXY(cow.sprite.x, cow.sprite.y, cow.sprite.scene.layers['pathLayer']);
-        cow.sprite.scene.finder.findPath(
-            startTile.x, startTile.y, this.gameScene.gameboardInfo.hospitalDoor[0], this.gameScene.gameboardInfo.hospitalDoor[1], cow.findPath.bind(cow));
-        cow.sprite.scene.finder.calculate();
+    async sendCowToHospital(cow, cowSpeed) {
+
+        // todo move to cow as function
+
+        let result = await cow.calculateMovePath(
+            this.gameScene.gameboardInfo.hospitalDoor[0],
+            this.gameScene.gameboardInfo.hospitalDoor[1]
+        );
+        if (result) {
+            //Move the Cow
+            result = await cow.moveCowAlongPath(cowSpeed);
+            if (result) {
+                // Power Up!
+                result = await cow.innoculationAnimation();
+                if (result){
+                    // Back to
+                    result = await cow.owner.sendCowToPen(cow);
+                }
+                return true;
+            }
+        } else {
+            console.log("Error: No path for cow!");
+        }
+        console.log(result);
     }
 
     createButton(scene, text) {

@@ -1,5 +1,5 @@
-/*jshint esversion: 6 */
-import {BFREESCENENAME, GAMESCENENAME, UISCENENAME, EVENTS} from "../cst.js";
+/*jshint esversion: 8 */
+import {BFREESCENENAME, EVENTS, GAMESCENENAME, UISCENENAME} from "../cst.js";
 
 import FieldScene from './FieldScene.js';
 import Cow from '../actors/Cow.js';
@@ -53,12 +53,12 @@ export default class GameScene extends FieldScene {
             cowSpeed: 150
         };
         // State of this instance of game
-        this.gameState={
-            currentTurn:0,
-            isOnBoarding:true, //Display help messages
-            isGameBoardActive:false // Is board clickable?
+        this.gameState = {
+            currentTurn: 0,
+            isOnBoarding: true, //Display help messages
+            isGameBoardActive: false // Is board clickable?
         }
-
+        this.waitingForSetup = 0;
 
         // Log of all transactions in the game
         // For later export;
@@ -217,11 +217,7 @@ export default class GameScene extends FieldScene {
             }
 
         }
-        //this.animationTimeline.play();
-
-        //Update ui
-        //this.scene.get(UISCENENAME).updateHerd(this.player.herdTotal);
-
+        return true;
     }
 
     createAIFarmer(id, name, balance, farmerStart) {
@@ -254,8 +250,6 @@ export default class GameScene extends FieldScene {
         this.setupComplete = false;
         this.finder = new EasyStar.js();
 
-
-
         // Main game board
         this.createGameBoard();
 
@@ -268,7 +262,20 @@ export default class GameScene extends FieldScene {
         this.createFarmers();
         this.createHerd();
 
+    }
 
+    /**
+     * Let all the board stuff happen
+     * then call game start when ready
+     * @return {Promise<void>}
+     */
+    startGameWhenSetupComplete() {
+        // Quick delay to get calculations going
+        if (this.isSetupComplete()){
+            this.setupComplete = true;
+            // Start the game
+            this.startGame();
+        }
     }
 
     /**
@@ -284,61 +291,68 @@ export default class GameScene extends FieldScene {
     /**
      * Add global click/touch events
      */
-    addEvents(){
-        this.input.on('pointerdown', this.handlePointerDown.bind(this));
+    addEvents() {
+        this.input.on('pointerdown', this.handlePointerDown, this);
     }
 
-    handlePointerDown(){
+    handlePointerDown() {
         // General advance used for dialogs
-        if (!this.gameState.isGameBoardActive){
+        if (!this.gameState.isGameBoardActive) {
             eventsCenter.emit(EVENTS.ADVANCE);
         }
     }
 
+    /*
+    DEPRECATED
     moveCows(delta) {
         let herd = this.herd;
         for (let c = 0; c < herd.length; c++) {
             if (herd[c].isMoving === true && herd[c].movePath.length > 0) {
-                if (!herd[c].sprite.anims.isPlaying){
+                if (!herd[c].sprite.anims.isPlaying) {
                     herd[c].sprite.play('cow_walk_up');
                 }
                 if (herd[c].sinceLastMove >= this.gameRules.cowSpeed) {
                     // Move the cow
                     herd[c].doPathMove(herd[c].movePath[0], this.gameRules.cowSpeed);
                     herd[c].movePath.shift();
-                    herd[c].sinceLastMove=0;
+                    herd[c].sinceLastMove = 0;
                     if (herd[c].movePath.length === 0) {
                         // Reset our cows, give them a rest
                         herd[c].isMoving = false;
-                        herd[c].sinceLastMove=0;
+                        herd[c].sinceLastMove = 0;
                         herd[c].sprite.stop();
                     }
-                }else{
+                } else {
                     //add delta
-                    herd[c].sinceLastMove+=delta;
+                    herd[c].sinceLastMove += delta;
                 }
             }
         }
+    }*/
+
+    /** Wait until all the pieces are in place before
+     starting
+     */
+    isSetupComplete() {
+        let done = true;
+        for (let c = 0; c < this.herd.length; c++) {
+            if (this.herd[c].isMoving === true) {
+                done = false;
+                break;
+            }
+        }
+        return done;
     }
 
     update(time, delta) {
-        // Wait until all the pieces are in place before
-        // starting
-        if (!this.setupComplete) {
-            let done = true;
-            for (let c = 0; c < this.herd.length; c++) {
-                if (this.herd[c].isMoving === true) {
-                    done = false;
-                    break;
-                }
-            }
-            if (done) {
-                this.setupComplete = true;
-                setTimeout(this.startGame.apply(this), 1000);
-
+        if (!this.setupComplete){
+            if (this.waitingForSetup+delta > 500){
+                this.startGameWhenSetupComplete();
+                this.waitingForSetup = 0;
+            }else{
+                this.waitingForSetup += delta;
             }
         }
-
         // todo add farm idle animations
 
     }
