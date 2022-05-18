@@ -13,16 +13,14 @@ export default class BFreeScene extends Phaser.Scene {
         this.bFreeDialogTexts = {
             onboards: ["Click on the hospital to join BoviFree -£40\n\nAll your cows will be cured, and fetch a higher price in trading.  (Lasts one turn)", "Or touch your pen to pass this turn \n\n Your cows will be worth less, and infections will grow."],
             start: ["BFree phase"],
-            yes: ["Cows have been cured","Your herd is disease free"],
-            no: ["No infection cured. Your herd may still have disease"]
+            yes: ["Cows have been cured.","Your herd is disease free"],
+            no: ["No infection cured.", "Your herd may still have disease"]
         };
-        this.innoculationAnimationStart = false;
-
 
     }
 
     preload() {
-        this.load.scenePlugin('rexuiplugin', '/static/assets/game/plugins/vendor/rexuiplugin.min.js', 'rexUI', 'rexUI');
+        //this.load.scenePlugin('rexuiplugin', '/static/assets/game/plugins/vendor/rexuiplugin.min.js', 'rexUI', 'rexUI');
     }
 
     create() {
@@ -170,7 +168,11 @@ export default class BFreeScene extends Phaser.Scene {
         console.log("Not joining Bovi Free");
         this.gameScene.setIsGameBoardActive(false);
         eventsCenter.off(EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
-        eventsCenter.emit(EVENTS.BFREEPHASEEND);
+        this.uiScene.addDialogText(this.bFreeDialogTexts.no);
+        eventsCenter.emit(EVENTS.ADVANCEDIALOG);
+        eventsCenter.once(EVENTS.DIALOGFINISHED, function () {
+            eventsCenter.emit(EVENTS.BFREEPHASEEND);
+        }, this);
     }
 
     endPhase(){

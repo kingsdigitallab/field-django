@@ -1,12 +1,13 @@
 /*jshint esversion: 8 */
 
-import {BFREESCENENAME, GAMESCENENAME, UISCENENAME} from "./cst.js";
+import {BFREESCENENAME, GAMESCENENAME, UISCENENAME, TRADINGSCENENAME} from "./cst.js";
 
 import BootScene from './scenes/BootScene.js';
 import TitleScene from './scenes/TitleScene.js';
 import UIScene from './scenes/UIScene.js';
 import GameScene from './scenes/GameScene.js';
 import BFreeScene from "./scenes/BFreeScene.js";
+import TradingScene from "./scenes/TradingScene.js";
 import DialogModalPlugin from "./plugins/field/DialogModalPlugin.js";
 
 
@@ -75,5 +76,5 @@ game.scene.add('TitleScene', titleScene);
 game.scene.add(GAMESCENENAME, gameScene);
 game.scene.add(UISCENENAME, new UIScene());
 game.scene.add(BFREESCENENAME, new BFreeScene());
-//game.scene.start('Game');
+game.scene.add(TRADINGSCENENAME, new TradingScene());
 game.scene.start('BootScene');

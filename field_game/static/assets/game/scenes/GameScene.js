@@ -1,9 +1,9 @@
 /*jshint esversion: 8 */
-import {BFREESCENENAME, EVENTS, GAMESCENENAME, UISCENENAME} from "../cst.js";
+import {gameRules, BFREESCENENAME, EVENTS, GAMESCENENAME, UISCENENAME, TRADINGSCENENAME} from "../cst.js";
 
 import FieldScene from './FieldScene.js';
 import Cow from '../actors/Cow.js';
-import {Farmer, Player} from '../actors/Farmer.js';
+import {Farmer, Player, AIFarmer} from '../actors/Farmer.js';
 import eventsCenter from "./EventsCenter.js";
 
 
@@ -18,7 +18,6 @@ export default class GameScene extends FieldScene {
 
     constructor() {
         super(GAMESCENENAME);
-        this.AIfarmers = [];
         this.herd = [];
         this.layers = [];
         // Player/farmer starts, where the cow pens are etc.
@@ -45,19 +44,7 @@ export default class GameScene extends FieldScene {
             }
         };
         //Game rules and constants
-        this.gameRules = {
-            startHerdSize: 20,
-            startFarmerBalance: 200,
-            AIFarmerTotal: 6,
-            totalRounds: 8,
-            // AI farmer will join scheme at least once per this many turns
-            bfreeTrigger: 4,
-            bfreeJoinCost: 40, // Cost to join scheme
-            // Cow prices, buy and sell
-            bfreeCowPrice: 30,
-            normalCowPrice: 20,
-            cowSpeed: 150
-        };
+
         // State of this instance of game
         this.gameState = {
             currentTurn: 0,
@@ -70,12 +57,12 @@ export default class GameScene extends FieldScene {
 
         // Log of all transactions in the game
         // For later export;
-        this.gameLog = "";
+        this.log = "";
 
         /* Main player*/
         this.player = null;
         // Computer farmers (Farmer)
-        this.AIfarmers = [];
+        this.AIFarmers = [];
         //Herd of cows (Cow)
         this.herd = [];
     }
@@ -86,13 +73,14 @@ export default class GameScene extends FieldScene {
      * @param message
      */
     gameLog(message) {
-        this.gameLog += "\n" + message;
+        this.log += "\n" + message;
     }
 
 
     getAllFarmers() {
-        let allFarmers = this.AIfarmers;
-        allFarmers.append(this.player);
+        let allFarmers = [];
+        allFarmers.push(...this.AIFarmers);
+        allFarmers.push(this.player);
         return allFarmers;
     }
 
@@ -196,7 +184,7 @@ export default class GameScene extends FieldScene {
         const startY = (this.gameboardInfo.player.start[1] + 1) * this.BOARD_TILE_SIZE;
         let sprite = this.physics.add.sprite(startX, startY, 'farmer_1');
         sprite.setCollideWorldBounds(true);
-        this.player = new Player(1, 'Player', this.gameRules.startFarmerBalance, sprite, this.gameboardInfo.player.start);
+        this.player = new Player(1, 'Player', gameRules.startFarmerBalance, sprite, this.gameboardInfo.player.start);
         let penZone = this.createZoneFromTiles(this.gameboardInfo.playerCowPen)
             .setOrigin(0, 0)
             .setInteractive().on('pointerup', function (pointer, localX, localY) {
@@ -235,14 +223,14 @@ export default class GameScene extends FieldScene {
     createHerd() {
         this.debug('Creating herd...');
         // Even split for now
-        let cowsPerPlayer = Math.floor(this.gameRules.startHerdSize / (this.gameRules.AIFarmerTotal + 1));
+        let cowsPerPlayer = Math.floor(gameRules.startHerdSize / (gameRules.AIFarmerTotal + 1));
         this.debug(cowsPerPlayer + ' cows per player');
         let owner = this.player;
         let pen = this.gameboardInfo.playerCowPen;
         owner.pen = pen;
-        for (let p = -1; p < this.gameRules.AIFarmerTotal; p++) {
+        for (let p = -1; p < gameRules.AIFarmerTotal; p++) {
             if (p >= 0) {
-                owner = this.AIfarmers[p];
+                owner = this.AIFarmers[p];
                 pen = this.gameboardInfo.farmerCowPens[p];
                 // Assign pen to the farmer
                 owner.pen = pen;
@@ -264,16 +252,16 @@ export default class GameScene extends FieldScene {
         let AISprite = this.physics.add.sprite(farmerStart[0] * this.BOARD_TILE_SIZE, (farmerStart[1] + 1) * this.BOARD_TILE_SIZE, 'farmer_2');
         AISprite.setCollideWorldBounds(true);
         //AISprite.setVisible(false);
-        let AIFarmer = new Farmer(id, name, balance, AISprite, farmerStart);
-        this.AIfarmers.push(AIFarmer);
-        return AIFarmer;
+        let aiFarmer = new AIFarmer(id, name, balance, AISprite, farmerStart);
+        this.AIFarmers.push(aiFarmer);
+        return aiFarmer;
     }
 
     createFarmers() {
         //let farm = this.add.image(this.GAME_WIDTH, 0, 'AI_farm').setOrigin(1, 0);
-        for (let x = 0; x < this.gameRules.AIFarmerTotal; x++) {
+        for (let x = 0; x < gameRules.AIFarmerTotal; x++) {
             // Split evenly on left  and right side
-            let AIFarmer = this.createAIFarmer(x, 'AI ' + (x + 1), this.gameRules.startFarmerBalance, this.gameboardInfo.farmerStarts[x]);
+            let aiFarmer = this.createAIFarmer(x, 'AI ' + (x + 1), gameRules.startFarmerBalance, this.gameboardInfo.farmerStarts[x]);
             let penZone = this.createZoneFromTiles(this.gameboardInfo.farmerCowPens[x])
             .setOrigin(0, 0)
             .setInteractive().on('pointerup', function (pointer, localX, localY) {
@@ -284,8 +272,8 @@ export default class GameScene extends FieldScene {
                     let rect = new Phaser.Geom.Rectangle(zone.x,zone.y,zone.width,zone.height);
                     console.log(rect.getRandomPoint());*/
                 }
-            }, AIFarmer);
-            AIFarmer.setPenZone(penZone);
+            }, aiFarmer);
+            aiFarmer.setPenZone(penZone);
 
         }
     }
@@ -336,7 +324,9 @@ export default class GameScene extends FieldScene {
         this.debug('Begin Game');
         // Create events
         this.addEvents();
-        this.scene.launch(BFREESCENENAME);
+        // todo restore
+        //this.scene.launch(BFREESCENENAME);
+        this.scene.launch(TRADINGSCENENAME);
     }
 
     /**
@@ -372,9 +362,9 @@ export default class GameScene extends FieldScene {
                 if (!herd[c].sprite.anims.isPlaying) {
                     herd[c].sprite.play('cow_walk_up');
                 }
-                if (herd[c].sinceLastMove >= this.gameRules.cowSpeed) {
+                if (herd[c].sinceLastMove >= gameRules.cowSpeed) {
                     // Move the cow
-                    herd[c].doPathMove(herd[c].movePath[0], this.gameRules.cowSpeed);
+                    herd[c].doPathMove(herd[c].movePath[0], gameRules.cowSpeed);
                     herd[c].movePath.shift();
                     herd[c].sinceLastMove = 0;
                     if (herd[c].movePath.length === 0) {
@@ -456,98 +446,7 @@ export default class GameScene extends FieldScene {
      */
 
 
-    /**
-     * Buy a cow from another AI or the player
-     * If the player has the money
-     *
-     * @param farmers
-     */
-    purchaseCow(buyer, sellers) {
-        if (this.balance < this.gameRules.premiumPrice) {
-            this.transaction(buyer, buyer.calculatePurchaseChoice(sellers));
-        } else if (this.balance < this.gameRules.premiumPrice) {
-            // Player can't afford premium cows, only buy from nonbfree
-            let normalSellers = [];
-            for (let s = 0; s < sellers.length; s++) {
-                if (!sellers[s].isBoviFree) {
-                    normalSellers.append(sellers[s]);
-                }
-            }
-            this.transaction(buyer, buyer.calculatePurchaseChoice(normalSellers));
-        }
-        this.gameLog(buyer.name + " can't afford to buy a cow");
-    }
 
-    /**
-     * A sale of a cow between buyer and seller
-     * If the cow is not part of the bfree game it may be infected
-     *
-     * @param buyer of cow
-     * @param seller of cow
-     */
-    transaction(buyer, seller) {
-        let cowType = '';
-        if (seller.isBoviFree) {
-            // Bovi free, pay premium, no infection
-            cowType = 'Premium';
-            seller.balance += this.gameRules.bfreeCowPrice;
-            buyer.balance -= this.gameRules.bfreeCowPrice;
-        } else {
-            // Normal, pay normal, increase infection
-            cowType = 'Normal';
-            seller.balance += this.gameRules.normalCowPrice;
-            buyer.balance -= this.gameRules.normalCowPrice;
-            // is the cow infected?
-            // todo tie break?
-            if (Math.Random() < (seller.infections / seller.herdTotal)) {
-                // Buyer bought an infected cow!
-                buyer.infections += 1;
-                seller.infections -= 1;
-                cowType = "Infected";
-            }
-
-        }
-        buyer.herdTotal += 1;
-        seller.herdTotal -= 1;
-        // Set the ownership of cow to seller and move it
-        for (let c = 0; c < this.herd.length; c++) {
-            if (this.herd[c].owner === seller) {
-                this.herd[c].owner = buyer;
-                let penPoint = buyer.findRandomPenPoint();
-                this.herd[c].moveCow(penPoint);
-                break;
-            }
-
-        }
-        // Reset time since last sale for seller
-        seller.timeSinceLastSale = -1;
-        this.gameLog(cowType + ' cow bought by ' + buyer.name + ' from ' + seller.name);
-    }
-
-    setIsGameBoardActive(isActive){
-        this.gameState.isGameBoardActive=isActive;
-    }
-
-    getIsGameBoardActive(){
-        return this.gameState.isGameBoardActive;
-    }
-
-    /**
-     * This phase has two parts:
-     *
-     * 1. Player chooses which farm to purchase cow from
-     * 2. AI farmers purchase cows from player and/or each other
-     *
-     */
-    cowTradingPhase() {
-        this.createPlayerPurchaseCowDialog();
-        let sellers = this.AIfarmers;
-        sellers.append(this.player);
-        for (let x = 0; x < this.AIfarmers.length; x++) {
-            this.purchaseCow(this.AIfarmers[x], sellers);
-        }
-
-    }
 
     /*
     For farm in {0,1,…,8}
@@ -571,6 +470,14 @@ export default class GameScene extends FieldScene {
             }
         }
 
+    }
+
+    setIsGameBoardActive(isActive){
+        this.gameState.isGameBoardActive=isActive;
+    }
+
+    getIsGameBoardActive(){
+        return this.gameState.isGameBoardActive;
     }
 
     updateFarmers() {

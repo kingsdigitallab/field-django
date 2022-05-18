@@ -36,11 +36,15 @@ export class Farmer {
         }
     }
 
-    setPenZone(zone){
+    isBFree(){
+        return this.bfree;
+    }
+
+    setPenZone(zone) {
         this.penZone = zone;
     }
 
-    getPenZone(){
+    getPenZone() {
         return this.penZone;
     }
 
@@ -73,7 +77,7 @@ export class Farmer {
      *
      */
     async sendCowToPen(cow) {
-        cow.isMoving=true;
+        cow.isMoving = true;
         let penPoint = this.findRandomPenTile();
         if (penPoint) {
             let done = await cow.calculateMovePath(
@@ -106,6 +110,9 @@ export class Farmer {
  * behaviour
  */
 export class AIFarmer extends Farmer {
+    constructor(id, name, balance, sprite, farmerStart) {
+        super(id, name, balance, sprite, farmerStart);
+    }
 
     /**
      * Decide if farmer will join the scheme this turn
