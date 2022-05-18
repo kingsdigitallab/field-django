@@ -58,11 +58,11 @@ export default class UIScene extends Phaser.Scene {
     }
 
     addListeners(){
-        eventsCenter.on(EVENTS.ADVANCE, this.advanceDialogWindowSequence, this);
+        eventsCenter.on(EVENTS.ADVANCEDIALOG, this.advanceDialogWindowSequence, this);
     }
 
     removeListeners(){
-        eventsCenter.off(EVENTS.ADVANCE, this.advanceDialogWindowSequence, this);
+        eventsCenter.off(EVENTS.ADVANCEDIALOG, this.advanceDialogWindowSequence, this);
     }
 
     toggleDialogWindow(){
@@ -82,6 +82,7 @@ export default class UIScene extends Phaser.Scene {
             this.texts.shift();
         }else if (this.texts.length === 0 && this.dialogWindow.visible){
             // Queue empty, hide window
+            eventsCenter.emit(EVENTS.DIALOGFINISHED);
             this.toggleDialogWindow();
         }
     }
@@ -100,7 +101,6 @@ export default class UIScene extends Phaser.Scene {
     }
 
     updateBalance(balance){
-        console.log(this.playerInfoBalance);
         this.playerInfoBalance.setText(this.balanceText + balance);
         Phaser.Display.Align.To.BottomLeft(
             this.playerInfoBalance, this.playerInfoTitle

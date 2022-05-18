@@ -23,20 +23,26 @@ export default class GameScene extends FieldScene {
         this.layers = [];
         // Player/farmer starts, where the cow pens are etc.
         this.gameboardInfo = {
-            playerCowPen: [[16, 9], 5, 7],
+            playerCowPen: [[16, 9], [5, 7]],
             farmerCowPens: [
-                [[1, 9], 5, 7],
-                [[33, 9], 5, 7],
-                [[1, 33], 5, 7],
-                [[33, 33], 5, 7],
-                [[1, 51], 5, 7],
-                [[33, 51], 5, 7],
+                [[1, 9], [5, 7]],
+                [[33, 9], [5, 7]],
+                [[1, 33], [5, 7]],
+                [[33, 33], [5, 7]],
+                [[1, 51], [5, 7]],
+                [[33, 51], [5, 7]],
             ],
-            playerStart: [20, 6],
+            player: {
+                start: [20, 6],
+                house: [[18, 1], 3, 4]
+            },
             farmerStarts: [
                 [4, 6], [4, 30], [4, 48], [36, 6], [36, 30], [36, 48]
             ],
-            hospitalDoor: [19, 32]
+            hospital: {
+                extent: [[17, 28], [4, 3]],
+                door: [19, 34]
+            }
         };
         //Game rules and constants
         this.gameRules = {
@@ -57,7 +63,9 @@ export default class GameScene extends FieldScene {
             currentTurn: 0,
             isOnBoarding: true, //Display help messages
             isGameBoardActive: false // Is board clickable?
-        }
+        };
+        // Zones on the game board
+        this.gameboardZones = {};
         this.waitingForSetup = 0;
 
         // Log of all transactions in the game
@@ -158,16 +166,47 @@ export default class GameScene extends FieldScene {
         this.finder.setAcceptableTiles([1, 2]);
         this.finder.setTileCost(2, 2);
 
+        // Add zones for hospital.
+        //Hospital
+        let hospitalExtent = this.gameboardInfo.hospital.extent;
+
+        this.gameboardZones.hospitalZone = this.createZoneFromTiles(hospitalExtent).setOrigin(0, 0).setInteractive().on('pointerup', function (pointer, localX, localY) {
+            if (this.gameState.isGameBoardActive) {
+                // If board is touchable, record touch
+                eventsCenter.emit(EVENTS.HOSPITALTOUCHED);
+                console.log('H');
+            }
+        }, this);
 
     }
 
+    createZoneFromTiles(tileExtent) {
+        return this.add.zone(
+            tileExtent[0][0] * this.BOARD_TILE_SIZE,
+            tileExtent[0][1] * this.BOARD_TILE_SIZE,
+            (tileExtent[1][0] + 1) * this.BOARD_TILE_SIZE,
+            (tileExtent[1][1] + 1) * this.BOARD_TILE_SIZE,
+        );
+    }
+
+
     createPlayer() {
         // Player farm
-        const startX = this.gameboardInfo.playerStart[0] * this.BOARD_TILE_SIZE;
-        const startY = (this.gameboardInfo.playerStart[1] + 1) * this.BOARD_TILE_SIZE;
+        const startX = this.gameboardInfo.player.start[0] * this.BOARD_TILE_SIZE;
+        const startY = (this.gameboardInfo.player.start[1] + 1) * this.BOARD_TILE_SIZE;
         let sprite = this.physics.add.sprite(startX, startY, 'farmer_1');
         sprite.setCollideWorldBounds(true);
-        this.player = new Player(1, 'Player', this.gameRules.startFarmerBalance, sprite, this.gameboardInfo.playerStart);
+        this.player = new Player(1, 'Player', this.gameRules.startFarmerBalance, sprite, this.gameboardInfo.player.start);
+        let penZone = this.createZoneFromTiles(this.gameboardInfo.playerCowPen)
+            .setOrigin(0, 0)
+            .setInteractive().on('pointerup', function (pointer, localX, localY) {
+                if (this.gameState.isGameBoardActive) {
+                    // If board is touchable, record touch
+                    eventsCenter.emit(EVENTS.PLAYERPENTOUCHED);
+                    console.log('player');
+                }
+            }, this);
+        this.player.setPenZone(penZone);
         //this.updatePlayerBalance(this.player.balance);
     }
 
@@ -225,15 +264,28 @@ export default class GameScene extends FieldScene {
         let AISprite = this.physics.add.sprite(farmerStart[0] * this.BOARD_TILE_SIZE, (farmerStart[1] + 1) * this.BOARD_TILE_SIZE, 'farmer_2');
         AISprite.setCollideWorldBounds(true);
         //AISprite.setVisible(false);
-        this.AIfarmers.push(new Farmer(id, name, balance, AISprite, farmerStart));
+        let AIFarmer = new Farmer(id, name, balance, AISprite, farmerStart);
+        this.AIfarmers.push(AIFarmer);
+        return AIFarmer;
     }
 
     createFarmers() {
         //let farm = this.add.image(this.GAME_WIDTH, 0, 'AI_farm').setOrigin(1, 0);
         for (let x = 0; x < this.gameRules.AIFarmerTotal; x++) {
             // Split evenly on left  and right side
-
-            this.createAIFarmer(x, 'AI ' + (x + 1), this.gameRules.startFarmerBalance, this.gameboardInfo.farmerStarts[x]);
+            let AIFarmer = this.createAIFarmer(x, 'AI ' + (x + 1), this.gameRules.startFarmerBalance, this.gameboardInfo.farmerStarts[x]);
+            let penZone = this.createZoneFromTiles(this.gameboardInfo.farmerCowPens[x])
+            .setOrigin(0, 0)
+            .setInteractive().on('pointerup', function (pointer, localX, localY) {
+                if (this.sprite.scene.gameState.isGameBoardActive) {
+                    // If board is touchable, record touch
+                    eventsCenter.emit(EVENTS.AIFARMERPENTOUCHED,this);
+                    /*let zone = this.getPenZone();
+                    let rect = new Phaser.Geom.Rectangle(zone.x,zone.y,zone.width,zone.height);
+                    console.log(rect.getRandomPoint());*/
+                }
+            }, AIFarmer);
+            AIFarmer.setPenZone(penZone);
 
         }
     }
@@ -254,7 +306,6 @@ export default class GameScene extends FieldScene {
         this.createGameBoard();
 
         // UI Containers
-
         this.scene.bringToTop(UISCENENAME);
 
         // Pieces
@@ -271,7 +322,7 @@ export default class GameScene extends FieldScene {
      */
     startGameWhenSetupComplete() {
         // Quick delay to get calculations going
-        if (this.isSetupComplete()){
+        if (this.isSetupComplete()) {
             this.setupComplete = true;
             // Start the game
             this.startGame();
@@ -293,14 +344,24 @@ export default class GameScene extends FieldScene {
      */
     addEvents() {
         this.input.on('pointerdown', this.handlePointerDown, this);
+        //this.input.on('pointerup', this.handlePointerUp, this);
     }
 
     handlePointerDown() {
         // General advance used for dialogs
         if (!this.gameState.isGameBoardActive) {
-            eventsCenter.emit(EVENTS.ADVANCE);
+            eventsCenter.emit(EVENTS.ADVANCEDIALOG);
         }
     }
+
+    /*
+    handlePointerUp(pointer) {
+        if (this.gameState.isGameBoardActive) {
+            let tile = this.map.getTileAtWorldXY(pointer.worldX, pointer.worldY);
+            console.log(pointer.worldX, pointer.worldY, tile);
+            eventsCenter.emit(EVENTS.ADVANCEDIALOG);
+        }
+    }*/
 
     /*
     DEPRECATED
@@ -345,11 +406,11 @@ export default class GameScene extends FieldScene {
     }
 
     update(time, delta) {
-        if (!this.setupComplete){
-            if (this.waitingForSetup+delta > 500){
+        if (!this.setupComplete) {
+            if (this.waitingForSetup + delta > 500) {
                 this.startGameWhenSetupComplete();
                 this.waitingForSetup = 0;
-            }else{
+            } else {
                 this.waitingForSetup += delta;
             }
         }
@@ -461,6 +522,14 @@ export default class GameScene extends FieldScene {
         // Reset time since last sale for seller
         seller.timeSinceLastSale = -1;
         this.gameLog(cowType + ' cow bought by ' + buyer.name + ' from ' + seller.name);
+    }
+
+    setIsGameBoardActive(isActive){
+        this.gameState.isGameBoardActive=isActive;
+    }
+
+    getIsGameBoardActive(){
+        return this.gameState.isGameBoardActive;
     }
 
     /**

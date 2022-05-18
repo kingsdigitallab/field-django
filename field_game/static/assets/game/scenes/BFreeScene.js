@@ -1,5 +1,6 @@
 /*jshint esversion: 8 */
-import {GAMESCENENAME, UISCENENAME} from "../cst.js";
+import {EVENTS, GAMESCENENAME, UISCENENAME} from "../cst.js";
+import eventsCenter from "./EventsCenter.js";
 
 export default class BFreeScene extends Phaser.Scene {
     constructor() {
@@ -10,10 +11,10 @@ export default class BFreeScene extends Phaser.Scene {
             no: 'Bovifree not joined!',
         };
         this.bFreeDialogTexts = {
-            onboards: ["Click on the hospital to join BoviFree -£40\n\nAll your cows will be cured, and fetch a higher price in trading.  (Lasts one turn)", "Or touch your house to pass this turn \n\n Your cows will be worth less, and infections will grow."],
-            start: "BFree phase",
-            yes: "Cows have been cured.  Your herd is disease free",
-            no: "No infection cured. Your herd may still have disease"
+            onboards: ["Click on the hospital to join BoviFree -£40\n\nAll your cows will be cured, and fetch a higher price in trading.  (Lasts one turn)", "Or touch your pen to pass this turn \n\n Your cows will be worth less, and infections will grow."],
+            start: ["BFree phase"],
+            yes: ["Cows have been cured","Your herd is disease free"],
+            no: ["No infection cured. Your herd may still have disease"]
         };
         this.innoculationAnimationStart = false;
 
@@ -27,6 +28,7 @@ export default class BFreeScene extends Phaser.Scene {
     create() {
         this.gameScene = this.scene.get(GAMESCENENAME);
         this.uiScene = this.scene.get(UISCENENAME);
+        this.addListeners();
         this.bFreePhase();
     }
 
@@ -41,19 +43,25 @@ export default class BFreeScene extends Phaser.Scene {
     async bFreePhase() {
         console.log('BFree phase start');
         // Start text and onboarding if enabled
-        /*if (this.gameScene.gameState.isOnBoarding) {
+        if (this.gameScene.gameState.isOnBoarding) {
             this.uiScene.addDialogText(this.bFreeDialogTexts.onboards);
-            eventsCenter.emit(EVENTS.ADVANCE);
+            eventsCenter.emit(EVENTS.ADVANCEDIALOG);
         } else {
             this.uiScene.addDialogText(this.bFreeDialogTexts.start);
-            eventsCenter.emit(EVENTS.ADVANCE);
-        }*/
+            eventsCenter.emit(EVENTS.ADVANCEDIALOG);
+        }
+        eventsCenter.once(EVENTS.DIALOGFINISHED, function () {
+            this.gameScene.setIsGameBoardActive(true);
+            eventsCenter.once(EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
+            eventsCenter.once(EVENTS.PLAYERPENTOUCHED, this.joinBFreeNo, this);
+        }, this);
+        //this.innoculationAnimation(this.gameScene.player);
 
 
+    }
 
-        this.innoculationAnimation(this.gameScene.player);
-
-
+    addListeners() {
+        eventsCenter.on(EVENTS.BFREEPHASEEND, this.endPhase, this);
     }
 
     /**
@@ -67,10 +75,11 @@ export default class BFreeScene extends Phaser.Scene {
         // Move cows one by one there and back with animation
         let myCows = farmer.getCows(this.gameScene.herd);
         for (let c = 0; c < myCows.length; c++) {
-            await this.sendCowToHospital(myCows[c], 50);
+           await this.sendCowToHospital(myCows[c], 50);
         }
-
         // todo Restore camera to default position
+        return true;
+
     }
 
     /**
@@ -81,8 +90,8 @@ export default class BFreeScene extends Phaser.Scene {
         // todo move to cow as function
 
         let result = await cow.calculateMovePath(
-            this.gameScene.gameboardInfo.hospitalDoor[0],
-            this.gameScene.gameboardInfo.hospitalDoor[1]
+            this.gameScene.gameboardInfo.hospital.door[0],
+            this.gameScene.gameboardInfo.hospital.door[1]
         );
         if (result) {
             //Move the Cow
@@ -90,11 +99,12 @@ export default class BFreeScene extends Phaser.Scene {
             if (result) {
                 // Power Up!
                 result = await cow.innoculationAnimation();
-                if (result){
+                if (result) {
                     // Back to
                     result = await cow.owner.sendCowToPen(cow);
+                    return true;
                 }
-                return true;
+
             }
         } else {
             console.log("Error: No path for cow!");
@@ -139,26 +149,36 @@ export default class BFreeScene extends Phaser.Scene {
         });
     }
 
-    joinBFree(decision) {
-        let titleText = "";
-        let contentText = "";
-        if (decision === "Yes" && this.gameScene) {
-            // Subtract the cost
-            console.log("Joining Bovi Free");
-
-            this.gameScene.player.balance -= this.gameScene.gameRules.bfreeJoinCost;
-            // Remove infection from cattle
-            this.gameScene.player.setBFree(true);
-            titleText = this.bFreeDialogTitles.yes;
-            contentText = this.bFreeDialogTexts.yes;
-        } else {
-            console.log("Not joining Bovi Free");
-            titleText = this.bFreeDialogTitles.no;
-        }
-        this.boviDialog.visible = false;
-        this.innoculationAnimation(this.gameScene.player);
+    async joinBFreeYes() {
+        // Remove no listener
+        eventsCenter.off(EVENTS.PLAYERPENTOUCHED, this.joinBFreeNo, this);
+        this.gameScene.setIsGameBoardActive(false);
+        // Subtract the cost
+        console.log("Joining Bovi Free");
+        this.gameScene.player.balance -= this.gameScene.gameRules.bfreeJoinCost;
+        // Remove infection from cattle
+        this.gameScene.player.setBFree(true);
+        await this.innoculationAnimation(this.gameScene.player);
+        this.uiScene.addDialogText(this.bFreeDialogTexts.yes);
+        eventsCenter.emit(EVENTS.ADVANCEDIALOG);
+        eventsCenter.once(EVENTS.DIALOGFINISHED, function () {
+            eventsCenter.emit(EVENTS.BFREEPHASEEND);
+        }, this);
     }
 
+    joinBFreeNo() {
+        console.log("Not joining Bovi Free");
+        this.gameScene.setIsGameBoardActive(false);
+        eventsCenter.off(EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
+        eventsCenter.emit(EVENTS.BFREEPHASEEND);
+    }
+
+    endPhase(){
+        console.log("Joining Bovi Free COMPLETE");
+    }
+
+    /*
+    DEPRECATED
     createBoviDialog() {
 
         this.boviDialog = this.createYesNoDialog(
@@ -240,7 +260,7 @@ export default class BFreeScene extends Phaser.Scene {
             .popUp(1000);
 
         return dialog;
-    }
+    }*/
 
 
 }

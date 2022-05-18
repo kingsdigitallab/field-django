@@ -11,5 +11,14 @@ export const TITLESCENENAME='TitleScene';
  *
  */
 export const EVENTS={
-    ADVANCE:'advance'
+    ADVANCEDIALOG:'advance',
+    DIALOGFINISHED:'dialogFinished',
+    BOARDTOUCHED:"boardTouched",
+    HOSPITALTOUCHED:"hospitalTouched",
+    PLAYERPENTOUCHED:"playerpenTouched",
+    AIFARMERPENTOUCHED:"aipenTouched",
+    BFREEPHASEEND:"BFREEPHASECOMPLETE", // Wrap up
+    BFREEPHASECOMPLETE:"BFREEPHASECOMPLETE", // Phase complete, move on
+    TRADINGPHASEEND:"TRADINGPHASEEND",
+    TRADINGPHASECOMPLETE:"TRADINGPHASECOMPLETE"
 };

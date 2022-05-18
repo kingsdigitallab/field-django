@@ -18,6 +18,7 @@ export class Farmer {
         this.infections = 0; // Number of infected cows in herd
         this.herdTotal = 0; // Total number of cows Farmer owns
         this.pen = [];
+        this.penZone = null;
 
     }
 
@@ -35,8 +36,17 @@ export class Farmer {
         }
     }
 
+    setPenZone(zone){
+        this.penZone = zone;
+    }
+
+    getPenZone(){
+        return this.penZone;
+    }
+
+
     /**
-     * Find a point in a player pen for a cow
+     * Find a tile in a player pen for a cow
      * that IS NOT currently occupied by another cow
      * Used for spawning and transferring cows during sales
      * @param penTileCoords top left of pen
@@ -44,11 +54,11 @@ export class Farmer {
      * @param height of pen
      * @return [x,y] coordinates
      */
-    findRandomPenPoint(penTileCoords, width, height) {
+    findRandomPenTile(penTileCoords, width, height) {
         if (this.pen) {
             let freePenPoint = [
-                this.pen[0][0] + Math.round(Math.random() * this.pen[1]),
-                this.pen[0][1] + Math.round(Math.random() * this.pen[2])
+                this.pen[0][0] + Math.round(Math.random() * this.pen[1][0]),
+                this.pen[0][1] + Math.round(Math.random() * this.pen[1][1])
             ];
             // todo Make sure no cow shares this?
             return freePenPoint;
@@ -64,13 +74,14 @@ export class Farmer {
      */
     async sendCowToPen(cow) {
         cow.isMoving=true;
-        let penPoint = this.findRandomPenPoint();
+        let penPoint = this.findRandomPenTile();
         if (penPoint) {
             let done = await cow.calculateMovePath(
                 penPoint[0], penPoint[1]
             );
             if (done) {
-                done = cow.moveCowAlongPath(cow.cowSpeed);
+                done = await cow.moveCowAlongPath(cow.cowSpeed);
+                return true;
             }
         } else {
             this.debug("ERROR: Pen not assigned for " + owner.name);
