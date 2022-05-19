@@ -85,7 +85,12 @@ export class Farmer {
             );
             if (done) {
                 done = await cow.moveCowAlongPath(cow.cowSpeed);
-                return true;
+                if (done){
+                    return -1;
+                }else{
+                    return 0;
+                }
+
             }
         } else {
             this.debug("ERROR: Pen not assigned for " + owner.name);

@@ -1,5 +1,5 @@
 /*jshint esversion: 8 */
-import {EVENTS, GAMESCENENAME, UISCENENAME, DEBUG, gameRules} from "../cst.js";
+import {DEBUG, EVENTS, gameRules, GAMESCENENAME, UISCENENAME} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
 
 /**
@@ -20,7 +20,7 @@ export default class TradingScene extends Phaser.Scene {
         this.dialogTexts = {
             onboards: [
                 "Trading phase",
-                "Buy a cow from a player by touching their pen.","Bfree cows cost £"+gameRules.bfreeCowPrice+", others £"+gameRules.normalCowPrice,
+                "Buy a cow from a player by touching their pen.", "Bfree cows cost £" + gameRules.bfreeCowPrice + ", others £" + gameRules.normalCowPrice,
                 "Warning! Non-BFree cows may be infected"
             ],
             start: ["Trading phase"],
@@ -40,7 +40,7 @@ export default class TradingScene extends Phaser.Scene {
         this.tradingPhase();
     }
 
-    addListeners(){
+    addListeners() {
 
     }
 
@@ -56,7 +56,7 @@ export default class TradingScene extends Phaser.Scene {
      * Resolve all cow trades between players
      * Display results in dialog window as we go
      */
-    tradingPhase(){
+    async tradingPhase() {
         if (DEBUG) {
             console.log('Trading phase start');
         }
@@ -74,18 +74,20 @@ export default class TradingScene extends Phaser.Scene {
         // Listener for input
 
         // Computer trading
-        let tradingSummary='';
+        let tradingSummary = '';
         let sellers = this.gameScene.getAllFarmers();
 
         // Do all the trades
         // Write results in one big text bloc for speed
 
         for (let x = 0; x < this.gameScene.AIFarmers.length; x++) {
-            tradingSummary+=this.purchaseCow(this.gameScene.AIFarmers[x], sellers) +"\n";
+            tradingSummary += this.purchaseCow(this.gameScene.AIFarmers[x], sellers) + "\n";
         }
         console.log(tradingSummary);
 
         // Unleash the cows!
+        await this.gameScene.sendHerdToPens();
+        console.log('COMPLETE');
 
     }
 
@@ -111,7 +113,7 @@ export default class TradingScene extends Phaser.Scene {
                 }
             }
             summary = this.transaction(buyer, buyer.calculatePurchaseChoice(normalSellers));
-        }else {
+        } else {
             summary = buyer.name + " can't afford to buy a cow";
         }
 
@@ -129,46 +131,49 @@ export default class TradingScene extends Phaser.Scene {
     transaction(buyer, seller) {
         let cowType = '';
         let price = 0;
-        console.log(seller);
-        if (seller.isBFree()) {
-            // Bovi free, pay premium, no infection
-            cowType = 'Premium';
-            seller.balance += gameRules.bfreeCowPrice;
-            buyer.balance -= gameRules.bfreeCowPrice;
-            price = gameRules.bfreeCowPrice;
-        } else {
-            // Normal, pay normal, increase infection
-            cowType = 'Normal';
-            price = gameRules.normalCowPrice;
-            seller.balance += gameRules.normalCowPrice;
-            buyer.balance -= gameRules.normalCowPrice;
-            // is the cow infected?
-            // todo tie break?
-            if (Math.random() < (seller.infections / seller.herdTotal)) {
-                // Buyer bought an infected cow!
-                buyer.infections += 1;
-                seller.infections -= 1;
-                cowType = "Infected";
+        if (buyer && seller) {
+            if (seller.isBFree()) {
+                // Bovi free, pay premium, no infection
+                cowType = 'Premium';
+                seller.balance += gameRules.bfreeCowPrice;
+                buyer.balance -= gameRules.bfreeCowPrice;
+                price = gameRules.bfreeCowPrice;
+            } else {
+                // Normal, pay normal, increase infection
+                cowType = 'Normal';
+                price = gameRules.normalCowPrice;
+                seller.balance += gameRules.normalCowPrice;
+                buyer.balance -= gameRules.normalCowPrice;
+                // is the cow infected?
+                // todo tie break?
+                if (Math.random() < (seller.infections / seller.herdTotal)) {
+                    // Buyer bought an infected cow!
+                    buyer.infections += 1;
+                    seller.infections -= 1;
+                    cowType = "Infected";
+                }
+
             }
+            buyer.herdTotal += 1;
+            seller.herdTotal -= 1;
+            // Set the ownership of cow to seller
+            for (let c = 0; c < this.gameScene.herd.length; c++) {
+                if (this.gameScene.herd[c].owner === seller) {
+                    this.gameScene.herd[c].owner = buyer;
+                    let penTile = buyer.findRandomPenTile();
+                    break;
+                }
+
+            }
+            // Reset time since last sale for seller
+            seller.timeSinceLastSale = -1;
+            let summary = cowType + ' cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
+            this.gameScene.gameLog(summary);
+            return summary;
 
         }
-        buyer.herdTotal += 1;
-        seller.herdTotal -= 1;
-        // Set the ownership of cow to seller and calculate move
-        for (let c = 0; c < this.gameScene.herd.length; c++) {
-            if (this.gameScene.herd[c].owner === seller) {
-                this.gameScene.herd[c].owner = buyer;
-                let penTile = buyer.findRandomPenTile();
-                this.gameScene.herd[c].calculateMovePath(penTile[0],penTile[1]);
-                break;
-            }
+        return '';
 
-        }
-        // Reset time since last sale for seller
-        seller.timeSinceLastSale = -1;
-        let summary = cowType + ' cow bought by ' + buyer.name + ' from ' + seller.name+' for £'+price;
-        this.gameScene.gameLog(summary);
-        return summary;
     }
 
 }

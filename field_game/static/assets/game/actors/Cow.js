@@ -11,6 +11,7 @@ export default class Cow {
         this.movePath = [];
         this.cowSpeed = 50;
         this.timeline = this.sprite.scene.tweens.createTimeline();
+
     }
 
     // Move to 5, 10
@@ -133,7 +134,7 @@ export default class Cow {
                 cow.isMoving = false;
                 // Reset movepath
                 cow.movePath = [];
-                resolve(true);
+                resolve(-1);
             });
             timeline.play();
         });

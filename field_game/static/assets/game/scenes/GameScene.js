@@ -1,9 +1,9 @@
 /*jshint esversion: 8 */
-import {gameRules, BFREESCENENAME, EVENTS, GAMESCENENAME, UISCENENAME, TRADINGSCENENAME} from "../cst.js";
+import {EVENTS, gameRules, GAMESCENENAME, UISCENENAME, TRADINGSCENENAME} from "../cst.js";
 
 import FieldScene from './FieldScene.js';
 import Cow from '../actors/Cow.js';
-import {Farmer, Player, AIFarmer} from '../actors/Farmer.js';
+import {AIFarmer, Player} from '../actors/Farmer.js';
 import eventsCenter from "./EventsCenter.js";
 
 
@@ -65,6 +65,7 @@ export default class GameScene extends FieldScene {
         this.AIFarmers = [];
         //Herd of cows (Cow)
         this.herd = [];
+
     }
 
 
@@ -228,6 +229,7 @@ export default class GameScene extends FieldScene {
         let owner = this.player;
         let pen = this.gameboardInfo.playerCowPen;
         owner.pen = pen;
+
         for (let p = -1; p < gameRules.AIFarmerTotal; p++) {
             if (p >= 0) {
                 owner = this.AIFarmers[p];
@@ -238,8 +240,7 @@ export default class GameScene extends FieldScene {
             for (let c = 0; c < cowsPerPlayer; c++) {
                 let cow = this.createCow(owner, (19 * this.BOARD_TILE_SIZE), (34 * this.BOARD_TILE_SIZE));
                 // Pick
-                owner.sendCowToPen(cow);
-                this.herdTotal += 1;
+
                 this.herd.push(cow);
             }
 
@@ -263,16 +264,16 @@ export default class GameScene extends FieldScene {
             // Split evenly on left  and right side
             let aiFarmer = this.createAIFarmer(x, 'AI ' + (x + 1), gameRules.startFarmerBalance, this.gameboardInfo.farmerStarts[x]);
             let penZone = this.createZoneFromTiles(this.gameboardInfo.farmerCowPens[x])
-            .setOrigin(0, 0)
-            .setInteractive().on('pointerup', function (pointer, localX, localY) {
-                if (this.sprite.scene.gameState.isGameBoardActive) {
-                    // If board is touchable, record touch
-                    eventsCenter.emit(EVENTS.AIFARMERPENTOUCHED,this);
-                    /*let zone = this.getPenZone();
-                    let rect = new Phaser.Geom.Rectangle(zone.x,zone.y,zone.width,zone.height);
-                    console.log(rect.getRandomPoint());*/
-                }
-            }, aiFarmer);
+                .setOrigin(0, 0)
+                .setInteractive().on('pointerup', function (pointer, localX, localY) {
+                    if (this.sprite.scene.gameState.isGameBoardActive) {
+                        // If board is touchable, record touch
+                        eventsCenter.emit(EVENTS.AIFARMERPENTOUCHED, this);
+                        /*let zone = this.getPenZone();
+                        let rect = new Phaser.Geom.Rectangle(zone.x,zone.y,zone.width,zone.height);
+                        console.log(rect.getRandomPoint());*/
+                    }
+                }, aiFarmer);
             aiFarmer.setPenZone(penZone);
 
         }
@@ -301,20 +302,34 @@ export default class GameScene extends FieldScene {
         this.createFarmers();
         this.createHerd();
 
+        this.startGameWhenSetupComplete();
+
     }
+
+    /**
+     * Move the herd to their cow pens, if they're not there already
+     */
+    async sendHerdToPens() {
+        let herdMoving = this.herdTotal;
+        let promiseArray = [];
+        for (let c = 0; c < this.herd.length; c++) {
+            promiseArray.push(this.herd[c].owner.sendCowToPen(this.herd[c]));
+        }
+        let done = await Promise.all(promiseArray);
+    }
+
 
     /**
      * Let all the board stuff happen
      * then call game start when ready
      * @return {Promise<void>}
      */
-    startGameWhenSetupComplete() {
-        // Quick delay to get calculations going
-        if (this.isSetupComplete()) {
-            this.setupComplete = true;
-            // Start the game
-            this.startGame();
-        }
+    async startGameWhenSetupComplete() {
+        // Move pieces (currently just cows)
+        await this.sendHerdToPens();
+        this.setupComplete = true;
+        // Start the game
+        this.startGame();
     }
 
     /**
@@ -396,14 +411,14 @@ export default class GameScene extends FieldScene {
     }
 
     update(time, delta) {
-        if (!this.setupComplete) {
-            if (this.waitingForSetup + delta > 500) {
-                this.startGameWhenSetupComplete();
-                this.waitingForSetup = 0;
-            } else {
-                this.waitingForSetup += delta;
-            }
-        }
+        /* if (!this.setupComplete) {
+             if (this.waitingForSetup + delta > 500) {
+                 this.startGameWhenSetupComplete();
+                 this.waitingForSetup = 0;
+             } else {
+                 this.waitingForSetup += delta;
+             }
+         }*/
         // todo add farm idle animations
 
     }
@@ -446,8 +461,6 @@ export default class GameScene extends FieldScene {
      */
 
 
-
-
     /*
     For farm in {0,1,…,8}
         Use N = cows[farm] - infections[farm]
@@ -472,11 +485,11 @@ export default class GameScene extends FieldScene {
 
     }
 
-    setIsGameBoardActive(isActive){
-        this.gameState.isGameBoardActive=isActive;
+    setIsGameBoardActive(isActive) {
+        this.gameState.isGameBoardActive = isActive;
     }
 
-    getIsGameBoardActive(){
+    getIsGameBoardActive() {
         return this.gameState.isGameBoardActive;
     }
 
