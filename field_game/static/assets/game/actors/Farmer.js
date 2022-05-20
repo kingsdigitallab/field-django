@@ -36,7 +36,7 @@ export class Farmer {
         }
     }
 
-    isBFree(){
+    isBFree() {
         return this.bfree;
     }
 
@@ -84,12 +84,18 @@ export class Farmer {
                 penPoint[0], penPoint[1]
             );
             if (done) {
-                done = await cow.moveCowAlongPath(cow.cowSpeed);
-                if (done){
-                    return -1;
+                if (cow.movePath.length > 0) {
+                    done = await cow.moveCowAlongPath(cow.cowSpeed);
+                    if (done) {
+                        return -1;
+                    } else {
+                        return 0;
+                    }
                 }else{
+                    console.log("No moves!");
                     return 0;
                 }
+
 
             }
         } else {
@@ -144,7 +150,8 @@ export class AIFarmer extends Farmer {
         // after discussions so random choice
         // for now as a placeholder
         if (farmers && farmers.length > 0) {
-            let choice = Math.round(Math.random() * farmers.length);
+            let selected = false;
+            let choice = Math.ceil(Math.random() * farmers.length) - 1;
             return farmers[choice];
         }
         return null;

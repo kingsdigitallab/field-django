@@ -23,7 +23,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         this.windowHeight = opts.windowHeight || 150;
         this.padding = opts.padding || 0;
         this.closeBtnColor = opts.closeBtnColor || 'darkgoldenrod';
-        this.dialogSpeed = opts.dialogSpeed || 3;
+        this.dialogSpeed = opts.dialogSpeed || 2;
         // used for animating the text
         this.eventCounter = 0;
         // if the dialog window is shown

@@ -1,5 +1,5 @@
 /*jshint esversion: 8 */
-import {DEBUG, EVENTS, gameRules, GAMESCENENAME, UISCENENAME} from "../cst.js";
+import {DEBUG, GAMESCENENAME, gameSettings, UISCENENAME} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
 
 /**
@@ -20,7 +20,7 @@ export default class TradingScene extends Phaser.Scene {
         this.dialogTexts = {
             onboards: [
                 "Trading phase",
-                "Buy a cow from a player by touching their pen.", "Bfree cows cost £" + gameRules.bfreeCowPrice + ", others £" + gameRules.normalCowPrice,
+                "Buy a cow from a player by touching their pen.", "Bfree cows cost £" + gameSettings.gameRules.bfreeCowPrice + ", others £" + gameSettings.gameRules.normalCowPrice,
                 "Warning! Non-BFree cows may be infected"
             ],
             start: ["Trading phase"],
@@ -37,7 +37,21 @@ export default class TradingScene extends Phaser.Scene {
         this.gameScene = this.scene.get(GAMESCENENAME);
         this.uiScene = this.scene.get(UISCENENAME);
         this.addListeners();
-        this.tradingPhase();
+
+        //Start text
+        if (this.gameScene.gameState.isOnBoarding === true) {
+            this.uiScene.addDialogText(this.dialogTexts.onboards);
+            eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+        } else {
+            this.uiScene.addDialogText(this.dialogTexts.start);
+            eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+        }
+        // Player trading phase
+
+        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
+            this.playerTrade();
+        }, this);
+
     }
 
     addListeners() {
@@ -45,6 +59,13 @@ export default class TradingScene extends Phaser.Scene {
     }
 
     update(times, delta) {
+
+    }
+
+    async playerTrade() {
+        this.gameScene.setIsGameBoardActive(true);
+        // On pen touched
+        eventsCenter.once(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
 
     }
 
@@ -56,39 +77,57 @@ export default class TradingScene extends Phaser.Scene {
      * Resolve all cow trades between players
      * Display results in dialog window as we go
      */
-    async tradingPhase() {
+    async AITrade() {
         if (DEBUG) {
-            console.log('Trading phase start');
+            console.log('AI Trading phase start');
         }
-        //Start text
-        if (this.gameScene.gameState.isOnBoarding) {
-            this.uiScene.addDialogText(this.dialogTexts.onboards);
-            eventsCenter.emit(EVENTS.ADVANCEDIALOG);
-        } else {
-            this.uiScene.addDialogText(this.dialogTexts.start);
-            eventsCenter.emit(EVENTS.ADVANCEDIALOG);
-        }
-        // Player trading phase
-
-        // Show explanation dialog
-        // Listener for input
-
         // Computer trading
         let tradingSummary = '';
+        let summary = '';
+        let boughtCow = null;
         let sellers = this.gameScene.getAllFarmers();
+        let boughtHerd = [];
+
 
         // Do all the trades
         // Write results in one big text bloc for speed
 
         for (let x = 0; x < this.gameScene.AIFarmers.length; x++) {
-            tradingSummary += this.purchaseCow(this.gameScene.AIFarmers[x], sellers) + "\n";
+            [summary, boughtCow] = this.purchaseCow(this.gameScene.AIFarmers[x], sellers);
+            if (summary && summary.length >0){
+                tradingSummary += summary + "\n";
+            }
+            if (boughtCow){
+                boughtHerd.push(boughtCow);
+            }
         }
         console.log(tradingSummary);
+        this.uiScene.setDialogSpeed(gameSettings.DIALOGSPEEDS.fast);
+        this.uiScene.addDialogText([tradingSummary]);
+        eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
 
         // Unleash the cows!
-        await this.gameScene.sendHerdToPens();
-        console.log('COMPLETE');
+        await this.gameScene.sendHerdToPens(boughtHerd);
+        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
 
+                console.log('DONE');
+            }, this);
+
+
+    }
+
+    async playerPurchaseCow(seller) {
+
+        if (seller) {
+             this.gameScene.setIsGameBoardActive(false);
+            let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
+            // Send cow to player pen
+            this.uiScene.addDialogText([summary]);
+            eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+            await this.gameScene.player.sendCowToPen(boughtCow);
+            this.AITrade();
+
+        }
     }
 
     /**
@@ -100,9 +139,10 @@ export default class TradingScene extends Phaser.Scene {
      */
     purchaseCow(buyer, sellers) {
         let summary = '';
-        if (buyer.balance >= gameRules.bfreeCowPricee) {
+        let boughtCow = null;
+        if (buyer.balance >= gameSettings.gameRules.bfreeCowPricee) {
             this.transaction(buyer, buyer.calculatePurchaseChoice(sellers));
-        } else if (buyer.balance >= gameRules.normalCowPrice) {
+        } else if (buyer.balance >= gameSettings.gameRules.normalCowPrice) {
             // Player can't afford premium cows, only buy from nonbfree
             let normalSellers = [];
 
@@ -112,13 +152,13 @@ export default class TradingScene extends Phaser.Scene {
                     normalSellers.push(sellers[s]);
                 }
             }
-            summary = this.transaction(buyer, buyer.calculatePurchaseChoice(normalSellers));
+            [summary, boughtCow] = this.transaction(buyer, buyer.calculatePurchaseChoice(normalSellers));
         } else {
             summary = buyer.name + " can't afford to buy a cow";
         }
 
         this.gameScene.gameLog(summary);
-        return summary;
+        return [summary, boughtCow];
     }
 
     /**
@@ -131,19 +171,20 @@ export default class TradingScene extends Phaser.Scene {
     transaction(buyer, seller) {
         let cowType = '';
         let price = 0;
+        let boughtCow = null;
         if (buyer && seller) {
             if (seller.isBFree()) {
                 // Bovi free, pay premium, no infection
                 cowType = 'Premium';
-                seller.balance += gameRules.bfreeCowPrice;
-                buyer.balance -= gameRules.bfreeCowPrice;
-                price = gameRules.bfreeCowPrice;
+                seller.balance += gameSettings.gameRules.bfreeCowPrice;
+                buyer.balance -= gameSettings.gameRules.bfreeCowPrice;
+                price = gameSettings.gameRules.bfreeCowPrice;
             } else {
                 // Normal, pay normal, increase infection
                 cowType = 'Normal';
-                price = gameRules.normalCowPrice;
-                seller.balance += gameRules.normalCowPrice;
-                buyer.balance -= gameRules.normalCowPrice;
+                price = gameSettings.gameRules.normalCowPrice;
+                seller.balance += gameSettings.gameRules.normalCowPrice;
+                buyer.balance -= gameSettings.gameRules.normalCowPrice;
                 // is the cow infected?
                 // todo tie break?
                 if (Math.random() < (seller.infections / seller.herdTotal)) {
@@ -159,6 +200,7 @@ export default class TradingScene extends Phaser.Scene {
             // Set the ownership of cow to seller
             for (let c = 0; c < this.gameScene.herd.length; c++) {
                 if (this.gameScene.herd[c].owner === seller) {
+                    boughtCow = this.gameScene.herd[c];
                     this.gameScene.herd[c].owner = buyer;
                     let penTile = buyer.findRandomPenTile();
                     break;
@@ -169,10 +211,10 @@ export default class TradingScene extends Phaser.Scene {
             seller.timeSinceLastSale = -1;
             let summary = cowType + ' cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
             this.gameScene.gameLog(summary);
-            return summary;
+            return [summary, boughtCow];
 
         }
-        return '';
+        return ['', null];
 
     }
 

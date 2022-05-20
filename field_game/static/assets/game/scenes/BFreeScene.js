@@ -1,5 +1,5 @@
 /*jshint esversion: 8 */
-import {EVENTS, GAMESCENENAME, UISCENENAME} from "../cst.js";
+import {gameSettings, GAMESCENENAME, UISCENENAME} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
 
 export default class BFreeScene extends Phaser.Scene {
@@ -43,15 +43,15 @@ export default class BFreeScene extends Phaser.Scene {
         // Start text and onboarding if enabled
         if (this.gameScene.gameState.isOnBoarding) {
             this.uiScene.addDialogText(this.bFreeDialogTexts.onboards);
-            eventsCenter.emit(EVENTS.ADVANCEDIALOG);
+            eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
         } else {
             this.uiScene.addDialogText(this.bFreeDialogTexts.start);
-            eventsCenter.emit(EVENTS.ADVANCEDIALOG);
+            eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
         }
-        eventsCenter.once(EVENTS.DIALOGFINISHED, function () {
+        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
             this.gameScene.setIsGameBoardActive(true);
-            eventsCenter.once(EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
-            eventsCenter.once(EVENTS.PLAYERPENTOUCHED, this.joinBFreeNo, this);
+            eventsCenter.once(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
+            eventsCenter.once(gameSettings.EVENTS.PLAYERPENTOUCHED, this.joinBFreeNo, this);
         }, this);
         //this.innoculationAnimation(this.gameScene.player);
 
@@ -59,7 +59,7 @@ export default class BFreeScene extends Phaser.Scene {
     }
 
     addListeners() {
-        eventsCenter.on(EVENTS.BFREEPHASEEND, this.endPhase, this);
+        eventsCenter.on(gameSettings.EVENTS.BFREEPHASEEND, this.endPhase, this);
     }
 
     /**
@@ -149,29 +149,29 @@ export default class BFreeScene extends Phaser.Scene {
 
     async joinBFreeYes() {
         // Remove no listener
-        eventsCenter.off(EVENTS.PLAYERPENTOUCHED, this.joinBFreeNo, this);
+        eventsCenter.off(gameSettings.EVENTS.PLAYERPENTOUCHED, this.joinBFreeNo, this);
         this.gameScene.setIsGameBoardActive(false);
         // Subtract the cost
         console.log("Joining Bovi Free");
-        this.gameScene.player.balance -= this.gameScene.gameRules.bfreeJoinCost;
+        this.gameScene.player.balance -= this.gameScene.gameSettings.gameRules.bfreeJoinCost;
         // Remove infection from cattle
         this.gameScene.player.setBFree(true);
         await this.innoculationAnimation(this.gameScene.player);
         this.uiScene.addDialogText(this.bFreeDialogTexts.yes);
-        eventsCenter.emit(EVENTS.ADVANCEDIALOG);
-        eventsCenter.once(EVENTS.DIALOGFINISHED, function () {
-            eventsCenter.emit(EVENTS.BFREEPHASEEND);
+        eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
+            eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
         }, this);
     }
 
     joinBFreeNo() {
         console.log("Not joining Bovi Free");
         this.gameScene.setIsGameBoardActive(false);
-        eventsCenter.off(EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
+        eventsCenter.off(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
         this.uiScene.addDialogText(this.bFreeDialogTexts.no);
-        eventsCenter.emit(EVENTS.ADVANCEDIALOG);
-        eventsCenter.once(EVENTS.DIALOGFINISHED, function () {
-            eventsCenter.emit(EVENTS.BFREEPHASEEND);
+        eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
+            eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
         }, this);
     }
 

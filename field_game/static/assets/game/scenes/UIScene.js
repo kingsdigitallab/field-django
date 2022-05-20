@@ -1,5 +1,5 @@
 /*jshint esversion: 8 */
-import {BFREESCENENAME, GAMESCENENAME, UISCENENAME, EVENTS} from "../cst.js";
+import {BFREESCENENAME, GAMESCENENAME, UISCENENAME, gameSettings} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
 
 export default class UIScene extends Phaser.Scene {
@@ -58,11 +58,11 @@ export default class UIScene extends Phaser.Scene {
     }
 
     addListeners(){
-        eventsCenter.on(EVENTS.ADVANCEDIALOG, this.advanceDialogWindowSequence, this);
+        eventsCenter.on(gameSettings.EVENTS.ADVANCEDIALOG, this.advanceDialogWindowSequence, this);
     }
 
     removeListeners(){
-        eventsCenter.off(EVENTS.ADVANCEDIALOG, this.advanceDialogWindowSequence, this);
+        eventsCenter.off(gameSettings.EVENTS.ADVANCEDIALOG, this.advanceDialogWindowSequence, this);
     }
 
     toggleDialogWindow(){
@@ -82,7 +82,7 @@ export default class UIScene extends Phaser.Scene {
             this.texts.shift();
         }else if (this.texts.length === 0 && this.dialogWindow.visible){
             // Queue empty, hide window
-            eventsCenter.emit(EVENTS.DIALOGFINISHED);
+            eventsCenter.emit(gameSettings.EVENTS.DIALOGFINISHED);
             this.toggleDialogWindow();
         }
     }
@@ -94,6 +94,10 @@ export default class UIScene extends Phaser.Scene {
      */
     addDialogText(moreText){
         this.texts.push(...moreText);
+    }
+
+    setDialogSpeed(speed){
+        this.dialogWindow.dialogSpeed = speed;
     }
 
     setDialogWindowText(text){
