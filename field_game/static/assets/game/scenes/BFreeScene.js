@@ -1,10 +1,10 @@
 /*jshint esversion: 8 */
-import {gameSettings, GAMESCENENAME, UISCENENAME} from "../cst.js";
+import {gameSettings} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
 
 export default class BFreeScene extends Phaser.Scene {
     constructor() {
-        super('BFreeScene');
+        super(gameSettings.SCENENAMES.BFREESCENENAME);
         this.bFreeDialogTitles = {
             start: 'Join BoviFree?',
             yes: 'Bovifree joined!',
@@ -24,8 +24,8 @@ export default class BFreeScene extends Phaser.Scene {
     }
 
     create() {
-        this.gameScene = this.scene.get(GAMESCENENAME);
-        this.uiScene = this.scene.get(UISCENENAME);
+        this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
+        this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
         this.addListeners();
         this.bFreePhase();
     }

@@ -1,5 +1,5 @@
 /*jshint esversion: 8 */
-import {gameSettings, GAMESCENENAME, UISCENENAME, TRADINGSCENENAME} from "../cst.js";
+import {gameSettings} from "../cst.js";
 
 import FieldScene from './FieldScene.js';
 import Cow from '../actors/Cow.js';
@@ -17,7 +17,7 @@ export default class GameScene extends FieldScene {
     titleContainer;
 
     constructor() {
-        super(GAMESCENENAME);
+        super(gameSettings.SCENENAMES.GAMESCENENAME);
         this.herd = [];
         this.layers = [];
         // Player/farmer starts, where the cow pens are etc.
@@ -201,7 +201,7 @@ export default class GameScene extends FieldScene {
 
     updatePlayerBalance(balance) {
         this.updateFarmerBalance(this.player, balance);
-        this.scene.get(UISCENENAME).updateBalance(this.player.balance);
+        this.scene.get(gameSettings.SCENENAMES.UISCENENAME).updateBalance(this.player.balance);
     }
 
     updateFarmerBalance(farmer, balance) {
@@ -295,7 +295,7 @@ export default class GameScene extends FieldScene {
         this.createGameBoard();
 
         // UI Containers
-        this.scene.bringToTop(UISCENENAME);
+        this.scene.bringToTop(gameSettings.SCENENAMES.UISCENENAME);
 
         // Pieces
         this.createPlayer();
@@ -344,8 +344,9 @@ export default class GameScene extends FieldScene {
         // Create events
         this.addEvents();
         // todo restore
-        //this.scene.launch(BFREESCENENAME);
-        this.scene.launch(TRADINGSCENENAME);
+        //this.scene.launch(gameSettings.SCENENAMES.BFREESCENENAME);
+        //this.scene.launch(gameSettings.SCENENAMES.TRADINGSCENENAME);
+        this.scene.launch(gameSettings.SCENENAMES.ROUNDENDSCENENAME);
     }
 
     /**

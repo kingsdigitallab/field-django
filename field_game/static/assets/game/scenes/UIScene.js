@@ -1,12 +1,12 @@
 /*jshint esversion: 8 */
-import {BFREESCENENAME, GAMESCENENAME, UISCENENAME, gameSettings} from "../cst.js";
+import {gameSettings} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
 
 export default class UIScene extends Phaser.Scene {
 
 
     constructor() {
-        super('UIScene');
+        super(gameSettings.SCENENAMES.UISCENENAME);
         this.COLOR_PRIMARY = 0x4e342e;
         this.COLOR_LIGHT = 0x7b5e57;
         this.COLOR_DARK = 0x260e04;
@@ -24,7 +24,7 @@ export default class UIScene extends Phaser.Scene {
     create() {
         this.GAME_WIDTH = this.scale.width;
         this.GAME_HEIGHT = this.scale.height;
-        this.gameScene = this.scene.get(GAMESCENENAME);
+        this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
         // Main dialogue
         this.createPlayerInfo();
         this.createScoreboard();

@@ -1,6 +1,6 @@
 /*jshint esversion: 8 */
 import FieldScene from './FieldScene.js';
-import {GAMESCENENAME, UISCENENAME, BFREESCENENAME, TITLESCENENAME} from "../cst.js";
+import {gameSettings} from "../cst.js";
 
 export default class BootScene extends FieldScene {
 
@@ -87,8 +87,8 @@ export default class BootScene extends FieldScene {
         super.create();
         this.createAnimations();
         this.debug("BOOTING COMPLETE!");
-        this.scene.launch(UISCENENAME);
-        this.scene.start(GAMESCENENAME);
+        this.scene.launch(gameSettings.SCENENAMES.UISCENENAME);
+        this.scene.start(gameSettings.SCENENAMES.GAMESCENENAME);
 
 
     }

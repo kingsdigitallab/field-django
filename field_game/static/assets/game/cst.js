@@ -1,16 +1,11 @@
 /*jshint esversion: 8 */
 
-export const GAMESCENENAME = 'GameScene';
-export const UISCENENAME = 'UIScene';
-export const BFREESCENENAME = 'BFreeScene';
-export const TRADINGSCENENAME = 'TradingScene';
-export const TITLESCENENAME = 'TitleScene';
-export const DEBUG = true;
 
 /*
 Game constants like prices, starting players etc.
  */
 export const gameSettings = {
+    DEBUG: true,
     gameRules: {
         startHerdSize: 20,
         startFarmerBalance: 200,
@@ -24,6 +19,14 @@ export const gameSettings = {
         normalCowPrice: 20,
         cowSpeed: 150
     },
+    SCENENAMES: {
+        TITLESCENENAME: 'TitleScene',
+        GAMESCENENAME: 'GameScene',
+        UISCENENAME: 'UIScene',
+        BFREESCENENAME: 'BFreeScene',
+        TRADINGSCENENAME: 'TradingScene',
+        ROUNDENDSCENENAME:"RoundEndScene"
+    },
     EVENTS: {
         ADVANCEDIALOG: 'advance',
         DIALOGFINISHED: 'dialogFinished',
@@ -36,10 +39,10 @@ export const gameSettings = {
         TRADINGPHASEEND: "TRADINGPHASEEND",
         TRADINGPHASECOMPLETE: "TRADINGPHASECOMPLETE"
     },
-    DIALOGSPEEDS:{
-        slow:2,
-        normal:3,
-        fast:4
+    DIALOGSPEEDS: {
+        slow: 2,
+        normal: 3,
+        fast: 4
     }
 
 };

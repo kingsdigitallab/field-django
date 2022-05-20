@@ -1,5 +1,5 @@
 /*jshint esversion: 8 */
-import {DEBUG, GAMESCENENAME, gameSettings, UISCENENAME} from "../cst.js";
+import {gameSettings} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
 
 /**
@@ -16,7 +16,7 @@ import eventsCenter from "./EventsCenter.js";
  */
 export default class TradingScene extends Phaser.Scene {
     constructor() {
-        super('TradingScene');
+        super(gameSettings.SCENENAMES.TRADINGSCENENAME);
         this.dialogTexts = {
             onboards: [
                 "Trading phase",
@@ -34,8 +34,8 @@ export default class TradingScene extends Phaser.Scene {
 
     create() {
 
-        this.gameScene = this.scene.get(GAMESCENENAME);
-        this.uiScene = this.scene.get(UISCENENAME);
+        this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
+        this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
         this.addListeners();
 
         //Start text
@@ -78,7 +78,7 @@ export default class TradingScene extends Phaser.Scene {
      * Display results in dialog window as we go
      */
     async AITrade() {
-        if (DEBUG) {
+        if (gameSettings.DEBUG) {
             console.log('AI Trading phase start');
         }
         // Computer trading
@@ -109,7 +109,6 @@ export default class TradingScene extends Phaser.Scene {
         // Unleash the cows!
         await this.gameScene.sendHerdToPens(boughtHerd);
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
-
                 console.log('DONE');
             }, this);
 

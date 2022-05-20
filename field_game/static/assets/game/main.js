@@ -1,6 +1,6 @@
 /*jshint esversion: 8 */
 
-import {BFREESCENENAME, GAMESCENENAME, UISCENENAME, TRADINGSCENENAME} from "./cst.js";
+import {gameSettings} from "./cst.js";
 
 import BootScene from './scenes/BootScene.js';
 import TitleScene from './scenes/TitleScene.js';
@@ -9,6 +9,7 @@ import GameScene from './scenes/GameScene.js';
 import BFreeScene from "./scenes/BFreeScene.js";
 import TradingScene from "./scenes/TradingScene.js";
 import DialogModalPlugin from "./plugins/field/DialogModalPlugin.js";
+import RoundEndScene from "./scenes/RoundEndScene.js";
 
 
 /**
@@ -73,8 +74,9 @@ let config = {
 let game = new Phaser.Game(config);
 game.scene.add('BootScene', bootScene);
 game.scene.add('TitleScene', titleScene);
-game.scene.add(GAMESCENENAME, gameScene);
-game.scene.add(UISCENENAME, new UIScene());
-game.scene.add(BFREESCENENAME, new BFreeScene());
-game.scene.add(TRADINGSCENENAME, new TradingScene());
+game.scene.add(gameSettings.SCENENAMES.GAMESCENENAME, gameScene);
+game.scene.add(gameSettings.SCENENAMES.UISCENENAME, new UIScene());
+game.scene.add(gameSettings.SCENENAMES.BFREESCENENAME, new BFreeScene());
+game.scene.add(gameSettings.SCENENAMES.TRADINGSCENENAME, new TradingScene());
+game.scene.add(gameSettings.SCENENAMES.ROUNDENDSCENENAME, new RoundEndScene());
 game.scene.start('BootScene');
