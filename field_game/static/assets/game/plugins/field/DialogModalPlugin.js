@@ -94,11 +94,10 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         let gameHeight = scene.scale.height;
         let gameWidth = scene.scale.width;
         let dimensions = this._calculateWindowDimensions(gameWidth, gameHeight);
-        console.log(scene.sys.game.config.height);
         this.graphics = scene.add.graphics();
         this._createOuterWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
         this._createInnerWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
-        //this._createCloseModalButton(scene, gameWidth, gameHeight);
+
     }
 
     // Sets the text for the dialog window

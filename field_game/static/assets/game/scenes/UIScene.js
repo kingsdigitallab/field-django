@@ -25,15 +25,16 @@ export default class UIScene extends Phaser.Scene {
         this.GAME_WIDTH = this.scale.width;
         this.GAME_HEIGHT = this.scale.height;
         this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
-        // Main dialogue
-        this.createPlayerInfo();
-        this.createScoreboard();
         // Set up main dialog window on the bottom of the screen
         this.dialogWindow.createWindow(this);
+        // Player display
+        //this.createPlayerInfo();
+        // Round end scoreboard
+        this.createScoreboard();
+
         //Start hidden
         this.toggleDialogWindow();
         this.setupListeners();
-        //this.dialogWindow.setText(this,'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.', true);
 
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
 		    this.removeListeners();
@@ -164,18 +165,45 @@ export default class UIScene extends Phaser.Scene {
     createScoreboard(){
         let board_width=this.GAME_WIDTH-(this.GAME_WIDTH/4);
         let board_height=this.GAME_HEIGHT-(this.GAME_HEIGHT/6);
+        let rectX=this.GAME_WIDTH/2 - (board_width/2);
+        let rectY=this.GAME_HEIGHT/2 - (board_height/2);
+        let rectCentreX=this.GAME_WIDTH/2;
+        let rectCentreY=this.GAME_HEIGHT/2;
+        console.log(this.dialogWindow.borderThickness);
+        // Nicked from the plugin
+        let graphics = this.add.graphics();
+        graphics.lineStyle(
+            this.dialogWindow.borderThickness,
+            this.dialogWindow.borderColor,
+            this.dialogWindow.borderAlpha
+        );
+        let scoreboardEdge=graphics.strokeRect(rectX, rectY, board_width, board_height);
+        graphics.fillStyle(this.dialogWindow.windowColor, this.dialogWindow.windowAlpha);
+        let scoreboardBackground=graphics.fillRect(rectX + 1, rectY + 1, board_width-1, board_height-1);
+        let titleText = "Turn "+this.gameScene.gameState.currentTurn+" Scores";
+        let title = this.add.text(rectCentreX, rectY+25, titleText, {fontFamily: 'PressStart2P'});
+        title.x=rectCentreX-(title.displayWidth/2);
+        this.children.bringToTop(title);
+        // todo: Add list of scores using animated text effect in table
+        // todo fix text sizes for each field for clean presentation
+        //
+        /*this.scoreboardBackground = this.add.rectangle(x, y, board_width, board_height, 0x000000, 0.6);
 
-        this.scoreboardBackground = this.add.rectangle(this.GAME_WIDTH/2, this.GAME_HEIGHT/2, board_width, board_height, 0x000000, 0.6);
-
-
-        let title = this.add.text(0, 0, 'Scores', {fontFamily: 'PressStart2P'});
+let title = this.add.text(0, 0, 'Scores', {fontFamily: 'PressStart2P'});
         Phaser.Display.Align.In.TopCenter(
             title, this.scoreboardBackground
         );
 
-        this.scoreboardContainer = this.add.container(0, 0, [this.scoreboardBackground, title]);
+        Phaser.Display.Align.In.TopCenter(
+            title, this.scoreboardBackground
+        );
 
-        this.scoreboardContainer.setVisible(false);
+        this.scoreboardContainer = this.add.container(0, 0, [this.scoreboardBackground, title]);*/
+
+        //let dimensions = this.dialogWindow._calculateWindowDimensions(board_width, board_height);
+        //this.dialogWindow._createOuterWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
+        //this.dialogWindow._createInnerWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
+        //this.scoreboardContainer.setVisible(false);
     }
 
 
