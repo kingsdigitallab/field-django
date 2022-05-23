@@ -240,7 +240,7 @@ export default class GameScene extends FieldScene {
             for (let c = 0; c < cowsPerPlayer; c++) {
                 let cow = this.createCow(owner, (19 * this.BOARD_TILE_SIZE), (34 * this.BOARD_TILE_SIZE));
                 // Pick
-
+                owner.herdTotal+=1;
                 this.herd.push(cow);
             }
 
@@ -343,6 +343,8 @@ export default class GameScene extends FieldScene {
         this.debug('Begin Game');
         // Create events
         this.addEvents();
+        // todo maybe move to bfree
+        this.gameState.currentTurn +=1;
         // todo restore
         //this.scene.launch(gameSettings.SCENENAMES.BFREESCENENAME);
         //this.scene.launch(gameSettings.SCENENAMES.TRADINGSCENENAME);
