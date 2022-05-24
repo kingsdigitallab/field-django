@@ -9,7 +9,7 @@ import GameScene from './scenes/GameScene.js';
 import BFreeScene from "./scenes/BFreeScene.js";
 import TradingScene from "./scenes/TradingScene.js";
 import DialogModalPlugin from "./plugins/field/DialogModalPlugin.js";
-import RoundEndScene from "./scenes/RoundEndScene.js";
+import TurnEndScene from "./scenes/TurnEndScene.js";
 
 
 /**
@@ -78,5 +78,5 @@ game.scene.add(gameSettings.SCENENAMES.GAMESCENENAME, gameScene);
 game.scene.add(gameSettings.SCENENAMES.UISCENENAME, new UIScene());
 game.scene.add(gameSettings.SCENENAMES.BFREESCENENAME, new BFreeScene());
 game.scene.add(gameSettings.SCENENAMES.TRADINGSCENENAME, new TradingScene());
-game.scene.add(gameSettings.SCENENAMES.ROUNDENDSCENENAME, new RoundEndScene());
+game.scene.add(gameSettings.SCENENAMES.TURNENDSCENENAME, new TurnEndScene());
 game.scene.start('BootScene');

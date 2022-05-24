@@ -19,6 +19,7 @@ export class Farmer {
         this.herdTotal = 0; // Total number of cows Farmer owns
         this.pen = [];
         this.penZone = null;
+        this.slug = this.name.replace(' ','_');
 
     }
 

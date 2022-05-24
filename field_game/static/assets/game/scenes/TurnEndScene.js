@@ -72,7 +72,10 @@ export default class TurnEndScene extends Phaser.Scene {
             this.uiScene.scoreboard.toggleScoreboard();
             //Otherwise start new turn
             if (this.gameScene.gameState.currentTurn >= gameSettings.gameRules.totalTurns){
-
+                // Game over man
+                this.scene.launch(gameSettings.SCENENAMES.GAMEENDSCENENAME);
+            }else{
+                // Back to turn start
             }
 
         }, this);

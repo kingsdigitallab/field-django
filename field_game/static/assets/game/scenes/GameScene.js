@@ -186,6 +186,7 @@ export default class GameScene extends FieldScene {
         let sprite = this.physics.add.sprite(startX, startY, 'farmer_1');
         sprite.setCollideWorldBounds(true);
         this.player = new Player(1, 'Player', gameSettings.gameRules.startFarmerBalance, sprite, this.gameboardInfo.player.start);
+        this.player.infections=gameSettings.gameRules.startingInfections;
         let penZone = this.createZoneFromTiles(this.gameboardInfo.playerCowPen)
             .setOrigin(0, 0)
             .setInteractive().on('pointerup', function (pointer, localX, localY) {
@@ -254,6 +255,7 @@ export default class GameScene extends FieldScene {
         AISprite.setCollideWorldBounds(true);
         //AISprite.setVisible(false);
         let aiFarmer = new AIFarmer(id, name, balance, AISprite, farmerStart);
+        aiFarmer.infections=gameSettings.gameRules.startingInfections;
         this.AIFarmers.push(aiFarmer);
         return aiFarmer;
     }
@@ -348,7 +350,7 @@ export default class GameScene extends FieldScene {
         // todo restore
         //this.scene.launch(gameSettings.SCENENAMES.BFREESCENENAME);
         //this.scene.launch(gameSettings.SCENENAMES.TRADINGSCENENAME);
-        this.scene.launch(gameSettings.SCENENAMES.ROUNDENDSCENENAME);
+        this.scene.launch(gameSettings.SCENENAMES.TURNENDSCENENAME);
     }
 
     /**
@@ -431,18 +433,6 @@ export default class GameScene extends FieldScene {
     }
 
 
-    /**
-     * Create player cow buy dialogue
-     */
-    createTradingDialogs() {
-
-    }
-
-
-    createPlayerPurchaseCowDialog() {
-
-    }
-
 
     /**
 
@@ -468,29 +458,7 @@ export default class GameScene extends FieldScene {
      */
 
 
-    /*
-    For farm in {0,1,…,8}
-        Use N = cows[farm] - infections[farm]
-        p = β * infections[farm] ÷ Cows[farm]
-    Select n from Binomial distribution B( N,p)
-        Increase Infections[farm] by n
-     */
 
-    cowInfectionPhase() {
-        let allFarmers = this.getAllFarmers();
-        for (let f = 0; f < allFarmers.length; f++) {
-            // Determine number of infections in farmer herd
-            let newInfections = 0;
-            if ((!allFarmers[f].bfree) && (allFarmers[f].herd.length - allFarmers[f].infections >= 0)) {
-                for (let c = 0; c < (allFarmers[f].herd.length - allFarmers[f].infections); c++) {
-                    if (Math.Random() < (allFarmers[f].herdTotal / allFarmers[f].infections)) {
-                        newInfections += 1;
-                    }
-                }
-            }
-        }
-
-    }
 
     setIsGameBoardActive(isActive) {
         this.gameState.isGameBoardActive = isActive;
@@ -500,11 +468,5 @@ export default class GameScene extends FieldScene {
         return this.gameState.isGameBoardActive;
     }
 
-    updateFarmers() {
-        let allFarmers = this.getAllFarmers();
-        for (let f = 0; f < allFarmers.length; f++) {
-            allFarmers[f].balance += (allFarmers[f].herdTotal - allFarmers[f].infections);
-            allFarmers[f].timeSinceLastSale += 1;
-        }
-    }
+
 }

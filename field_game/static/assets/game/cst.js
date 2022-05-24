@@ -10,14 +10,16 @@ export const gameSettings = {
         startHerdSize: 20,
         startFarmerBalance: 200,
         AIFarmerTotal: 6,
-        totalRounds: 8,
+        totalTurns: 8,
         // AI farmer will join scheme at least once per this many turns
         bfreeTrigger: 4,
         bfreeJoinCost: 40, // Cost to join scheme
         // Cow prices, buy and sell
         bfreeCowPrice: 30,
         normalCowPrice: 20,
-        cowSpeed: 150
+        cowSpeed: 150,
+        infectionBeta:0.5,
+        startingInfections:1
     },
     SCENENAMES: {
         TITLESCENENAME: 'TitleScene',
@@ -25,7 +27,8 @@ export const gameSettings = {
         UISCENENAME: 'UIScene',
         BFREESCENENAME: 'BFreeScene',
         TRADINGSCENENAME: 'TradingScene',
-        ROUNDENDSCENENAME:"RoundEndScene"
+        TURNENDSCENENAME:"RoundEndScene",
+        GAMEENDSCENENAME:"GameEndScene"
     },
     EVENTS: {
         ADVANCEDIALOG: 'advance',
