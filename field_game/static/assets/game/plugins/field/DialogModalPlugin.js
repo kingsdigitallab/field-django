@@ -113,7 +113,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
 
         if (animate) {
             this.timedEvent = scene.time.addEvent({
-                delay: 150 - (this.dialogSpeed * 30),
+                delay: 100 - (this.dialogSpeed * 30),
                 callback: this._animateText,
                 callbackScope: this,
                 loop: true

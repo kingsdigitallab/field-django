@@ -38,11 +38,20 @@ export default class TradingScene extends Phaser.Scene {
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
         this.addListeners();
 
+
+
+    }
+
+    tradingPhase(){
+        if (gameSettings.DEBUG){
+            console.log("Trading Phase Start");
+        }
         //Start text
         if (this.gameScene.gameState.isOnBoarding === true) {
             this.uiScene.addDialogText(this.dialogTexts.onboards);
             eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
         } else {
+            this.uiScene.toggleDialogWindow();
             this.uiScene.addDialogText(this.dialogTexts.start);
             eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
         }
@@ -51,7 +60,6 @@ export default class TradingScene extends Phaser.Scene {
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
             this.playerTrade();
         }, this);
-
     }
 
     addListeners() {
@@ -85,7 +93,8 @@ export default class TradingScene extends Phaser.Scene {
         let tradingSummary = '';
         let summary = '';
         let boughtCow = null;
-        let sellers = this.gameScene.getAllFarmers();
+        let sellers =[] ;
+        sellers.push(...this.gameScene.getAllFarmers());
         let boughtHerd = [];
 
 
@@ -108,11 +117,7 @@ export default class TradingScene extends Phaser.Scene {
         // Unleash the cows!
         await this.gameScene.sendHerdToPens(boughtHerd);
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
-                if (this.scene.isSleeping(gameSettings.SCENENAMES.TURNENDSCENENAME)){
-                    this.scene.switch(gameSettings.SCENENAMES.TURNENDSCENENAME);
-                }else{
-                    this.scene.launch(gameSettings.SCENENAMES.TURNENDSCENENAME);
-                }
+                this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
             }, this);
 
 
@@ -203,12 +208,20 @@ export default class TradingScene extends Phaser.Scene {
             for (let c = 0; c < this.gameScene.herd.length; c++) {
                 if (this.gameScene.herd[c].owner === seller) {
                     boughtCow = this.gameScene.herd[c];
-                    this.gameScene.herd[c].owner = buyer;
-                    let penTile = buyer.findRandomPenTile();
                     break;
                 }
-
             }
+            if (boughtCow){
+                console.log('REASSIGNED');
+                boughtCow.owner = buyer;
+                //let penTile = buyer.findRandomPenTile();
+            }
+
+            if (gameSettings.DEBUG){
+                console.log("Buyer: "+buyer.name+" "+buyer.herdTotal);
+                console.log("Seller: "+seller.name+" "+seller.herdTotal);
+            }
+
             // Reset time since last sale for seller
             seller.timeSinceLastSale = -1;
             let summary = cowType + ' cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;

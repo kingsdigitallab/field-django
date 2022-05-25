@@ -27,7 +27,7 @@ export default class BFreeScene extends Phaser.Scene {
         this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
         this.addListeners();
-        this.bFreePhase();
+        //this.bFreePhase();
     }
 
     update(times, delta) {
@@ -175,12 +175,7 @@ export default class BFreeScene extends Phaser.Scene {
 
     endPhase(){
         console.log("Joining Bovi Free COMPLETE");
-        if (this.gameScene.gameState.currentTurn <= 1){
-            this.scene.launch(gameSettings.SCENENAMES.TRADINGSCENENAME);
-        } else{
-            this.scene.switch(gameSettings.SCENENAMES.TRADINGSCENENAME);
-        }
-
+        this.scene.get(gameSettings.SCENENAMES.TRADINGSCENENAME).tradingPhase();
     }
 
 

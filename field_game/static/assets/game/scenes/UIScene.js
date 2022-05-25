@@ -59,12 +59,6 @@ export default class UIScene extends Phaser.Scene {
      */
     setupListeners() {
         this.addListeners();
-        this.events.on(Phaser.Scenes.Events.RESUME, () => {
-            this.addListeners();
-        });
-        this.events.on(Phaser.Scenes.Events.PAUSE, () => {
-            this.removeListeners();
-        });
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.removeListeners();
         });
@@ -75,6 +69,7 @@ export default class UIScene extends Phaser.Scene {
     }
 
     removeListeners() {
+        console.log('listener removed');
         eventsCenter.off(gameSettings.EVENTS.ADVANCEDIALOG, this.advanceDialogWindowSequence, this);
     }
 
@@ -93,6 +88,9 @@ export default class UIScene extends Phaser.Scene {
             this.dialogWindow.setText(this, this.texts[0], true);
             // Remove it from queue
             this.texts.shift();
+            /*if (!this.dialogWindow.visible){
+                this.dialogWindow.toggleDialogWindow();
+            }*/
         } else if (this.texts.length === 0 && this.dialogWindow.visible) {
             // Queue empty, hide window
             eventsCenter.emit(gameSettings.EVENTS.DIALOGFINISHED);

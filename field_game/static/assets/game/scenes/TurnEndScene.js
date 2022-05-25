@@ -19,9 +19,9 @@ export default class TurnEndScene extends Phaser.Scene {
         }
         this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
-        this.events.on('wake', this.roundEndPhase);
+        this.events.on('wake', this.turnEndPhase);
 
-        this.roundEndPhase();
+
     }
 
     async updateFarmerIncome(farmer) {
@@ -33,16 +33,21 @@ export default class TurnEndScene extends Phaser.Scene {
         farmer.balance += income;
     }
 
+    updateHerdSize(farmer){
+        this.uiScene.scoreboard.updateScoreboardCell(farmer.slug, this.uiScene.scoreboard.cellKeys.cowCell, farmer.herdTotal);
+    }
+
     /**
      * Do end of turn calculations and show it on the scoreboard
      */
-    async roundEndPhase() {
+    async turnEndPhase() {
         // For each farmer
+        console.log(this.gameScene);
         let farmers = this.gameScene.getAllFarmers();
-        //let done = await new Promise((resolve, reject) => {
+
         this.uiScene.scoreboard.updateScoreBoard();
         this.uiScene.scoreboard.toggleScoreboard();
-        await this.uiScene.sleep(2000);
+        await this.uiScene.sleep(1500);
 
         // Get all the updates as promises so we can update
         // the scoreboard gradually
@@ -52,6 +57,7 @@ export default class TurnEndScene extends Phaser.Scene {
         for (let f = 0; f < farmers.length; f++) {
             // Other housekeeping
             farmers[f].timeSinceLastSale += 1;
+            this.updateHerdSize(farmers[f]);
             // Calculate income and display
             balancePromises.push(this.updateFarmerIncome(farmers[f]));
 
@@ -76,7 +82,7 @@ export default class TurnEndScene extends Phaser.Scene {
             }else{
                 // Back to turn start
                 this.gameScene.startTurn();
-                this.scene.sleep();
+                //this.scene.sleep();
             }
 
         }, this);

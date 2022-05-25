@@ -63,6 +63,8 @@ export default class GameScene extends FieldScene {
         this.player = null;
         // Computer farmers (Farmer)
         this.AIFarmers = [];
+        // Players for easy access
+        this.allFarmers = [];
         //Herd of cows (Cow)
         this.herd = [];
 
@@ -79,10 +81,7 @@ export default class GameScene extends FieldScene {
 
 
     getAllFarmers() {
-        let allFarmers = [];
-        allFarmers.push(...this.AIFarmers);
-        allFarmers.push(this.player);
-        return allFarmers;
+        return this.allFarmers;
     }
 
 
@@ -189,6 +188,7 @@ export default class GameScene extends FieldScene {
                 }
             }, this);
         this.player.setPenZone(penZone);
+        this.allFarmers.push(this.player);
         //this.updatePlayerBalance(this.player.balance);
     }
 
@@ -249,6 +249,7 @@ export default class GameScene extends FieldScene {
         let aiFarmer = new AIFarmer(id, name, balance, AISprite, farmerStart);
         aiFarmer.infections=gameSettings.gameRules.startingInfections;
         this.AIFarmers.push(aiFarmer);
+        this.allFarmers.push(aiFarmer);
         return aiFarmer;
     }
 
@@ -330,6 +331,11 @@ export default class GameScene extends FieldScene {
 
         this.uiScene.scoreboard.createScoreBoard();
         this.setupComplete = true;
+
+        // Launch phase scenes
+        this.scene.launch(gameSettings.SCENENAMES.BFREESCENENAME);
+        this.scene.launch(gameSettings.SCENENAMES.TRADINGSCENENAME);
+        this.scene.launch(gameSettings.SCENENAMES.TURNENDSCENENAME);
         // Start the game
         this.startGame();
     }
@@ -352,7 +358,7 @@ export default class GameScene extends FieldScene {
         this.gameState.currentTurn +=1;
         this.uiScene.displayTurn();
         eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
-            this.scene.launch(gameSettings.SCENENAMES.BFREESCENENAME);
+            this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
         }, this);
     }
 
