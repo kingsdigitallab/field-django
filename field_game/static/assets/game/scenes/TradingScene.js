@@ -101,7 +101,6 @@ export default class TradingScene extends Phaser.Scene {
                 boughtHerd.push(boughtCow);
             }
         }
-        console.log(tradingSummary);
         this.uiScene.setDialogSpeed(gameSettings.DIALOGSPEEDS.fast);
         this.uiScene.addDialogText([tradingSummary]);
         eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
@@ -109,7 +108,11 @@ export default class TradingScene extends Phaser.Scene {
         // Unleash the cows!
         await this.gameScene.sendHerdToPens(boughtHerd);
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
-                console.log('DONE');
+                if (this.scene.isSleeping(gameSettings.SCENENAMES.TURNENDSCENENAME)){
+                    this.scene.switch(gameSettings.SCENENAMES.TURNENDSCENENAME);
+                }else{
+                    this.scene.launch(gameSettings.SCENENAMES.TURNENDSCENENAME);
+                }
             }, this);
 
 

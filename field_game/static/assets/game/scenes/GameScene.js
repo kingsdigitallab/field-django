@@ -125,15 +125,7 @@ export default class GameScene extends FieldScene {
                 // to its index in the tileset of the map ("ID" field in Tiled)
                 //
                 let tile = this.map.getTileAt(x, y, true, this.layers.buildingLayer);
-                // Check for player/farmer start squares to use later
-                /*if (tile && tile.properties) {
-                    if (tile.properties.playerStart && tile.properties.playerStart === true) {
-                        this.gameboardInfo.playerStart = [x, y];
-                    }
-                    if (tile.properties.farmerStart && tile.properties.farmerStart === true) {
-                        this.gameboardInfo.farmerStarts.push([x, y]);
-                    }
-                }*/
+
                 if (tile.index >= 0) {
                     // Building, fence, or other obstacle
                     col.push(0);
@@ -293,6 +285,8 @@ export default class GameScene extends FieldScene {
         this.setupComplete = false;
         this.finder = new EasyStar.js();
 
+        this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
+
         // Main game board
         this.createGameBoard();
 
@@ -333,6 +327,8 @@ export default class GameScene extends FieldScene {
     async startGameWhenSetupComplete() {
         // Move pieces (currently just cows)
         await this.sendAllHerdToPens();
+
+        this.uiScene.scoreboard.createScoreBoard();
         this.setupComplete = true;
         // Start the game
         this.startGame();
@@ -345,12 +341,19 @@ export default class GameScene extends FieldScene {
         this.debug('Begin Game');
         // Create events
         this.addEvents();
-        // todo maybe move to bfree
-        this.gameState.currentTurn +=1;
+
         // todo restore
-        //this.scene.launch(gameSettings.SCENENAMES.BFREESCENENAME);
-        //this.scene.launch(gameSettings.SCENENAMES.TRADINGSCENENAME);
-        this.scene.launch(gameSettings.SCENENAMES.TURNENDSCENENAME);
+        this.startTurn();
+
+
+    }
+
+    startTurn(){
+        this.gameState.currentTurn +=1;
+        this.uiScene.displayTurn();
+        eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
+            this.scene.launch(gameSettings.SCENENAMES.BFREESCENENAME);
+        }, this);
     }
 
     /**

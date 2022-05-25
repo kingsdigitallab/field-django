@@ -19,14 +19,8 @@ export default class TurnEndScene extends Phaser.Scene {
         }
         this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
-        this.uiScene.scoreboard.updateScoreBoard();
-        /*this.uiScene.scoreboard.scoreboardTickUp(
-            this.gameScene.player,
-            'infectedCell',
-            0,
-            10
-        );*/
-        //this.uiScene.scoreboard.scoreboardLines[this.gameScene.player]['rankCell'].x=50;
+        this.events.on('wake', this.roundEndPhase);
+
         this.roundEndPhase();
     }
 
@@ -46,6 +40,9 @@ export default class TurnEndScene extends Phaser.Scene {
         // For each farmer
         let farmers = this.gameScene.getAllFarmers();
         //let done = await new Promise((resolve, reject) => {
+        this.uiScene.scoreboard.updateScoreBoard();
+        this.uiScene.scoreboard.toggleScoreboard();
+        await this.uiScene.sleep(2000);
 
         // Get all the updates as promises so we can update
         // the scoreboard gradually
@@ -68,14 +65,18 @@ export default class TurnEndScene extends Phaser.Scene {
 
 
         eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
-            // If last turn, go to game end
             this.uiScene.scoreboard.toggleScoreboard();
+            this.uiScene.scoreboard.scoreboardPrompt.visible=false;
+
+            // If last turn, go to game end
             //Otherwise start new turn
             if (this.gameScene.gameState.currentTurn >= gameSettings.gameRules.totalTurns){
                 // Game over man
-                this.scene.launch(gameSettings.SCENENAMES.GAMEENDSCENENAME);
+                this.scene.switch(gameSettings.SCENENAMES.GAMEENDSCENENAME);
             }else{
                 // Back to turn start
+                this.gameScene.startTurn();
+                this.scene.sleep();
             }
 
         }, this);
@@ -119,10 +120,7 @@ export default class TurnEndScene extends Phaser.Scene {
                 );
             }
             farmer.infections += newInfections;
-
         }
-
     }
-
 
 }

@@ -60,6 +60,7 @@ export default class BFreeScene extends Phaser.Scene {
 
     addListeners() {
         eventsCenter.on(gameSettings.EVENTS.BFREEPHASEEND, this.endPhase, this);
+
     }
 
     /**
@@ -130,9 +131,6 @@ export default class BFreeScene extends Phaser.Scene {
 
     createLabel(scene, text) {
         return scene.rexUI.add.label({
-            // width: 40,
-            // height: 40,
-
             background: scene.rexUI.add.roundRectangle(0, 0, 0, 0, 20, 0x5e92f3),
             text: scene.add.text(0, 0, text, {
                 fontSize: '24px'
@@ -153,7 +151,7 @@ export default class BFreeScene extends Phaser.Scene {
         this.gameScene.setIsGameBoardActive(false);
         // Subtract the cost
         console.log("Joining Bovi Free");
-        this.gameScene.player.balance -= this.gameScene.gameSettings.gameRules.bfreeJoinCost;
+        this.gameScene.player.balance -= gameSettings.gameRules.bfreeJoinCost;
         // Remove infection from cattle
         this.gameScene.player.setBFree(true);
         await this.innoculationAnimation(this.gameScene.player);
@@ -177,7 +175,15 @@ export default class BFreeScene extends Phaser.Scene {
 
     endPhase(){
         console.log("Joining Bovi Free COMPLETE");
+        if (this.gameScene.gameState.currentTurn <= 1){
+            this.scene.launch(gameSettings.SCENENAMES.TRADINGSCENENAME);
+        } else{
+            this.scene.switch(gameSettings.SCENENAMES.TRADINGSCENENAME);
+        }
+
     }
+
+
 
     /*
     DEPRECATED
