@@ -153,11 +153,24 @@ export default class BFreeScene extends Phaser.Scene {
         console.log("Joining Bovi Free");
         this.joinBFree(this.gameScene.player);
         await this.innoculationAnimation(this.gameScene.player);
+        this.AIFarmersJoinBFree();
         this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.yes);
 
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
             eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
         }, this);
+    }
+
+    AIFarmersJoinBFree(){
+        let farmers = this.gameScene.AIFarmers;
+        for (let f=0;f<farmers.length; f++){
+            if (this.scheme_choice(farmers[f]) === true){
+                if (gameSettings.DEBUG){
+                    console.log(farmers[f].name +' joined scheme');
+                }
+                this.joinBFree(farmers[f]);
+            }
+        }
     }
 
     joinBFree(farmer){
@@ -170,6 +183,14 @@ export default class BFreeScene extends Phaser.Scene {
         );
     }
 
+    scheme_choice(farmer){
+        let joinChance = farmer.timeSinceLastSale / gameSettings.gameRules.bfreeTrigger;
+        if (Math.random() <= joinChance) {
+                    return true;
+        }
+        return false;
+    }
+
     joinBFreeNo() {
         console.log("Not joining Bovi Free");
         this.gameScene.setIsGameBoardActive(false);
@@ -177,6 +198,7 @@ export default class BFreeScene extends Phaser.Scene {
         this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.no);
 
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
+            this.AIFarmersJoinBFree();
             eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
         }, this);
     }

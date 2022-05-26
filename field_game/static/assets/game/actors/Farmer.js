@@ -14,7 +14,8 @@ export class Farmer {
         this.sprite = sprite;
         this.farmerStart = farmerStart;
         this.bfree = false; // Are they part of Bovifree this turn?
-        this.timeSinceLastSale = 0; // Time in turns since they last sold a cow
+        // todo set at 1 or 0?
+        this.timeSinceLastSale = 1; // Time in turns since they last sold a cow
         this.infections = 0; // Number of infected cows in herd
         this.herdTotal = 0; // Total number of cows Farmer owns
         this.pen = [];
