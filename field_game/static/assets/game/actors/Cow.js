@@ -11,6 +11,7 @@ export default class Cow {
         this.movePath = [];
         this.cowSpeed = 50;
         this.timeline = this.sprite.scene.tweens.createTimeline();
+        this.isTrading = false; //Part of a trade this turn?
 
     }
 

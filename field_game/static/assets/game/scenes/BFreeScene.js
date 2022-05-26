@@ -42,11 +42,11 @@ export default class BFreeScene extends Phaser.Scene {
         console.log('BFree phase start');
         // Start text and onboarding if enabled
         if (this.gameScene.gameState.isOnBoarding) {
-            this.uiScene.addDialogText(this.bFreeDialogTexts.onboards);
-            eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+            this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.onboards);
+
         } else {
-            this.uiScene.addDialogText(this.bFreeDialogTexts.start);
-            eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+            this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.start);
+
         }
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
             this.gameScene.setIsGameBoardActive(true);
@@ -151,23 +151,31 @@ export default class BFreeScene extends Phaser.Scene {
         this.gameScene.setIsGameBoardActive(false);
         // Subtract the cost
         console.log("Joining Bovi Free");
-        this.gameScene.player.balance -= gameSettings.gameRules.bfreeJoinCost;
-        // Remove infection from cattle
-        this.gameScene.player.setBFree(true);
+        this.joinBFree(this.gameScene.player);
         await this.innoculationAnimation(this.gameScene.player);
-        this.uiScene.addDialogText(this.bFreeDialogTexts.yes);
-        eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+        this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.yes);
+
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
             eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
         }, this);
+    }
+
+    joinBFree(farmer){
+        farmer.balance -= gameSettings.gameRules.bfreeJoinCost;
+        // Remove infection from cattle
+        farmer.setBFree(true);
+        // Update the scoreboard
+        this.uiScene.scoreboard.updateScoreboardCell(
+            farmer.slug, this.uiScene.scoreboard.cellKeys.infectedCell, 0
+        );
     }
 
     joinBFreeNo() {
         console.log("Not joining Bovi Free");
         this.gameScene.setIsGameBoardActive(false);
         eventsCenter.off(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
-        this.uiScene.addDialogText(this.bFreeDialogTexts.no);
-        eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+        this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.no);
+
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
             eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
         }, this);

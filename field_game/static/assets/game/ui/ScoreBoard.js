@@ -47,6 +47,7 @@ export default class ScoreBoard {
     }
 
     toggleScoreboard() {
+        this.scoreboardTitles.toggleVisible();
         this.scoreboardGroup.toggleVisible();
         if (this.visible === true) {
             this.scoreboardTitle.visible = false;
@@ -68,33 +69,33 @@ export default class ScoreBoard {
      * @param farmer farmer who's score we're displayer
      *
      */
-    createScoreLine(farmer, rank, x, y) {
+    createScoreLine(farmer, rank, x, y, alpha) {
 
         let rankCell = this.scene.add.text(
             x, y,
             rank, this.defaultTextStyle
-        );
+        ).setAlpha(alpha);
         //console.log(rankCell.displayWidth);
         let nameCell = this.scene.add.text(
             x, y,
             farmer.name, this.defaultTextStyle
-        );
+        ).setAlpha(alpha);
 
         let balanceCell = this.scene.add.text(
             x, y,
             farmer.balance,
             this.defaultTextStyle
-        );
+        ).setAlpha(alpha);
         let cowCell = this.scene.add.text(
             x, y,
             farmer.herdTotal,
             this.defaultTextStyle
-        );
+        ).setAlpha(alpha);
         let infectedCell = this.scene.add.text(
             x, y,
             farmer.infections,
             this.defaultTextStyle
-        );
+        ).setAlpha(alpha);
 
         this.scoreboardLines[farmer.slug] = {
             'rankCell': rankCell,
@@ -104,6 +105,46 @@ export default class ScoreBoard {
             'infectedCell': infectedCell
         };
         return [rankCell, nameCell, balanceCell, cowCell, infectedCell];
+    }
+
+    /**
+     * Headings for our scoreboard
+     * Hidden by default
+     */
+    createGridTitles(){
+        this.scoreboardTitles = this.scene.add.group({
+            name: 'scoreboard_group',
+            active: true,
+        });
+        this.columnHeadings = [
+            this.scene.add.text(
+                0, 0,
+                'Rank',
+                this.defaultColumnTitleTextStyle
+            ).setVisible(false),
+            this.scene.add.text(
+                0, 0,
+                'Name',
+                this.defaultColumnTitleTextStyle
+            ).setVisible(false),
+            this.scene.add.text(
+                0, 0,
+                '£',
+                this.defaultColumnTitleTextStyle
+            ).setVisible(false),
+            this.scene.add.text(
+                0, 0,
+                'Cows',
+                this.defaultColumnTitleTextStyle
+            ).setVisible(false),
+            this.scene.add.text(
+                0, 0,
+                'Sick',
+                this.defaultColumnTitleTextStyle
+            ).setVisible(false),
+        ];
+        this.scoreboardTitles.addMultiple(this.columnHeadings);
+
     }
 
     /**
@@ -117,47 +158,27 @@ export default class ScoreBoard {
      * 1 char padding
      *
      * Sort list by highest £, plyaer's in different colour
+     * @param players Farmer objects to display on scoreboard
+     * @param alpha starting alpha so we can create hidden for updates
      */
-    generateScoreGrid() {
+    generateScoreGrid(players, alpha) {
         this.scoreboardGroup = this.scene.add.group({
             name: 'scoreboard_group',
             active: true,
         });
-        this.columnHeadings = [
-            this.scene.add.text(
-                0, 0,
-                'Rank',
-                this.defaultColumnTitleTextStyle
-            ),
-            this.scene.add.text(
-                0, 0,
-                'Name',
-                this.defaultColumnTitleTextStyle
-            ),
-            this.scene.add.text(
-                0, 0,
-                '£',
-                this.defaultColumnTitleTextStyle
-            ),
-            this.scene.add.text(
-                0, 0,
-                'Cows',
-                this.defaultColumnTitleTextStyle
-            ),
-            this.scene.add.text(
-                0, 0,
-                'Sick',
-                this.defaultColumnTitleTextStyle
-            ),
-        ];
-        this.scoreboardGroup.addMultiple(this.columnHeadings);
-
-        let farmers = this.scene.gameScene.getAllFarmers();
-        for (let f = 0; f < farmers.length; f++) {
-            this.scoreboardGroup.addMultiple(this.createScoreLine(farmers[f], (f + 1), 0, 0));
+        for (let f = 0; f < players.length; f++) {
+            this.scoreboardGroup.addMultiple(this.createScoreLine(players[f], (f + 1), 0, 0, alpha));
         }
 
-        this.scoreboardGrid = Phaser.Actions.GridAlign(this.scoreboardGroup.getChildren(), {
+        return this.scoreboardGroup;
+
+    }
+
+    arrangeScoreGrid(){
+        let scoreGrid = [];
+        scoreGrid.push(...this.scoreboardTitles.getChildren());
+        scoreGrid.push(...this.scoreboardGroup.getChildren());
+        Phaser.Actions.GridAlign(scoreGrid, {
             width: 5,
             height: 10,
             cellWidth: this.cellWidth,
@@ -166,8 +187,6 @@ export default class ScoreBoard {
             x: this.rectCentreX - Math.round(((this.cellWidth * this.columns) / 2.5)),
             y: this.rectCentreY - ((this.cellHeight * 8) / 2)
         });
-
-        return this.scoreboardGrid;
     }
 
 
@@ -208,17 +227,58 @@ export default class ScoreBoard {
         return true;
     }
 
-    createScoreBoard() {
-        this.scoreboardGrid = this.generateScoreGrid();
+    fillScoreBoard(players) {
+
+
+        this.generateScoreGrid(players, 1);
+        this.arrangeScoreGrid();
         this.scoreboardGroup.toggleVisible();
     }
 
-    updateScoreBoard() {
+    updateScoreBoardTitles() {
         //let scoreboardText = this.generateScoreTableText();
         this.scoreboardTitle.text = this.updateScoreboardTitleText();
         this.scoreboardTitle.x = this.rectCentreX - (this.scoreboardTitle.displayWidth / 2);
 
         this.scoreboardPrompt.x = this.rectCentreX - (this.scoreboardPrompt.displayWidth / 2);
+
+    }
+
+    /**
+     * sort on passed cell
+     * Play tween animations to fade out
+     * rearrange, applying rank numbers
+     * fade in
+     */
+    updateScoreBoardRanks(scene, players) {
+        //Fade
+        console.log(players);
+        let scoreboard = this;
+        let group = this.scoreboardGroup;
+        let timeline = scene.tweens.createTimeline();
+        group.getChildren().forEach(function (child) {
+            timeline.add({
+                targets: child,
+                alpha: {value: 0, duration: 50, ease: 'Power1'},
+
+            });
+        });
+        timeline.setCallback('onComplete', function () {
+            console.log('complete');
+            group.destroy(true);
+            let rankedGroup = scoreboard.generateScoreGrid(players,0);
+            scoreboard.arrangeScoreGrid();
+            let timeline2 = scene.tweens.createTimeline();
+            rankedGroup.getChildren().forEach(function (child) {
+                timeline2.add({
+                    targets: child,
+                    alpha: {value: 1, duration: 100, ease: 'Power1'},
+
+                });
+            });
+            timeline2.play();
+        });
+        timeline.play();
 
     }
 
@@ -259,6 +319,7 @@ export default class ScoreBoard {
             this.rectCentreX, this.rectY + 25, titleText,
             this.defaultTitleTextStyle
         );
+        this.createGridTitles();
 
 
         this.scoreboardPrompt = this.scene.add.text(

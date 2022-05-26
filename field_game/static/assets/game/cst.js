@@ -7,7 +7,7 @@ Game constants like prices, starting players etc.
 export const gameSettings = {
     DEBUG: true,
     gameRules: {
-        startHerdSize: 20,
+        startHerdSize: 28,
         startFarmerBalance: 200,
         AIFarmerTotal: 6,
         totalTurns: 8,
@@ -31,7 +31,8 @@ export const gameSettings = {
         GAMEENDSCENENAME:"GameEndScene"
     },
     EVENTS: {
-        ADVANCEDIALOG: 'advance',
+        STARTDIALOG: 'dialogStart',
+        ADVANCEDIALOG: 'dialogAdvance',
         DIALOGFINISHED: 'dialogFinished',
         BOARDTOUCHED: "boardTouched",
         HOSPITALTOUCHED: "hospitalTouched",
@@ -40,7 +41,9 @@ export const gameSettings = {
         BFREEPHASEEND: "BFREEPHASECOMPLETE", // Wrap up
         BFREEPHASECOMPLETE: "BFREEPHASECOMPLETE", // Phase complete, move on
         TRADINGPHASEEND: "TRADINGPHASEEND",
-        TRADINGPHASECOMPLETE: "TRADINGPHASECOMPLETE"
+        TRADINGPHASECOMPLETE: "TRADINGPHASECOMPLETE",
+        BFREEJOINED: "BFREEJOINED", // Player has joined scheme
+
     },
     DIALOGSPEEDS: {
         slow: 2,

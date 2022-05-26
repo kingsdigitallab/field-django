@@ -65,7 +65,9 @@ export default class UIScene extends Phaser.Scene {
     }
 
     addListeners() {
+        eventsCenter.on(gameSettings.EVENTS.STARTDIALOG, this.openDialogWindow, this);
         eventsCenter.on(gameSettings.EVENTS.ADVANCEDIALOG, this.advanceDialogWindowSequence, this);
+        eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, this.closeDialogWindow, this);
     }
 
     removeListeners() {
@@ -77,24 +79,29 @@ export default class UIScene extends Phaser.Scene {
         this.dialogWindow.toggleWindow();
     }
 
+    openDialogWindow(){
+        this.dialogWindow.openDialogWindow();
+    }
+
+
+    closeDialogWindow(){
+        this.dialogWindow.closeDialogWindow();
+    }
+
     advanceDialogWindowSequence() {
         // Queued text is available
+
         if (this.texts && this.texts.length > 0) {
-            // If text isn't visible, toggle window
-            if (!this.dialogWindow.visible) {
-                this.toggleDialogWindow();
-            }
+
             //Set the text
             this.dialogWindow.setText(this, this.texts[0], true);
             // Remove it from queue
             this.texts.shift();
-            /*if (!this.dialogWindow.visible){
-                this.dialogWindow.toggleDialogWindow();
-            }*/
-        } else if (this.texts.length === 0 && this.dialogWindow.visible) {
+
+        } else if (this.texts.length === 0) {
             // Queue empty, hide window
             eventsCenter.emit(gameSettings.EVENTS.DIALOGFINISHED);
-            this.toggleDialogWindow();
+
         }
     }
 
@@ -105,6 +112,12 @@ export default class UIScene extends Phaser.Scene {
      */
     addDialogText(moreText) {
         this.texts.push(...moreText);
+    }
+
+    addTextAndStartDialog(moreText){
+        this.texts.push(...moreText);
+        eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+        eventsCenter.emit(gameSettings.EVENTS.STARTDIALOG);
     }
 
     setDialogSpeed(speed) {

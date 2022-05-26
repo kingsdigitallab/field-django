@@ -32,6 +32,7 @@ export class Farmer {
         if (isBFree === true) {
             this.bfree = true;
             this.infections = 0;
+
         } else {
             this.bfree = false;
         }

@@ -291,8 +291,7 @@ export default class GameScene extends FieldScene {
         // Main game board
         this.createGameBoard();
 
-        // UI Containers
-        this.scene.bringToTop(gameSettings.SCENENAMES.UISCENENAME);
+
 
         // Pieces
         this.createPlayer();
@@ -329,13 +328,16 @@ export default class GameScene extends FieldScene {
         // Move pieces (currently just cows)
         await this.sendAllHerdToPens();
 
-        this.uiScene.scoreboard.createScoreBoard();
+        this.uiScene.scoreboard.fillScoreBoard(this.getAllFarmers());
         this.setupComplete = true;
 
         // Launch phase scenes
         this.scene.launch(gameSettings.SCENENAMES.BFREESCENENAME);
         this.scene.launch(gameSettings.SCENENAMES.TRADINGSCENENAME);
         this.scene.launch(gameSettings.SCENENAMES.TURNENDSCENENAME);
+
+        // UI Containers
+        this.scene.bringToTop(gameSettings.SCENENAMES.UISCENENAME);
         // Start the game
         this.startGame();
     }

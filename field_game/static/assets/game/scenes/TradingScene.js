@@ -45,15 +45,14 @@ export default class TradingScene extends Phaser.Scene {
     tradingPhase(){
         if (gameSettings.DEBUG){
             console.log("Trading Phase Start");
+
         }
+
         //Start text
         if (this.gameScene.gameState.isOnBoarding === true) {
-            this.uiScene.addDialogText(this.dialogTexts.onboards);
-            eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+            this.uiScene.addTextAndStartDialog(this.dialogTexts.onboards);
         } else {
-            this.uiScene.toggleDialogWindow();
-            this.uiScene.addDialogText(this.dialogTexts.start);
-            eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+            this.uiScene.addTextAndStartDialog(this.dialogTexts.start);
         }
         // Player trading phase
 
@@ -111,16 +110,23 @@ export default class TradingScene extends Phaser.Scene {
             }
         }
         this.uiScene.setDialogSpeed(gameSettings.DIALOGSPEEDS.fast);
-        this.uiScene.addDialogText([tradingSummary]);
-        eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+        this.uiScene.addTextAndStartDialog([tradingSummary]);
+
 
         // Unleash the cows!
         await this.gameScene.sendHerdToPens(boughtHerd);
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
+            this.resetCows();
                 this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
             }, this);
 
 
+    }
+
+    resetCows(){
+        for (let x = 0; x < this.gameScene.herd.length; x++) {
+            this.gameScene.herd[x].isTrading=false;
+        }
     }
 
     async playerPurchaseCow(seller) {
@@ -129,8 +135,8 @@ export default class TradingScene extends Phaser.Scene {
              this.gameScene.setIsGameBoardActive(false);
             let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
             // Send cow to player pen
-            this.uiScene.addDialogText([summary]);
-            eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+            this.uiScene.addTextAndStartDialog([summary]);
+
             await this.gameScene.player.sendCowToPen(boughtCow);
             this.AITrade();
 
@@ -206,8 +212,10 @@ export default class TradingScene extends Phaser.Scene {
             seller.herdTotal -= 1;
             // Set the ownership of cow to seller
             for (let c = 0; c < this.gameScene.herd.length; c++) {
-                if (this.gameScene.herd[c].owner === seller) {
+
+                if (this.gameScene.herd[c].owner === seller && this.gameScene.herd[c].isTrading===false) {
                     boughtCow = this.gameScene.herd[c];
+                    boughtCow.isTrading=true;
                     break;
                 }
             }

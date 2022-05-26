@@ -27,7 +27,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         // used for animating the text
         this.eventCounter = 0;
         // if the dialog window is shown
-        this.visible = true;
+        this.dialogVisible = true;
         // the current text in the window
         this.text;
         // the text that will be displayed in the window
@@ -107,7 +107,6 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         this.dialog = text.split('');
         if (this.timedEvent) this.timedEvent.remove();
 
-
         let tempText = animate ? '' : text;
         this._setText(scene, tempText);
 
@@ -136,6 +135,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
                 wordWrap: {fontFamily: 'PressStart2P', width: scene.scale.width - (this.padding * 2) - 25}
             }
         });
+
         scene.children.bringToTop(this.text);
     }
 
@@ -152,10 +152,27 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         if (this.text) this.text.destroy();
     }
 
+    openDialogWindow(){
+        if (this.text) this.text.visible = true;
+        if (this.graphics) this.graphics.visible = true;
+
+    }
+
+
+    closeDialogWindow(){
+        if (this.text) this.text.visible = false;
+        if (this.graphics) this.graphics.visible = false;
+        if (this.text) this.text.destroy();
+    }
+
     toggleWindow() {
-        this.visible = !this.visible;
-        if (this.text) this.text.visible = this.visible;
-        if (this.graphics) this.graphics.visible = this.visible;
+        if (this.dialogVisible){
+            this.closeDialogWindow();
+        }else{
+            this.openDialogWindow();
+        }
+        this.dialogVisible = !this.dialogVisible;
+
     }
 
 }

@@ -42,10 +42,9 @@ export default class TurnEndScene extends Phaser.Scene {
      */
     async turnEndPhase() {
         // For each farmer
-        console.log(this.gameScene);
         let farmers = this.gameScene.getAllFarmers();
 
-        this.uiScene.scoreboard.updateScoreBoard();
+        this.uiScene.scoreboard.updateScoreBoardTitles();
         this.uiScene.scoreboard.toggleScoreboard();
         await this.uiScene.sleep(1500);
 
@@ -69,6 +68,7 @@ export default class TurnEndScene extends Phaser.Scene {
         }
         await Promise.all(infectionPromises);
 
+        this.uiScene.scoreboard.updateScoreBoardRanks(this, this.sortPlayersByBalance());
 
         eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
             this.uiScene.scoreboard.toggleScoreboard();
@@ -88,6 +88,20 @@ export default class TurnEndScene extends Phaser.Scene {
         }, this);
         this.uiScene.scoreboard.scoreboardPrompt.visible=true;
 
+    }
+
+    sortPlayersByBalance(){
+        let players = this.gameScene.getAllFarmers();
+        players.sort(function(a,b){
+            if (a.balance > b.balance){
+                return -1;
+            }else if (b.balance< a.balance){
+                return 1;
+            }else{
+                return 0;
+            }
+        });
+        return players;
     }
 
     update(times, delta) {
