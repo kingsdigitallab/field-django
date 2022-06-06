@@ -181,6 +181,7 @@ export default class BFreeScene extends Phaser.Scene {
         this.uiScene.scoreboard.updateScoreboardCell(
             farmer.slug, this.uiScene.scoreboard.cellKeys.infectedCell, 0
         );
+        eventsCenter.emit(gameSettings.EVENTS.BFREEJOINED);
     }
 
     scheme_choice(farmer){

@@ -15,7 +15,7 @@ export default class UIScene extends Phaser.Scene {
         this.balanceText = "£ ";
         this.herdText = "Cows: ";
         this.texts = [];//Queue for dialog text
-        this.defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '64px'};
+        this.defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '16px'};
         this.titleTextStyle = {fontFamily: 'PressStart2P', fontSize: '54px'};
     }
 
@@ -33,7 +33,7 @@ export default class UIScene extends Phaser.Scene {
         // Set up main dialog window on the bottom of the screen
         this.dialogWindow.createWindow(this);
         // Player display
-        //this.createPlayerInfo();
+        this.createPlayerInfo();
         this.scoreboard = new ScoreBoard(this);
         this.scoreboard.createScoreboard();
 
@@ -68,6 +68,8 @@ export default class UIScene extends Phaser.Scene {
         eventsCenter.on(gameSettings.EVENTS.STARTDIALOG, this.openDialogWindow, this);
         eventsCenter.on(gameSettings.EVENTS.ADVANCEDIALOG, this.advanceDialogWindowSequence, this);
         eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, this.closeDialogWindow, this);
+        eventsCenter.on(gameSettings.EVENTS.PLAYERHERDUPDATED, this.updatePlayerInfoHerd, this);
+        eventsCenter.on(gameSettings.EVENTS.PLAYERBALANCEUPDATED, this.updatePlayerInfoBalance, this);
     }
 
     removeListeners() {
@@ -179,6 +181,17 @@ export default class UIScene extends Phaser.Scene {
             ).setAlpha(0);
     }
 
+    updatePlayerInfoHerd(){
+        this.playerInfoHerd.text = this.herdText+this.gameScene.player.herdTotal;
+    }
+
+    /** Update UI to show new player balance
+     *
+     */
+    updatePlayerInfoBalance(){
+       this.playerInfoBalance.text = this.balanceText+this.gameScene.player.balance;
+    }
+
 
     /**
      * Scoreboard with all player/AI totals
@@ -215,7 +228,7 @@ export default class UIScene extends Phaser.Scene {
         this.playerInfoContainer.y = board_height / 2 + 10;
 
         // Start hidden
-        this.playerInfoContainer.setVisible(false);
+        this.playerInfoContainer.setVisible(true);
     }
 
 
