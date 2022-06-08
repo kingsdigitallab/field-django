@@ -68,7 +68,10 @@ export default class TurnEndScene extends Phaser.Scene {
         }
         await Promise.all(infectionPromises);
 
-        this.uiScene.scoreboard.updateScoreBoardRanks(this, this.sortPlayersByBalance());
+        //Give user a chance to read it
+        await this.uiScene.sleep(1000);
+
+        this.uiScene.scoreboard.updateScoreBoardRanks(this, this.sortPlayersByAssets());
 
         eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
             this.uiScene.scoreboard.toggleScoreboard();
@@ -80,6 +83,8 @@ export default class TurnEndScene extends Phaser.Scene {
                 // Game over man
                 this.scene.switch(gameSettings.SCENENAMES.GAMEENDSCENENAME);
             }else{
+                //
+                this.resetBoard();
                 // Back to turn start
                 this.gameScene.startTurn();
                 //this.scene.sleep();
@@ -90,12 +95,48 @@ export default class TurnEndScene extends Phaser.Scene {
 
     }
 
+    /**
+     * Chores to get board ready for next turn:
+     * -Remove tints on bfree cows
+     */
+    resetBoard(){
+        // Remove tints on bfree
+        for (let c = 0; c < this.gameScene.herd.length; c++) {
+            if (this.gameScene.herd[c].sprite.isTinted) {
+                this.gameScene.herd[c].sprite.clearTint();
+            }
+        }
+
+    }
+
+    /**
+     * Sorting just by their current cash balance
+     * @return sorted players
+     */
     sortPlayersByBalance(){
         let players = this.gameScene.getAllFarmers();
         players.sort(function(a,b){
             if (a.balance > b.balance){
                 return -1;
             }else if (b.balance< a.balance){
+                return 1;
+            }else{
+                return 0;
+            }
+        });
+        return players;
+    }
+
+    /**
+     * Sorting by cash plus assets e.g. cows
+     * @return sorted players
+     */
+    sortPlayersByAssets(){
+        let players = this.gameScene.getAllFarmers();
+        players.sort(function(a,b){
+            if (a.getAssets() > b.getAssets()){
+                return -1;
+            }else if (b.getAssets()< a.getAssets()){
                 return 1;
             }else{
                 return 0;

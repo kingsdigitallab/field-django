@@ -43,9 +43,13 @@ export const gameSettings = {
         TRADINGPHASEEND: "TRADINGPHASEEND",
         TRADINGPHASECOMPLETE: "TRADINGPHASECOMPLETE",
         BFREEJOINED: "BFREEJOINED", // Player has joined scheme
+        // Player stats update events for UI
         PLAYERBALANCEUPDATED:"PLAYERBALANCEUPDATED",
         PLAYERHERDUPDATED:"PLAYERHERDUPDATED",
-        BFREEUPDATED:"BFREEUPDATED"
+        BFREEUPDATED:"BFREEUPDATED",
+        TURNSTART:"TURNBEGINS", // Start of turn
+        TURNEND:"TURNENDS", // End of turn
+        GAMEEND:"GAMEENDS", // End of game
 
 
     },

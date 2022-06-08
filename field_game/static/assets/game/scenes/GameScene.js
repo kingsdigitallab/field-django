@@ -362,7 +362,7 @@ export default class GameScene extends FieldScene {
     startTurn(){
         this.gameState.currentTurn +=1;
         this.uiScene.displayTurn();
-        eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
+        eventsCenter.once(gameSettings.EVENTS.TURNSTART, function () {
             this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
         }, this);
     }

@@ -74,7 +74,7 @@ export default class BFreeScene extends Phaser.Scene {
         // Move cows one by one there and back with animation
         let myCows = farmer.getCows(this.gameScene.herd);
         for (let c = 0; c < myCows.length; c++) {
-           await this.sendCowToHospital(myCows[c], 50);
+           this.sendCowToHospital(myCows[c], 50, 100*c);
         }
         // todo Restore camera to default position
         return true;
@@ -84,15 +84,14 @@ export default class BFreeScene extends Phaser.Scene {
     /**
      * Animation to... send cow to hospital
      */
-    async sendCowToHospital(cow, cowSpeed) {
-
-        // todo move to cow as function
-
+    async sendCowToHospital(cow, cowSpeed, startDelay) {
         let result = await cow.calculateMovePath(
             this.gameScene.gameboardInfo.hospital.door[0],
             this.gameScene.gameboardInfo.hospital.door[1]
         );
         if (result) {
+            // Sleep for startDelay, then begin moving
+            await new Promise(resolve => setTimeout(resolve, startDelay));
             //Move the Cow
             result = await cow.moveCowAlongPath(cowSpeed);
             if (result) {

@@ -1,5 +1,7 @@
 /*jshint esversion: 8 */
 
+import {gameSettings} from "../cst.js";
+
 /**
  * The base farmer class, used by the AI and human players
  * This class stores all information about the player
@@ -49,6 +51,13 @@ export class Farmer {
 
     getPenZone() {
         return this.penZone;
+    }
+
+    /** Player's cash plus the value of their herd (healthy cows times normal price)
+     *  Cow value may need to be changed
+     */
+    getAssets(){
+        return ((this.herdTotal-this.infections) * gameSettings.gameRules.normalCowPrice)+this.balance;
     }
 
 

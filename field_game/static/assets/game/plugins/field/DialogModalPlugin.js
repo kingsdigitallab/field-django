@@ -31,7 +31,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         // the current text in the window
         this.text;
         // the text that will be displayed in the window
-        this.dialog;
+        this.dialog = [];
         this.graphics;
         this.closeBtn;
         // Create the dialog window
@@ -164,6 +164,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
 
 
     closeDialogWindow(){
+        if (this.timedEvent) this.timedEvent.remove();
         if (this.text) this.text.visible = false;
         if (this.graphics) this.graphics.visible = false;
         if (this.text) this.text.destroy();
