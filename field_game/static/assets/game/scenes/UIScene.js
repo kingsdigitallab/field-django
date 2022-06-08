@@ -94,7 +94,7 @@ export default class UIScene extends Phaser.Scene {
         // Dialog in progress, dump buffer
         if (this.dialogWindow.eventCounter > 0){
             this.dialogWindow.timedEvent.remove();
-            
+
             if (this.dialogWindow.text && this.dialogWindow.dialog){
                 let bufferText = this.dialogWindow.dialog.slice(
                     this.dialogWindow.eventCounter, this.dialogWindow.dialog.length
