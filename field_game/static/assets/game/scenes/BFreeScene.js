@@ -153,7 +153,7 @@ export default class BFreeScene extends Phaser.Scene {
         console.log("Joining Bovi Free");
         this.joinBFree(this.gameScene.player);
         await this.innoculationAnimation(this.gameScene.player);
-        this.AIFarmersJoinBFree();
+        await this.AIFarmersJoinBFree();
         this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.yes);
 
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
@@ -161,16 +161,20 @@ export default class BFreeScene extends Phaser.Scene {
         }, this);
     }
 
-    AIFarmersJoinBFree(){
+    async AIFarmersJoinBFree(){
         let farmers = this.gameScene.AIFarmers;
+        let innoculationPromises = [];
         for (let f=0;f<farmers.length; f++){
             if (this.scheme_choice(farmers[f]) === true){
                 if (gameSettings.DEBUG){
                     console.log(farmers[f].name +' joined scheme');
                 }
                 this.joinBFree(farmers[f]);
+                innoculationPromises.push(this.innoculationAnimation(farmers[f]));
             }
         }
+        await Promise.all(innoculationPromises);
+        return true;
     }
 
     joinBFree(farmer){
@@ -198,8 +202,8 @@ export default class BFreeScene extends Phaser.Scene {
         eventsCenter.off(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
         this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.no);
 
-        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
-            this.AIFarmersJoinBFree();
+        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, async function () {
+            await this.AIFarmersJoinBFree();
             eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
         }, this);
     }
