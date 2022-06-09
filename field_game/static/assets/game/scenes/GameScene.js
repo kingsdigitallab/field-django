@@ -48,7 +48,7 @@ export default class GameScene extends FieldScene {
         // State of this instance of game
         this.gameState = {
             currentTurn: 0,
-            isOnBoarding: false, //Display help messages
+            isOnBoarding: true, //Display help messages
             isGameBoardActive: false // Is board clickable?
         };
         // Zones on the game board
