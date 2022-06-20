@@ -106,6 +106,7 @@ THIRD_PARTY_APPS = [
     "kdl_wagtail.core",
     'kdl_wagtail.people',
     'django_kdl_timeline',
+    'rest_framework',
 ]
 
 LOCAL_APPS = [
@@ -443,3 +444,16 @@ GA_ID = 'UA-67707155-9'
 # Field Mailchimp settings (May 2019)
 MAILCHIMP_LIST_ID = env('MAILCHIMP_LIST_ID', default='')
 MAILCHIMP_API_KEY = env('MAILCHIMP_API_KEY', default='')
+
+
+# ----------------------------------------------------------------------------
+# Rest API
+# ----------------------------------------------------------------------------
+
+REST_FRAMEWORK = {
+    # Use Django's standard `django.contrib.auth` permissions,
+    # or allow read-only access for unauthenticated users.
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ]
+}

@@ -17,6 +17,9 @@ django-crispy-forms  # https://github.com/django-crispy-forms/django-crispy-form
 django-compressor<3  # https://github.com/django-compressor/django-compressor
 django-libsass # for scss
 django-redis  # https://github.com/jazzband/django-redis
+djangorestframework==3.12.4
+#markdown
+#django-filter
 
 # KDL
 # ------------------------------------------------------------------------------
