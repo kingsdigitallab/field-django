@@ -149,29 +149,24 @@ export default class TurnEndScene extends Phaser.Scene {
 
     }
 
-    /*
-    For farm in {0,1,…,8}
-        Use N = cows[farm] - infections[farm]
-        p = β * infections[farm] ÷ Cows[farm]
-    Select n from Binomial distribution B( N,p)
-        Increase Infections[farm] by n
-     */
 
+    /**
+     *
+     * Increase infection in farms that have infected cows.
+     *
+     * New simple beta version that doubles infection (if herd allows)
+     *
+     * @param farmer
+     * @return {Promise<void>}
+     */
     async updateInfection(farmer) {
         let newInfections = 0;
-        if (farmer.bfree === false) {
-            let infectionChance = gameSettings.gameRules.infectionBeta * farmer.infections / farmer.herdTotal;
-            for (let c = 0; c < (farmer.herdTotal - farmer.infections); c++) {
-
-                if (Math.random() <= infectionChance) {
-                    newInfections += 1;
-                }
-
-                if ((farmer.infections + newInfections) >= farmer.herdTotal) {
-                    break;
-
-                }
-
+        if (farmer.bfree === false || farmer.infections === farmer.herdTotal) {
+            if ((farmer.infections * 2) <= farmer.herdTotal){
+                newInfections = farmer.infections;
+            } else{
+                // Infect all the remaining cows
+                newInfections = farmer.herdTotal - farmer.infections;
             }
             if (newInfections > 0) {
                 this.uiScene.scoreboard.scoreboardLines[farmer.slug][this.uiScene.scoreboard.cellKeys.infectedCell].setColor('red');

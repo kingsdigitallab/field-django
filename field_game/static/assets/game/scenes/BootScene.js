@@ -51,7 +51,7 @@ export default class BootScene extends FieldScene {
         // Load the export Tiled JSON
         this.load.image('tiles', this.ASSET_URL + '/textures/simple_farm.png');
         this.load.image('modern', this.ASSET_URL + '/textures/statics.png');
-        this.load.tilemapTiledJSON('map', this.ASSET_URL + '/maps/fieldfarm.json');
+        this.load.tilemapTiledJSON('map', this.ASSET_URL + '/maps/fieldfarm_beta.json');
 
     }
 

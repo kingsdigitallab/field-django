@@ -21,6 +21,10 @@ export default class GameScene extends FieldScene {
         this.herd = [];
         this.layers = [];
         // Player/farmer starts, where the cow pens are etc.
+        // [[1, 51], [5, 7]],
+        // [[33, 51], [5, 7]],
+        // [4, 48],
+        // , [36, 48]
         this.gameboardInfo = {
             playerCowPen: [[16, 9], [5, 7]],
             farmerCowPens: [
@@ -28,15 +32,14 @@ export default class GameScene extends FieldScene {
                 [[33, 9], [5, 7]],
                 [[1, 33], [5, 7]],
                 [[33, 33], [5, 7]],
-                [[1, 51], [5, 7]],
-                [[33, 51], [5, 7]],
+
             ],
             player: {
                 start: [20, 6],
                 house: [[18, 1], 3, 4]
             },
             farmerStarts: [
-                [4, 6], [4, 30], [4, 48], [36, 6], [36, 30], [36, 48]
+                [4, 6], [4, 30], [36, 6], [36, 30]
             ],
             hospital: {
                 extent: [[17, 28], [4, 3]],
@@ -49,7 +52,11 @@ export default class GameScene extends FieldScene {
         this.gameState = {
             currentTurn: 0,
             isOnBoarding: true, //Display help messages
-            isGameBoardActive: false // Is board clickable?
+            isGameBoardActive: false, // Is board clickable?
+            lastTransactionOrderNo: 0,
+            playerID: "TESTER",
+            gameID: 110,
+            infectionTotal:0,
         };
         // Zones on the game board
         this.gameboardZones = {};
@@ -77,6 +84,29 @@ export default class GameScene extends FieldScene {
      */
     gameLog(message) {
         this.log += "\n" + message;
+    }
+
+    /**
+     * playerID = models.CharField(null=True, blank=True, max_length=128)
+     gameID = models.BigIntegerField(default=0)
+     turn = models.IntegerField(default=0)
+     orderno = models.IntegerField(default=0)
+     event_type = models.ForeignKey("EventType", on_delete=models.SET_NULL, null=True)
+     farmerA = models.ForeignKey(
+     "Farmer", null=True, on_delete=models.SET_NULL, related_name="farmer_A"
+     )
+     farmerB = models.ForeignKey(
+     "Farmer", null=True, on_delete=models.SET_NULL, related_name="farmer_B"
+     )
+     description = models.CharField(null=True, blank=True, max_length=128)
+     * @param messageProps
+     */
+    logTransaction(messageProps) {
+        // todo make this an api when we're ready
+        messageProps.orderno = this.gameState.lastTransactionOrderNo;
+        messageProps.turn = this.gameState.currentTurn;
+        console.log(messageProps);
+        this.gameState.lastTransactionOrderNo += 1;
     }
 
 
@@ -177,7 +207,7 @@ export default class GameScene extends FieldScene {
         let sprite = this.physics.add.sprite(startX, startY, 'farmer_1');
         sprite.setCollideWorldBounds(true);
         this.player = new Player(1, 'Player', gameSettings.gameRules.startFarmerBalance, sprite, this.gameboardInfo.player.start);
-        this.player.infections=gameSettings.gameRules.startingInfections;
+        this.player.infections = gameSettings.gameRules.startingInfections;
         let penZone = this.createZoneFromTiles(this.gameboardInfo.playerCowPen)
             .setOrigin(0, 0)
             .setInteractive().on('pointerup', function (pointer, localX, localY) {
@@ -235,22 +265,24 @@ export default class GameScene extends FieldScene {
             for (let c = 0; c < cowsPerPlayer; c++) {
                 let cow = this.createCow(owner, (19 * this.BOARD_TILE_SIZE), (34 * this.BOARD_TILE_SIZE));
                 // Pick
-                owner.herdTotal+=1;
+                owner.herdTotal += 1;
                 this.herd.push(cow);
             }
-
+            owner.infections = 1;
+            this.gameState.infectionTotal +=1;
         }
+
         eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
         return true;
     }
 
-    createAIFarmer(id, name, balance, farmerStart) {
+    createAIFarmer(id, name, balance, farmerStart, threshold) {
 
         let AISprite = this.physics.add.sprite(farmerStart[0] * this.BOARD_TILE_SIZE, (farmerStart[1] + 1) * this.BOARD_TILE_SIZE, 'farmer_2');
         AISprite.setCollideWorldBounds(true);
         //AISprite.setVisible(false);
-        let aiFarmer = new AIFarmer(id, name, balance, AISprite, farmerStart);
-        aiFarmer.infections=gameSettings.gameRules.startingInfections;
+        let aiFarmer = new AIFarmer(id, name, balance, AISprite, farmerStart, threshold);
+        aiFarmer.infections = gameSettings.gameRules.startingInfections;
         this.AIFarmers.push(aiFarmer);
         this.allFarmers.push(aiFarmer);
         return aiFarmer;
@@ -260,7 +292,10 @@ export default class GameScene extends FieldScene {
         //let farm = this.add.image(this.GAME_WIDTH, 0, 'AI_farm').setOrigin(1, 0);
         for (let x = 0; x < gameSettings.gameRules.AIFarmerTotal; x++) {
             // Split evenly on left  and right side
-            let aiFarmer = this.createAIFarmer(x, 'AI ' + (x + 1), gameSettings.gameRules.startFarmerBalance, this.gameboardInfo.farmerStarts[x]);
+            let aiFarmer = this.createAIFarmer(
+                x, 'AI ' + (x + 1), gameSettings.gameRules.startFarmerBalance,
+                this.gameboardInfo.farmerStarts[x], gameSettings.INFECTIONTHRESHOLDS[x]
+            );
             let penZone = this.createZoneFromTiles(this.gameboardInfo.farmerCowPens[x])
                 .setOrigin(0, 0)
                 .setInteractive().on('pointerup', function (pointer, localX, localY) {
@@ -293,7 +328,6 @@ export default class GameScene extends FieldScene {
 
         // Main game board
         this.createGameBoard();
-
 
 
         // Pieces
@@ -359,8 +393,8 @@ export default class GameScene extends FieldScene {
 
     }
 
-    startTurn(){
-        this.gameState.currentTurn +=1;
+    startTurn() {
+        this.gameState.currentTurn += 1;
         this.uiScene.displayTurn();
         eventsCenter.once(gameSettings.EVENTS.TURNSTART, function () {
             this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
@@ -445,7 +479,6 @@ export default class GameScene extends FieldScene {
         // todo add farm idle animations
 
     }
-
 
 
     /**

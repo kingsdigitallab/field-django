@@ -133,8 +133,9 @@ export class Farmer {
  * behaviour
  */
 export class AIFarmer extends Farmer {
-    constructor(id, name, balance, sprite, farmerStart) {
+    constructor(id, name, balance, sprite, farmerStart,threshold) {
         super(id, name, balance, sprite, farmerStart);
+        this.threshold = threshold;
     }
 
     /**
@@ -158,9 +159,7 @@ export class AIFarmer extends Farmer {
      * @return farmer we're buying from
      */
     calculatePurchaseChoice(farmers) {
-        // Todo this must be changed
-        // after discussions so random choice
-        // for now as a placeholder
+        // One at random from available sellers
         if (farmers && farmers.length > 0) {
             let selected = false;
             let choice = Math.ceil(Math.random() * farmers.length) - 1;

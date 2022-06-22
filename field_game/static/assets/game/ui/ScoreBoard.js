@@ -228,8 +228,6 @@ export default class ScoreBoard {
     }
 
     fillScoreBoard(players) {
-
-
         this.generateScoreGrid(players, 1);
         this.arrangeScoreGrid();
         this.scoreboardGroup.toggleVisible();

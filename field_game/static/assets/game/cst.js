@@ -7,19 +7,19 @@ Game constants like prices, starting players etc.
 export const gameSettings = {
     DEBUG: true,
     gameRules: {
-        startHerdSize: 28,
-        startFarmerBalance: 200,
-        AIFarmerTotal: 6,
+        startHerdSize: 40,
+        startFarmerBalance: 20,
+        AIFarmerTotal: 4,
         totalTurns: 8,
         // AI farmer will join scheme at least once per this many turns
         bfreeTrigger: 4,
-        bfreeJoinCost: 40, // Cost to join scheme
+        bfreeJoinCost: 1, // Cost to join scheme
         // Cow prices, buy and sell
-        bfreeCowPrice: 30,
-        normalCowPrice: 20,
+        bfreeCowPrice: 2,
+        normalCowPrice: 2,
         cowSpeed: 150,
-        infectionBeta:0.5,
-        startingInfections:1
+        infectionBeta: 0.5,
+        startingInfections: 1
     },
     SCENENAMES: {
         TITLESCENENAME: 'TitleScene',
@@ -27,8 +27,8 @@ export const gameSettings = {
         UISCENENAME: 'UIScene',
         BFREESCENENAME: 'BFreeScene',
         TRADINGSCENENAME: 'TradingScene',
-        TURNENDSCENENAME:"RoundEndScene",
-        GAMEENDSCENENAME:"GameEndScene"
+        TURNENDSCENENAME: "RoundEndScene",
+        GAMEENDSCENENAME: "GameEndScene"
     },
     EVENTS: {
         STARTDIALOG: 'dialogStart',
@@ -44,12 +44,12 @@ export const gameSettings = {
         TRADINGPHASECOMPLETE: "TRADINGPHASECOMPLETE",
         BFREEJOINED: "BFREEJOINED", // Player has joined scheme
         // Player stats update events for UI
-        PLAYERBALANCEUPDATED:"PLAYERBALANCEUPDATED",
-        PLAYERHERDUPDATED:"PLAYERHERDUPDATED",
-        BFREEUPDATED:"BFREEUPDATED",
-        TURNSTART:"TURNBEGINS", // Start of turn
-        TURNEND:"TURNENDS", // End of turn
-        GAMEEND:"GAMEENDS", // End of game
+        PLAYERBALANCEUPDATED: "PLAYERBALANCEUPDATED",
+        PLAYERHERDUPDATED: "PLAYERHERDUPDATED",
+        BFREEUPDATED: "BFREEUPDATED",
+        TURNSTART: "TURNBEGINS", // Start of turn
+        TURNEND: "TURNENDS", // End of turn
+        GAMEEND: "GAMEENDS", // End of game
 
 
     },
@@ -57,7 +57,30 @@ export const gameSettings = {
         slow: 2,
         normal: 3,
         fast: 4
-    }
+    },
+    TRANSACTIONEVENTTYPES: {
+        Trade: 1,
+        JoinBFree: 2,
+        Infection: 3
+    },
+    INFECTIONTHRESHOLDS: [
+         {
+            local: 0,
+            global: 0
+        },
+        {
+            local: 3,
+            global: 6
+        },
+        {
+            local: 6,
+            global: 12
+        },
+        {
+            local: 9,
+            global: 18
+        },
+    ]
 
 };
 

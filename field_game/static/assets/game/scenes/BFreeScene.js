@@ -176,21 +176,51 @@ export default class BFreeScene extends Phaser.Scene {
         return true;
     }
 
+    /** Send a record of the bfree join to the log api
+     *
+     * @param farmerA farmer joining the scheme, player or AI
+     * @param description event description
+     */
+    logBFreeTransaction(farmerA, description){
+        let messageProps = {
+            farmerA:farmerA.name,
+            description:description
+        };
+        messageProps.eventType=gameSettings.TRANSACTIONEVENTTYPES.JoinBFree;
+        this.gameScene.logTransaction(messageProps);
+    }
+
     joinBFree(farmer){
-        farmer.balance -= gameSettings.gameRules.bfreeJoinCost;
+        let totalCost = gameSettings.gameRules.bfreeJoinCost + farmer.infections;
+        farmer.balance -= totalCost;
         // Remove infection from cattle
+        this.gameScene.gameState.infectionTotal -= farmer.infections;
         farmer.setBFree(true);
         // Update the scoreboard
         this.uiScene.scoreboard.updateScoreboardCell(
             farmer.slug, this.uiScene.scoreboard.cellKeys.infectedCell, 0
         );
+        this.logBFreeTransaction(
+            farmer,
+            farmer.name+" joins BFree scheme  and pays "+totalCost
+        );
         eventsCenter.emit(gameSettings.EVENTS.BFREEJOINED);
     }
 
+    /**
+     * Decide if farmer joins the bfree scheme this turn.
+     *
+     * Now based on Beta rules with thresholds
+     *
+     * @param farmer
+     * @return {boolean}
+     */
     scheme_choice(farmer){
-        let joinChance = farmer.timeSinceLastSale / gameSettings.gameRules.bfreeTrigger;
-        if (Math.random() <= joinChance) {
-                    return true;
+        if (
+            (farmer.infections >= farmer.threshold.local) ||
+            (this.gameScene.gameState.totalInfections >= farmer.threshold.global)
+        ){
+            return true;
         }
         return false;
     }
