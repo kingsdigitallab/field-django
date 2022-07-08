@@ -65,21 +65,30 @@ export class Farmer {
      * Find a tile in a player pen for a cow
      * that IS NOT currently occupied by another cow
      * Used for spawning and transferring cows during sales
-     * @param penTileCoords top left of pen
-     * @param width width of pen
-     * @param height of pen
+     * NOTE: x+1, y-1 below because of fence sprite, so we don't spawn on the fence
      * @return [x,y] coordinates
      */
-    findRandomPenTile(penTileCoords, width, height) {
+    findRandomPenTile() {
         if (this.pen) {
             let freePenPoint = [
-                this.pen[0][0] + Math.round(Math.random() * this.pen[1][0]),
-                this.pen[0][1] + Math.round(Math.random() * this.pen[1][1])
+                (this.pen[0][0]+1) + Math.round(Math.random() * this.pen[1][0]-1),
+                (this.pen[0][1]-1) + Math.round(Math.random() * this.pen[1][1]-1)
             ];
             // todo Make sure no cow shares this?
             return freePenPoint;
         }
         return null;
+
+    }
+
+
+    getPenTile(cowIndex){
+        let maxRows = Math.floor(this.pen[1][1] /2); // 3
+        let maxCols = Math.floor(this.pen[1][0] /2); // 4
+        let row = Math.floor(cowIndex/maxCols);
+        let col = Math.floor(cowIndex-(row*maxCols))*2;
+        console.log('['+col+','+row+']');
+        return [this.pen[0][0]+col,this.pen[0][1]+(row*2)];
 
     }
 
@@ -90,7 +99,7 @@ export class Farmer {
      */
     async sendCowToPen(cow) {
         cow.isMoving = true;
-        let penPoint = this.findRandomPenTile();
+        let penPoint = this.getPenTile(this.herdTotal+1); //this.findRandomPenTile();
         if (penPoint) {
             let done = await cow.calculateMovePath(
                 penPoint[0], penPoint[1]

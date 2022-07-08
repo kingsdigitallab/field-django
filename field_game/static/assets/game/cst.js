@@ -7,9 +7,9 @@ Game constants like prices, starting players etc.
 export const gameSettings = {
     DEBUG: true,
     gameRules: {
-        startHerdSize: 40,
+        startHerdSize: 48,
         startFarmerBalance: 20,
-        AIFarmerTotal: 4,
+        AIFarmerTotal: 5,
         totalTurns: 8,
         // AI farmer will join scheme at least once per this many turns
         bfreeTrigger: 4,
@@ -21,6 +21,30 @@ export const gameSettings = {
         infectionBeta: 0.5,
         startingInfections: 1
     },
+    gameboardInfo:{
+            herdSpawn: [19,29],
+            playerHouse:[[17,0],[4,4]],
+            playerCowPen: [[16, 7], [8, 6]],
+            farmerCowPens: [
+                [[0, 7], [8, 6]],
+                [[0, 43], [8, 6]],
+                [[16, 43], [8, 6]],
+                [[32, 43], [8, 6]],
+                [[32, 7], [8, 6]],
+
+            ],
+            player: {
+                start: [18, 4],
+                house: [[18, 1], 3, 4]
+            },
+            farmerStarts: [
+                [4, 4], [2, 31], [20,31], [36, 31], [36, 4]
+            ],
+            hospital: {
+                extent: [[17, 20], [4, 3]],
+                door: [19, 24]
+            }
+        },
     SCENENAMES: {
         TITLESCENENAME: 'TitleScene',
         GAMESCENENAME: 'GameScene',
@@ -55,8 +79,8 @@ export const gameSettings = {
     },
     DIALOGSPEEDS: {
         slow: 2,
-        normal: 3,
-        fast: 4
+        normal: 30,
+        fast: 5
     },
     TRANSACTIONEVENTTYPES: {
         Trade: 1,
@@ -70,15 +94,19 @@ export const gameSettings = {
         },
         {
             local: 3,
-            global: 6
+            global: 4
         },
         {
             local: 6,
+            global: 8
+        },
+        {
+            local: 9,
             global: 12
         },
         {
             local: 9,
-            global: 18
+            global: 16
         },
     ]
 

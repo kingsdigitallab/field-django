@@ -34,12 +34,13 @@ export default class UIScene extends Phaser.Scene {
         this.dialogWindow.createWindow(this);
         // Player display
         this.createPlayerInfo();
+
         this.scoreboard = new ScoreBoard(this);
         this.scoreboard.createScoreboard();
 
-
-        //Start hidden
+        //Start bottom windows hidden
         this.toggleDialogWindow();
+        this.togglePlayerWindow();
         this.setupListeners();
 
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -67,7 +68,7 @@ export default class UIScene extends Phaser.Scene {
     addListeners() {
         eventsCenter.on(gameSettings.EVENTS.STARTDIALOG, this.openDialogWindow, this);
         eventsCenter.on(gameSettings.EVENTS.ADVANCEDIALOG, this.advanceDialogWindowSequence, this);
-        eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, this.closeDialogWindow, this);
+        // eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, this.closeDialogWindow, this);
         eventsCenter.on(gameSettings.EVENTS.PLAYERHERDUPDATED, this.updatePlayerInfoHerd, this);
         eventsCenter.on(gameSettings.EVENTS.PLAYERBALANCEUPDATED, this.updatePlayerInfoBalance, this);
     }
@@ -88,6 +89,23 @@ export default class UIScene extends Phaser.Scene {
 
     closeDialogWindow() {
         this.dialogWindow.closeDialogWindow();
+    }
+
+    togglePlayerWindow() {
+
+        if (this.playerInfoContainer.visible){
+            this.playerInfoContainer.visible = false;
+            this.playerInfoBalance.visible = false;
+            this.playerInfoHerd.visible = false;
+            this.playerInfoTitle.visible = false;
+        }else{
+            this.playerInfoContainer.visible = true;
+            this.playerInfoBalance.visible = true;
+            this.playerInfoHerd.visible = true;
+            this.playerInfoTitle.visible = true;
+        }
+
+
     }
 
     advanceDialogWindowSequence() {
@@ -206,8 +224,8 @@ export default class UIScene extends Phaser.Scene {
      * Scoreboard with all player/AI totals
      */
     createPlayerInfo() {
-        let board_width = this.GAME_WIDTH / 4;
-        let board_height = this.GAME_HEIGHT / 8;
+        let board_width = this.dialogWindow.padding * 2;
+        let board_height = this.dialogWindow.windowHeight; //this.GAME_HEIGHT / 8;
         this.playerInfoContainer = this.add.container(board_width, board_height);
         this.playerInfoBackground = this.add.rectangle(0, 0, board_width, board_height, 0x000000, 0.4);
         this.playerInfoTitle = this.add.text(0, 0, 'Player', this.defaultTextStyle);
@@ -233,8 +251,8 @@ export default class UIScene extends Phaser.Scene {
             this.playerInfoHerd, this.playerInfoBalance
         );
 
-        this.playerInfoContainer.x = this.GAME_WIDTH / 2;
-        this.playerInfoContainer.y = board_height / 2 + 10;
+        this.playerInfoContainer.x = this.dialogWindow.padding;
+        this.playerInfoContainer.y = this.scale.height - this.dialogWindow.windowHeight + (board_height/2);//board_height / 2 + 10;
 
         // Start hidden
         this.playerInfoContainer.setVisible(true);

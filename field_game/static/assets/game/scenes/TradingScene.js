@@ -20,8 +20,8 @@ export default class TradingScene extends Phaser.Scene {
         this.dialogTexts = {
             onboards: [
                 "Trading phase",
-                "Buy a cow from a player by touching their pen.", "Bfree cows cost £" + gameSettings.gameRules.bfreeCowPrice + ", others £" + gameSettings.gameRules.normalCowPrice,
-                "Warning! Non-BFree cows may be infected"
+                "Buy a cow from a player by touching their pen. Cows cost £" + gameSettings.gameRules.normalCowPrice +
+                "\nWarning! Non-BFree cows may be infected. If you buy one while certified you will lose your certification."
             ],
             start: ["Trading phase"],
 

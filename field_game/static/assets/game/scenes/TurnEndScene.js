@@ -25,7 +25,7 @@ export default class TurnEndScene extends Phaser.Scene {
     }
 
     async updateFarmerIncome(farmer) {
-        let income = (farmer.herdTotal - farmer.infections) * 10;
+        let income = (farmer.herdTotal - farmer.infections);
         await this.uiScene.scoreboard.scoreboardTickUp(
             farmer.slug, this.uiScene.scoreboard.cellKeys.balanceCell,
             farmer.balance, (farmer.balance + income)
@@ -176,6 +176,7 @@ export default class TurnEndScene extends Phaser.Scene {
                 );
             }
             farmer.infections += newInfections;
+            this.gameScene.gameState.infectionTotal += newInfections;
         }
     }
 

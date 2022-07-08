@@ -21,7 +21,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         this.windowAlpha = opts.windowAlpha || 0.8;
         this.windowColor = opts.windowColor || 0x303030;
         this.windowHeight = opts.windowHeight || 150;
-        this.padding = opts.padding || 0;
+        this.padding = opts.padding || 80;
         this.closeBtnColor = opts.closeBtnColor || 'darkgoldenrod';
         this.dialogSpeed = opts.dialogSpeed || 2;
         // used for animating the text
@@ -40,7 +40,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
 
     // Calculates where to place the dialog window based on the game size
     _calculateWindowDimensions(width, height) {
-        var x = this.padding;
+        var x = this.padding *2 ;
         var y = height - this.windowHeight; // - this.padding;
         var rectWidth = width - (this.padding * 2);
         var rectHeight = this.windowHeight;
@@ -95,6 +95,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         let gameWidth = scene.scale.width;
         let dimensions = this._calculateWindowDimensions(gameWidth, gameHeight);
         this.graphics = scene.add.graphics();
+        console.log(dimensions);
         this._createOuterWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
         this._createInnerWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
 
@@ -125,8 +126,8 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
     _setText(scene, text) {
         // Reset the dialog
         if (this.text) this.text.destroy();
-        var x = this.padding + 10;
-        var y = scene.scale.height - this.windowHeight - this.padding + 10;
+        var x = this.padding * 2  + 10;
+        var y = scene.scale.height - this.windowHeight +5 ;
         this.text = scene.make.text({
             x,
             y,

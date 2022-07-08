@@ -135,6 +135,8 @@ export default class Cow {
                 cow.isMoving = false;
                 // Reset movepath
                 cow.movePath = [];
+                 //Face up for now
+                cow.sprite.angle = 0;
                 resolve(-1);
             });
             timeline.play();

@@ -25,27 +25,7 @@ export default class GameScene extends FieldScene {
         // [[33, 51], [5, 7]],
         // [4, 48],
         // , [36, 48]
-        this.gameboardInfo = {
-            playerCowPen: [[16, 9], [5, 7]],
-            farmerCowPens: [
-                [[1, 9], [5, 7]],
-                [[33, 9], [5, 7]],
-                [[1, 33], [5, 7]],
-                [[33, 33], [5, 7]],
-
-            ],
-            player: {
-                start: [20, 6],
-                house: [[18, 1], 3, 4]
-            },
-            farmerStarts: [
-                [4, 6], [4, 30], [36, 6], [36, 30]
-            ],
-            hospital: {
-                extent: [[17, 28], [4, 3]],
-                door: [19, 34]
-            }
-        };
+        this.gameboardInfo = gameSettings.gameboardInfo;
         //Game rules and constants
 
         // State of this instance of game
@@ -56,7 +36,7 @@ export default class GameScene extends FieldScene {
             lastTransactionOrderNo: 0,
             playerID: "TESTER",
             gameID: 110,
-            infectionTotal:0,
+            infectionTotal: 0,
         };
         // Zones on the game board
         this.gameboardZones = {};
@@ -140,7 +120,8 @@ export default class GameScene extends FieldScene {
         const tileset = this.map.addTilesetImage('simple_farm', 'tiles');
         const modern = this.map.addTilesetImage('modern', 'modern');
         // Buildings and fences
-        this.layers.pathLayer = this.map.createLayer('Paths', tileset, 0, 0);
+        this.layers.pathLayer = this.map.createLayer('Paths', [tileset, modern], 0, 0);
+        this.layers.decorationLayer = this.map.createLayer('Decoration', [tileset, modern], 0, 0);
         this.layers.buildingLayer = this.map.createLayer('Buildings', [tileset, modern], 0, 0);
 
         //Build Easyjs map
@@ -153,24 +134,19 @@ export default class GameScene extends FieldScene {
                 // In each cell we store the ID of the tile, which corresponds
                 // to its index in the tileset of the map ("ID" field in Tiled)
                 //
-                let tile = this.map.getTileAt(x, y, true, this.layers.buildingLayer);
-
+                let tile = this.map.getTileAt(x, y, true, this.layers.pathLayer);
                 if (tile.index >= 0) {
-                    // Building, fence, or other obstacle
+                    // Road/path
+                    col.push(1);
+                }else{
                     col.push(0);
-                } else {
-                    tile = this.map.getTileAt(x, y, true, this.layers.pathLayer);
-                    if (tile.index >= 0) {
-                        // Road/path
-                        col.push(1);
-                    } else {
-                        // Assume grass in our basic map
-                        col.push(2);
-                    }
                 }
+
+
             }
             grid.push(col);
         }
+
         this.finder.setGrid(grid);
         this.finder.enableDiagonals();
         this.finder.setAcceptableTiles([1, 2]);
@@ -235,7 +211,7 @@ export default class GameScene extends FieldScene {
 
     createCow(owner, startX, startY) {
         //console.log(startX+'::'+startY);
-        let sprite = this.physics.add.sprite(startX, startY, 'cow_1');
+        let sprite = this.physics.add.sprite(startX+16, startY+16, 'cow_1');
         sprite.setCollideWorldBounds(true);
         return new Cow(owner, sprite);
     }
@@ -246,7 +222,7 @@ export default class GameScene extends FieldScene {
      * All cows split evenly amongst players
      * Currently default cows are NOT sick and NOT bovifree
      */
-    createHerd() {
+    async createHerd() {
         this.debug('Creating herd...');
         // Even split for now
         let cowsPerPlayer = Math.floor(gameSettings.gameRules.startHerdSize / (gameSettings.gameRules.AIFarmerTotal + 1));
@@ -255,7 +231,9 @@ export default class GameScene extends FieldScene {
         let pen = this.gameboardInfo.playerCowPen;
         owner.pen = pen;
 
+
         for (let p = -1; p < gameSettings.gameRules.AIFarmerTotal; p++) {
+            let playerHerd = [];
             if (p >= 0) {
                 owner = this.AIFarmers[p];
                 pen = this.gameboardInfo.farmerCowPens[p];
@@ -263,13 +241,21 @@ export default class GameScene extends FieldScene {
                 owner.pen = pen;
             }
             for (let c = 0; c < cowsPerPlayer; c++) {
-                let cow = this.createCow(owner, (19 * this.BOARD_TILE_SIZE), (34 * this.BOARD_TILE_SIZE));
+                let spawnPoint = owner.getPenTile(c);
+                let cow = this.createCow(
+                    owner,
+                    ((spawnPoint[0]) * this.BOARD_TILE_SIZE),
+                    (spawnPoint[1] * this.BOARD_TILE_SIZE)
+                );
                 // Pick
                 owner.herdTotal += 1;
                 this.herd.push(cow);
+                playerHerd.push(cow);
+
             }
             owner.infections = 1;
-            this.gameState.infectionTotal +=1;
+            this.gameState.infectionTotal += 1;
+
         }
 
         eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
@@ -318,7 +304,7 @@ export default class GameScene extends FieldScene {
     }
 
 
-    create() {
+    async create() {
         // ### Pathfinding stuff ###
         // Initializing the pathfinder
         this.setupComplete = false;
@@ -348,10 +334,13 @@ export default class GameScene extends FieldScene {
 
     async sendHerdToPens(cows) {
         let promiseArray = [];
+
         for (let c = 0; c < cows.length; c++) {
             promiseArray.push(cows[c].owner.sendCowToPen(cows[c]));
         }
         let done = await Promise.all(promiseArray);
+
+
         return true;
     }
 
@@ -363,7 +352,7 @@ export default class GameScene extends FieldScene {
      */
     async startGameWhenSetupComplete() {
         // Move pieces (currently just cows)
-        await this.sendAllHerdToPens();
+        //await this.sendAllHerdToPens();
 
         this.uiScene.scoreboard.fillScoreBoard(this.getAllFarmers());
         this.setupComplete = true;
@@ -375,6 +364,9 @@ export default class GameScene extends FieldScene {
 
         // UI Containers
         this.scene.bringToTop(gameSettings.SCENENAMES.UISCENENAME);
+        this.uiScene.toggleDialogWindow();
+        this.uiScene.togglePlayerWindow();
+
         // Start the game
         this.startGame();
     }

@@ -11,11 +11,22 @@ export default class BFreeScene extends Phaser.Scene {
             no: 'Bovifree not joined!',
         };
         this.bFreeDialogTexts = {
-            onboards: ["Click on the hospital to join BoviFree -£40\n\nAll your cows will be cured, and fetch a higher price in trading.  (Lasts one turn)", "Or touch your pen to pass this turn \n\n Your cows will be worth less, and infections will grow."],
+            onboards: ["Click on the hospital to join BoviFree (Lasts one turn)\n\nAll your cows will be cured for £1 + £1 per infected cow, and you'll be certified Boviflu free.\nOr touch your house to skip."],
             start: ["BFree phase"],
-            yes: ["Cows have been cured.","Your herd is disease free"],
-            no: ["No infection cured.", "Your herd may still have disease"]
+            yes: ["Cows have been cured. Your herd is disease free"],
+            no: ["No infection cured.\nYour herd may still have disease"]
         };
+        this.highlights = {
+            hospital:{
+                colour:0x6666ff,
+                alpha: 0.6,
+            },
+            playerPen:{
+                colour:0x6666ff,
+                alpha: 0.6,
+            }
+        };
+
 
     }
 
@@ -27,11 +38,54 @@ export default class BFreeScene extends Phaser.Scene {
         this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
         this.addListeners();
-        //this.bFreePhase();
+        this.createHighlightGraphics();
     }
 
     update(times, delta) {
         //this.gameScene.moveCows(delta);
+    }
+
+    /**
+     * Create simple graphics to highlight touchable parts of the screen
+     * Start hidden by default
+     */
+    createHighlightGraphics() {
+        this.hospitalHighlight = this.add.graphics();
+        //this.graphics.lineStyle(4, 0xff00ff, 1);
+        let tileSize = this.gameScene.BOARD_TILE_SIZE;
+        let hCoords = gameSettings.gameboardInfo.hospital.extent[0];
+        let hSize = gameSettings.gameboardInfo.hospital.extent[1];
+        this.hospitalHighlight.fillStyle(
+            this.highlights.hospital.colour, this.highlights.hospital.alpha
+        );
+        this.hospitalHighlight.fillRect(
+            hCoords[0] * tileSize, hCoords[1] * tileSize,
+            (hSize[0] + 1) * tileSize, (hSize[1] + 1) * tileSize
+        );
+        this.playerHouseHighlight = this.add.graphics();
+
+        this.playerHouseHighlight.fillStyle(
+            this.highlights.playerPen.colour, this.highlights.playerPen.alpha
+        );
+
+        let penCoords = gameSettings.gameboardInfo.playerHouse[0];
+        let penSize = gameSettings.gameboardInfo.playerHouse[1];
+        this.playerHouseHighlight.fillRect(
+            penCoords[0] * tileSize, penCoords[1] * tileSize,
+            (penSize[0] + 1) * tileSize, (penSize[1] + 1) * tileSize
+        );
+
+        //this.hospitalHighlight.visible = false;
+    /*
+        //YOYO EFFECT ON BORDER
+        let tween = this.tweens.add({
+            targets: hospitalHighlight,
+            alpha: 0.2,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });*/
+
     }
 
     /**
@@ -73,10 +127,12 @@ export default class BFreeScene extends Phaser.Scene {
 
         // Move cows one by one there and back with animation
         let myCows = farmer.getCows(this.gameScene.herd);
+        let movePromises = [];
         for (let c = 0; c < myCows.length; c++) {
-           this.sendCowToHospital(myCows[c], 50, 100*c);
+            movePromises.push(this.sendCowToHospital(myCows[c], 50, 50 *c ))
         }
         // todo Restore camera to default position
+        await Promise.all(movePromises);
         return true;
 
     }
@@ -93,13 +149,15 @@ export default class BFreeScene extends Phaser.Scene {
             // Sleep for startDelay, then begin moving
             await new Promise(resolve => setTimeout(resolve, startDelay));
             //Move the Cow
+            let backHome = cow.movePath.slice().reverse();
             result = await cow.moveCowAlongPath(cowSpeed);
             if (result) {
                 // Power Up!
                 result = await cow.innoculationAnimation();
                 if (result) {
-                    // Back to
-                    result = await cow.owner.sendCowToPen(cow);
+                    // Back to pen using reverse of calculated path
+                    cow.movePath = backHome;
+                    await cow.moveCowAlongPath(cowSpeed);
                     return true;
                 }
 
@@ -160,13 +218,13 @@ export default class BFreeScene extends Phaser.Scene {
         }, this);
     }
 
-    async AIFarmersJoinBFree(){
+    async AIFarmersJoinBFree() {
         let farmers = this.gameScene.AIFarmers;
         let innoculationPromises = [];
-        for (let f=0;f<farmers.length; f++){
-            if (this.scheme_choice(farmers[f]) === true){
-                if (gameSettings.DEBUG){
-                    console.log(farmers[f].name +' joined scheme');
+        for (let f = 0; f < farmers.length; f++) {
+            if (this.scheme_choice(farmers[f]) === true) {
+                if (gameSettings.DEBUG) {
+                    console.log(farmers[f].name + ' joined scheme');
                 }
                 this.joinBFree(farmers[f]);
                 innoculationPromises.push(this.innoculationAnimation(farmers[f]));
@@ -181,16 +239,16 @@ export default class BFreeScene extends Phaser.Scene {
      * @param farmerA farmer joining the scheme, player or AI
      * @param description event description
      */
-    logBFreeTransaction(farmerA, description){
+    logBFreeTransaction(farmerA, description) {
         let messageProps = {
-            farmerA:farmerA.name,
-            description:description
+            farmerA: farmerA.name,
+            description: description
         };
-        messageProps.eventType=gameSettings.TRANSACTIONEVENTTYPES.JoinBFree;
+        messageProps.eventType = gameSettings.TRANSACTIONEVENTTYPES.JoinBFree;
         this.gameScene.logTransaction(messageProps);
     }
 
-    joinBFree(farmer){
+    joinBFree(farmer) {
         let totalCost = gameSettings.gameRules.bfreeJoinCost + farmer.infections;
         farmer.balance -= totalCost;
         // Remove infection from cattle
@@ -202,7 +260,7 @@ export default class BFreeScene extends Phaser.Scene {
         );
         this.logBFreeTransaction(
             farmer,
-            farmer.name+" joins BFree scheme  and pays "+totalCost
+            farmer.name + " joins BFree scheme  and pays " + totalCost
         );
         eventsCenter.emit(gameSettings.EVENTS.BFREEJOINED);
     }
@@ -215,11 +273,11 @@ export default class BFreeScene extends Phaser.Scene {
      * @param farmer
      * @return {boolean}
      */
-    scheme_choice(farmer){
+    scheme_choice(farmer) {
         if (
             (farmer.infections >= farmer.threshold.local) ||
             (this.gameScene.gameState.totalInfections >= farmer.threshold.global)
-        ){
+        ) {
             return true;
         }
         return false;
@@ -237,11 +295,10 @@ export default class BFreeScene extends Phaser.Scene {
         }, this);
     }
 
-    endPhase(){
+    endPhase() {
         console.log("Joining Bovi Free COMPLETE");
         this.scene.get(gameSettings.SCENENAMES.TRADINGSCENENAME).tradingPhase();
     }
-
 
 
     /*
