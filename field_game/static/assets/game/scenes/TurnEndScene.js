@@ -43,8 +43,11 @@ export default class TurnEndScene extends Phaser.Scene {
     async turnEndPhase() {
         // For each farmer
         let farmers = this.gameScene.getAllFarmers();
-
         this.uiScene.scoreboard.updateScoreBoardTitles();
+
+        this.uiScene.toggleDialogWindow();
+        this.uiScene.togglePlayerWindow();
+
         this.uiScene.scoreboard.toggleScoreboard();
         await this.uiScene.sleep(1500);
 

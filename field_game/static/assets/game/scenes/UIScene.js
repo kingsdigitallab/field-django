@@ -241,14 +241,14 @@ export default class UIScene extends Phaser.Scene {
         this.playerInfoContainer.add(this.playerInfoBalance);
         this.playerInfoContainer.add(this.playerInfoHerd);
 
-        Phaser.Display.Align.In.TopCenter(
-            this.playerInfoTitle, this.playerInfoBackground
+        Phaser.Display.Align.In.Center(
+            this.playerInfoTitle, this.playerInfoBackground,0,-30
         );
         Phaser.Display.Align.To.BottomLeft(
-            this.playerInfoBalance, this.playerInfoTitle
+            this.playerInfoBalance, this.playerInfoTitle,0,5
         );
         Phaser.Display.Align.To.BottomLeft(
-            this.playerInfoHerd, this.playerInfoBalance
+            this.playerInfoHerd, this.playerInfoBalance,0,5
         );
 
         this.playerInfoContainer.x = this.dialogWindow.padding;

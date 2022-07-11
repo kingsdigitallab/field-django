@@ -17,13 +17,13 @@ export default class BFreeScene extends Phaser.Scene {
             no: ["No infection cured.\nYour herd may still have disease"]
         };
         this.highlights = {
-            hospital:{
-                colour:0x6666ff,
-                alpha: 0.6,
+            hospital: {
+                colour: 0xffff00,
+                alpha: 0.75,
             },
-            playerPen:{
-                colour:0x6666ff,
-                alpha: 0.6,
+            playerHouse: {
+                colour: 0xffff00,
+                alpha: 0.75,
             }
         };
 
@@ -50,42 +50,78 @@ export default class BFreeScene extends Phaser.Scene {
      * Start hidden by default
      */
     createHighlightGraphics() {
-        this.hospitalHighlight = this.add.graphics();
+
         //this.graphics.lineStyle(4, 0xff00ff, 1);
         let tileSize = this.gameScene.BOARD_TILE_SIZE;
         let hCoords = gameSettings.gameboardInfo.hospital.extent[0];
         let hSize = gameSettings.gameboardInfo.hospital.extent[1];
-        this.hospitalHighlight.fillStyle(
-            this.highlights.hospital.colour, this.highlights.hospital.alpha
-        );
-        this.hospitalHighlight.fillRect(
-            hCoords[0] * tileSize, hCoords[1] * tileSize,
-            (hSize[0] + 1) * tileSize, (hSize[1] + 1) * tileSize
-        );
-        this.playerHouseHighlight = this.add.graphics();
+        let houseCoords = gameSettings.gameboardInfo.playerHouse[0];
+        let houseSize = gameSettings.gameboardInfo.playerHouse[1];
 
-        this.playerHouseHighlight.fillStyle(
-            this.highlights.playerPen.colour, this.highlights.playerPen.alpha
-        );
+        this.hospitalSprite = this.physics.add.sprite(
+            hCoords[0] * tileSize + ((hSize[0] + 1) * tileSize / 2),
+            hCoords[1] * tileSize + ((hSize[1] + 1) * tileSize / 2),
+            'hospital'
+        ).setVisible(false);
+        this.hospitalSprite.setTintFill(0xffff00);
+        this.hospitalSprite.setAlpha(0);
 
-        let penCoords = gameSettings.gameboardInfo.playerHouse[0];
-        let penSize = gameSettings.gameboardInfo.playerHouse[1];
-        this.playerHouseHighlight.fillRect(
-            penCoords[0] * tileSize, penCoords[1] * tileSize,
-            (penSize[0] + 1) * tileSize, (penSize[1] + 1) * tileSize
-        );
+        this.playerHouseSprite = this.physics.add.sprite(
+            houseCoords[0] * tileSize + ((houseSize[0] + 1) * tileSize / 2),
+            houseCoords[1] * tileSize + ((houseSize[1] + 1) * tileSize / 2),
+            'playerFarm'
+        )
+            .setVisible(false)
+            .setTintFill(0xffff00)
+            .setAlpha(0)
+            .setInteractive().on('pointerup', function (pointer, localX, localY) {
+                console.log('HOUSE');
+                eventsCenter.emit(gameSettings.EVENTS.PLAYERHOUSETOUCHED);
+                // console.log('H');
 
-        //this.hospitalHighlight.visible = false;
-    /*
-        //YOYO EFFECT ON BORDER
-        let tween = this.tweens.add({
-            targets: hospitalHighlight,
-            alpha: 0.2,
-            yoyo: true,
+            });
+
+
+        this.hospitalHighlightTween = this.tweens.add({
+            targets: this.hospitalSprite,
+            alpha: 0.75,
+            ease: 'Cubic.easeOut',
+            duration: 1000,
             repeat: -1,
-            ease: 'Sine.easeInOut'
-        });*/
+            yoyo: true,
+            paused:true,
+        });
+        this.houseHighlightTween = this.tweens.add({
+            targets: this.playerHouseSprite,
+            alpha: 0.75,
+            ease: 'Cubic.easeOut',
+            duration: 1000,
+            repeat: -1,
+            yoyo: true,
+            paused:true
+        });
 
+
+    }
+
+    /**
+     * Toggle the tweens that highlight the hospital and player house as choices
+     */
+    toggleHighlightTweens() {
+        if (this.hospitalHighlightTween.isPlaying() === true) {
+            this.playerHouseSprite.setVisible(false);
+            this.hospitalSprite.setVisible(false);
+            this.hospitalHighlightTween.pause();
+            this.houseHighlightTween.pause();
+            this.hospitalHighlightTween.restart();
+            this.houseHighlightTween.restart();
+        } else {
+            this.playerHouseSprite.setVisible(true);
+            this.hospitalSprite.setVisible(true);
+            this.hospitalHighlightTween.resume();
+            this.houseHighlightTween.resume();
+
+        }
     }
 
     /**
@@ -95,6 +131,9 @@ export default class BFreeScene extends Phaser.Scene {
     async bFreePhase() {
         console.log('BFree phase start');
         // Start text and onboarding if enabled
+        this.uiScene.toggleDialogWindow();
+        this.uiScene.togglePlayerWindow();
+        this.toggleHighlightTweens();
         if (this.gameScene.gameState.isOnBoarding) {
             this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.onboards);
 
@@ -102,10 +141,11 @@ export default class BFreeScene extends Phaser.Scene {
             this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.start);
 
         }
+        eventsCenter.once(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
+        eventsCenter.once(gameSettings.EVENTS.PLAYERHOUSETOUCHED, this.joinBFreeNo, this);
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
             this.gameScene.setIsGameBoardActive(true);
-            eventsCenter.once(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
-            eventsCenter.once(gameSettings.EVENTS.PLAYERPENTOUCHED, this.joinBFreeNo, this);
+
         }, this);
         //this.innoculationAnimation(this.gameScene.player);
 
@@ -129,7 +169,7 @@ export default class BFreeScene extends Phaser.Scene {
         let myCows = farmer.getCows(this.gameScene.herd);
         let movePromises = [];
         for (let c = 0; c < myCows.length; c++) {
-            movePromises.push(this.sendCowToHospital(myCows[c], 50, 50 *c ))
+            movePromises.push(this.sendCowToHospital(myCows[c], 50, 50 * c))
         }
         // todo Restore camera to default position
         await Promise.all(movePromises);
@@ -208,6 +248,7 @@ export default class BFreeScene extends Phaser.Scene {
         this.gameScene.setIsGameBoardActive(false);
         // Subtract the cost
         console.log("Joining Bovi Free");
+        this.toggleHighlightTweens();
         this.joinBFree(this.gameScene.player);
         await this.innoculationAnimation(this.gameScene.player);
         await this.AIFarmersJoinBFree();
@@ -286,6 +327,7 @@ export default class BFreeScene extends Phaser.Scene {
     joinBFreeNo() {
         console.log("Not joining Bovi Free");
         this.gameScene.setIsGameBoardActive(false);
+        this.toggleHighlightTweens();
         eventsCenter.off(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
         this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.no);
 

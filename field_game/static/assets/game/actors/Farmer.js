@@ -87,7 +87,6 @@ export class Farmer {
         let maxCols = Math.floor(this.pen[1][0] /2); // 4
         let row = Math.floor(cowIndex/maxCols);
         let col = Math.floor(cowIndex-(row*maxCols))*2;
-        console.log('['+col+','+row+']');
         return [this.pen[0][0]+col,this.pen[0][1]+(row*2)];
 
     }

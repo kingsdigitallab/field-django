@@ -124,7 +124,7 @@ export default class GameScene extends FieldScene {
         this.layers.decorationLayer = this.map.createLayer('Decoration', [tileset, modern], 0, 0);
         this.layers.buildingLayer = this.map.createLayer('Buildings', [tileset, modern], 0, 0);
 
-        //Build Easyjs map
+        //Build Easystar js map
         // from https://www.dynetisgames.com/2018/03/06/pathfinding-easystar-phaser-3/
         // obstacles = 0, road = 1 , grass = 2
         let grid = [];
@@ -135,9 +135,15 @@ export default class GameScene extends FieldScene {
                 // to its index in the tileset of the map ("ID" field in Tiled)
                 //
                 let tile = this.map.getTileAt(x, y, true, this.layers.pathLayer);
+                // console.log(tile);
                 if (tile.index >= 0) {
                     // Road/path
-                    col.push(1);
+                    if (tile.properties && tile.properties.cost){
+                        col.push(2);
+                    } else {
+                        col.push(1);
+                    }
+
                 }else{
                     col.push(0);
                 }
@@ -160,7 +166,7 @@ export default class GameScene extends FieldScene {
             if (this.gameState.isGameBoardActive) {
                 // If board is touchable, record touch
                 eventsCenter.emit(gameSettings.EVENTS.HOSPITALTOUCHED);
-                console.log('H');
+                // console.log('H');
             }
         }, this);
 
@@ -190,7 +196,7 @@ export default class GameScene extends FieldScene {
                 if (this.gameState.isGameBoardActive) {
                     // If board is touchable, record touch
                     eventsCenter.emit(gameSettings.EVENTS.PLAYERPENTOUCHED);
-                    console.log('player');
+                    // console.log('player');
                 }
             }, this);
         this.player.setPenZone(penZone);
@@ -309,6 +315,7 @@ export default class GameScene extends FieldScene {
         // Initializing the pathfinder
         this.setupComplete = false;
         this.finder = new EasyStar.js();
+        this.finder.enableCornerCutting(false);
 
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
 
@@ -364,8 +371,7 @@ export default class GameScene extends FieldScene {
 
         // UI Containers
         this.scene.bringToTop(gameSettings.SCENENAMES.UISCENENAME);
-        this.uiScene.toggleDialogWindow();
-        this.uiScene.togglePlayerWindow();
+
 
         // Start the game
         this.startGame();
@@ -460,44 +466,10 @@ export default class GameScene extends FieldScene {
     }
 
     update(time, delta) {
-        /* if (!this.setupComplete) {
-             if (this.waitingForSetup + delta > 500) {
-                 this.startGameWhenSetupComplete();
-                 this.waitingForSetup = 0;
-             } else {
-                 this.waitingForSetup += delta;
-             }
-         }*/
+
         // todo add farm idle animations
 
     }
-
-
-    /**
-
-     Gameplay flow functions
-
-     Each round of the game is as follows:
-
-     1. Ask player if they wish to join the Bovifree scheme
-     If so, set cows to bovifree and deduct fee
-
-     2. Player chooses which farm to purchase cow from
-
-     3.Calculate cow infection rate
-
-     4.  Calculate balance totals
-
-     5. End round
-
-     If round max is reached:
-     Display results of game
-     Prompt to play again /share?
-
-     */
-
-
-
 
     setIsGameBoardActive(isActive) {
         this.gameState.isGameBoardActive = isActive;

@@ -24,24 +24,24 @@ export const gameSettings = {
     gameboardInfo:{
             herdSpawn: [19,29],
             playerHouse:[[17,0],[4,4]],
-            playerCowPen: [[16, 7], [8, 6]],
+            playerCowPen: [[15, 7], [9, 7]],
             farmerCowPens: [
-                [[0, 7], [8, 6]],
-                [[0, 43], [8, 6]],
-                [[16, 43], [8, 6]],
-                [[32, 43], [8, 6]],
-                [[32, 7], [8, 6]],
+                [[0, 7], [9, 7]],
+                [[0, 43], [9, 7]],
+                [[15, 43], [9, 7]],
+                [[31, 43], [9, 7]],
+                [[31, 7], [8, 7]],
 
             ],
             player: {
                 start: [18, 4],
-                house: [[18, 1], 3, 4]
+                house: [[17, 0], 4, 4]
             },
             farmerStarts: [
-                [4, 4], [2, 31], [20,31], [36, 31], [36, 4]
+                [3, 4], [3, 40], [19,40], [35, 40], [35, 4]
             ],
             hospital: {
-                extent: [[17, 20], [4, 3]],
+                extent: [[17, 18], [4, 3]],
                 door: [19, 24]
             }
         },
@@ -61,6 +61,7 @@ export const gameSettings = {
         BOARDTOUCHED: "boardTouched",
         HOSPITALTOUCHED: "hospitalTouched",
         PLAYERPENTOUCHED: "playerpenTouched",
+        PLAYERHOUSETOUCHED: "playerHouseTouched",
         AIFARMERPENTOUCHED: "aipenTouched",
         BFREEPHASEEND: "BFREEPHASECOMPLETE", // Wrap up
         BFREEPHASECOMPLETE: "BFREEPHASECOMPLETE", // Phase complete, move on

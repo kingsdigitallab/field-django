@@ -42,6 +42,8 @@ export default class ScoreBoard {
             cowCell: 'cowCell',
             infectedCell: 'infectedCell'
         };
+        this.scoreFadeIn = null;
+        this.scoreFadeOut = null;
 
         this.visible = false;
     }
@@ -54,6 +56,16 @@ export default class ScoreBoard {
             this.scoreboardPrompt.visible = false;
             this.scoreboardBackground.visible = false;
             this.scoreboardEdge.visible = false;
+            // Check we're not mid update score
+            if ((this.scoreFadeOut && this.scoreFadeOut.isPlaying())||(this.scoreFadeIn && this.scoreFadeIn.isPlaying())){
+                this.scoreFadeOut.stop();
+                this.scoreFadeIn.stop();
+                // Fix the scoreboard
+                /*this.scoreboardGroup.destroy(true);
+                let rankedGroup = this.generateScoreGrid(players,0);
+                this.arrangeScoreGrid();*/
+
+            }
         } else {
             this.scoreboardTitle.visible = true;
             this.scoreboardPrompt.visible = true;
@@ -253,30 +265,32 @@ export default class ScoreBoard {
         console.log(players);
         let scoreboard = this;
         let group = this.scoreboardGroup;
-        let timeline = scene.tweens.createTimeline();
+        let fadeOut = this.scoreFadeOut;
+        fadeOut = scene.tweens.createTimeline();
+        let fadeIn = this.scoreFadeIn;
         group.getChildren().forEach(function (child) {
-            timeline.add({
+            fadeOut.add({
                 targets: child,
                 alpha: {value: 0, duration: 50, ease: 'Power1'},
 
             });
         });
-        timeline.setCallback('onComplete', function () {
+        fadeOut.setCallback('onComplete', function () {
             console.log('complete');
             group.destroy(true);
             let rankedGroup = scoreboard.generateScoreGrid(players,0);
             scoreboard.arrangeScoreGrid();
-            let timeline2 = scene.tweens.createTimeline();
+            fadeIn = scene.tweens.createTimeline();
             rankedGroup.getChildren().forEach(function (child) {
-                timeline2.add({
+                fadeIn.add({
                     targets: child,
                     alpha: {value: 1, duration: 100, ease: 'Power1'},
 
                 });
             });
-            timeline2.play();
-        });
-        timeline.play();
+            fadeIn.play();
+        }, this);
+        fadeOut.play();
 
     }
 

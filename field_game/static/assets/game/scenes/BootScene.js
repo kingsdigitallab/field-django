@@ -48,6 +48,10 @@ export default class BootScene extends FieldScene {
         this.load.image('grass', this.ASSET_URL + '/textures/grass_1.png');
         this.load.image('tree_1', this.ASSET_URL + '/textures/tree_1.png');
 
+        // Hospital and house for flashing highlights
+        this.load.image('hospital', this.ASSET_URL + '/textures/hospital.png');
+        this.load.image('playerFarm', this.ASSET_URL + '/textures/player_farm.png');
+
         // Load the export Tiled JSON
         this.load.image('tiles', this.ASSET_URL + '/textures/simple_farm.png');
         this.load.image('modern', this.ASSET_URL + '/textures/statics.png');
