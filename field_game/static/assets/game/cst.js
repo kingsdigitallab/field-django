@@ -21,32 +21,33 @@ export const gameSettings = {
         infectionBeta: 0.5,
         startingInfections: 1
     },
-    gameboardInfo:{
-            herdSpawn: [19,29],
-            playerHouse:[[17,0],[4,4]],
-            playerCowPen: [[15, 7], [9, 7]],
-            farmerCowPens: [
-                [[0, 7], [9, 7]],
-                [[0, 43], [9, 7]],
-                [[15, 43], [9, 7]],
-                [[31, 43], [9, 7]],
-                [[31, 7], [8, 7]],
+    gameboardInfo: {
+        herdSpawn: [19, 29],
+        playerHouse: [[17, 0], [4, 4]],
+        playerCowPen: [[15, 7], [9, 7]],
+        farmerCowPens: [
+            [[0, 7], [9, 7]],
+            [[0, 43], [9, 7]],
+            [[15, 43], [9, 7]],
+            [[31, 43], [9, 7]],
+            [[31, 7], [8, 7]],
 
-            ],
-            player: {
-                start: [18, 4],
-                house: [[17, 0], 4, 4]
-            },
-            farmerStarts: [
-                [3, 4], [3, 40], [19,40], [35, 40], [35, 4]
-            ],
-            hospital: {
-                extent: [[17, 18], [4, 3]],
-                door: [19, 24]
-            }
+        ],
+        player: {
+            start: [18, 4],
+            house: [[17, 0], 4, 4]
         },
+        farmerStarts: [
+            [3, 4], [3, 40], [19, 40], [35, 40], [35, 4]
+        ],
+        hospital: {
+            extent: [[17, 18], [4, 3]],
+            door: [19, 24]
+        }
+    },
     SCENENAMES: {
         TITLESCENENAME: 'TitleScene',
+        CHARACTERSELECTSCENE:'CharacterSelectScene',
         GAMESCENENAME: 'GameScene',
         UISCENENAME: 'UIScene',
         BFREESCENENAME: 'BFreeScene',
@@ -89,7 +90,7 @@ export const gameSettings = {
         Infection: 3
     },
     INFECTIONTHRESHOLDS: [
-         {
+        {
             local: 0,
             global: 0
         },
@@ -109,7 +110,25 @@ export const gameSettings = {
             local: 9,
             global: 16
         },
-    ]
+    ],
+    CHARACTER_KEY:'creature_farmers',
+    CHARACTER_FRAMES: {
+        'farmer_alien': 10,
+        'farmer_snail': 18,
+        'farmer_balloon': 26,
+        'farmer_robot': 34,
+        'farmer_frog': 42,
+        'farmer_roach': 50,
+        'farmer_robot2': 58,
+        'farmer_ghost': 66,
+    },
+    ANNIMAL_FRAMES: {
+        'snake_1': 0,
+        'snake_2': 8,
+        'mouse_1': 144,
+        'pigeon_1': 240,
+        'bear_1': 192,
+    }
 
 };
 

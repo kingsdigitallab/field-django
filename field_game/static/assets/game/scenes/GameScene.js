@@ -268,25 +268,45 @@ export default class GameScene extends FieldScene {
         return true;
     }
 
-    createAIFarmer(id, name, balance, farmerStart, threshold) {
+    createAIFarmer(id, name, balance, farmerStart, threshold, spriteKey, spriteFrame) {
 
-        let AISprite = this.physics.add.sprite(farmerStart[0] * this.BOARD_TILE_SIZE, (farmerStart[1] + 1) * this.BOARD_TILE_SIZE, 'farmer_2');
+        let AISprite = this.physics.add.sprite(
+            farmerStart[0] * this.BOARD_TILE_SIZE, (farmerStart[1] + 1) * this.BOARD_TILE_SIZE, spriteKey, spriteFrame
+        );
         AISprite.setCollideWorldBounds(true);
         //AISprite.setVisible(false);
-        let aiFarmer = new AIFarmer(id, name, balance, AISprite, farmerStart, threshold);
+        let aiFarmer = new AIFarmer(
+            id, name, balance, AISprite, farmerStart, threshold
+        );
         aiFarmer.infections = gameSettings.gameRules.startingInfections;
         this.AIFarmers.push(aiFarmer);
         this.allFarmers.push(aiFarmer);
         return aiFarmer;
     }
 
+    /**
+     * return keys of farmer sprites not including one chosen
+     * by player
+     */
+    getAIFarmerSpriteKeys(){
+        let spriteKeys= Object.keys(gameSettings.CHARACTER_FRAMES);
+        // todo get player chosen and remove it.
+        // todo randomise?
+
+        return spriteKeys;
+    }
+
     createFarmers() {
         //let farm = this.add.image(this.GAME_WIDTH, 0, 'AI_farm').setOrigin(1, 0);
+
+        let spriteKeys = this.getAIFarmerSpriteKeys();
         for (let x = 0; x < gameSettings.gameRules.AIFarmerTotal; x++) {
             // Split evenly on left  and right side
+            console.log(spriteKeys[x]);
             let aiFarmer = this.createAIFarmer(
                 x, 'AI ' + (x + 1), gameSettings.gameRules.startFarmerBalance,
-                this.gameboardInfo.farmerStarts[x], gameSettings.INFECTIONTHRESHOLDS[x]
+                this.gameboardInfo.farmerStarts[x], gameSettings.INFECTIONTHRESHOLDS[x],
+                'creature_farmers',gameSettings.CHARACTER_FRAMES[spriteKeys[x]]
             );
             let penZone = this.createZoneFromTiles(this.gameboardInfo.farmerCowPens[x])
                 .setOrigin(0, 0)

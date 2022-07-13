@@ -22,6 +22,7 @@ export default class BootScene extends FieldScene {
     }
 
     loadAssets() {
+
         // Farmers
         this.load.spritesheet('farmer_1',
             this.ASSET_URL + '/textures/farmer_1.png',
@@ -33,6 +34,12 @@ export default class BootScene extends FieldScene {
             {frameWidth: 32, frameHeight: 32}
         );
 
+       this.load.spritesheet('creature_farmers',
+            this.ASSET_URL + '/sprites/TL_Creatures.png',
+            {frameWidth: 32, frameHeight: 32}
+        );
+
+
         //Animals
         this.load.spritesheet('cow_1',
             '/static/assets/game/textures/cow_walk_64.png',
@@ -40,13 +47,11 @@ export default class BootScene extends FieldScene {
         );
 
 
-        this.load.image('player_farm', this.ASSET_URL + '/maps/player_farm.png');
-        this.load.image('AI_farm_left', this.ASSET_URL + '/maps/AI_farm_left.png');
-        this.load.image('AI_farm_right', this.ASSET_URL + '/maps/AI_farm_right.png');
+
+
 
         // Decorations (Grass, buildings, trees, fences, etc.)
         this.load.image('grass', this.ASSET_URL + '/textures/grass_1.png');
-        this.load.image('tree_1', this.ASSET_URL + '/textures/tree_1.png');
 
         // Hospital and house for flashing highlights
         this.load.image('hospital', this.ASSET_URL + '/textures/hospital.png');
@@ -91,8 +96,8 @@ export default class BootScene extends FieldScene {
         super.create();
         this.createAnimations();
         this.debug("BOOTING COMPLETE!");
-        this.scene.launch(gameSettings.SCENENAMES.UISCENENAME);
-        this.scene.start(gameSettings.SCENENAMES.GAMESCENENAME);
+        this.scene.switch(gameSettings.SCENENAMES.CHARACTERSELECTSCENE);
+
 
 
     }

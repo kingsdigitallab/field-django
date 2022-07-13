@@ -72,7 +72,7 @@ export default class TitleScene extends FieldScene {
 
       this.createTitleScreen();
 
-      this.startGame();
+
     }
 
     /** advance our prompts in the title screen
@@ -84,7 +84,7 @@ export default class TitleScene extends FieldScene {
     }
 
     startGame() {
-        this.scene.switch(gameSettings.SCENENAMES.GAMESCENENAME);
+        this.scene.switch(gameSettings.SCENENAMES.CHARACTERSELECTSCENE);
     }
 
     update() {
