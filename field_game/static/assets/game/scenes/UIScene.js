@@ -2,6 +2,8 @@
 import {gameSettings} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
 import ScoreBoard from "../ui/ScoreBoard.js";
+import {gameState} from '../GameState.js';
+
 
 
 export default class UIScene extends Phaser.Scene {
@@ -42,7 +44,10 @@ export default class UIScene extends Phaser.Scene {
         this.toggleDialogWindow();
         this.togglePlayerWindow();
         this.setupListeners();
-
+        this.events.on(Phaser.Scenes.CREATE, () => {
+            console.log('created');
+            eventsCenter.on(gameSettings.EVENTS.UICREATED);
+        });
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.removeListeners();
         });
@@ -192,7 +197,7 @@ export default class UIScene extends Phaser.Scene {
      *
      */
     displayTurn() {
-        this.updateTitleDisplay("Turn " + this.gameScene.gameState.currentTurn, function () {
+        this.updateTitleDisplay("Turn " + gameState.currentTurn, function () {
             eventsCenter.emit(gameSettings.EVENTS.TURNSTART);
         });
     }

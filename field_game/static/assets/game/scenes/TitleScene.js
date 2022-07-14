@@ -4,7 +4,7 @@ import FieldScene from './FieldScene.js';
 
 export default class TitleScene extends FieldScene {
 
-        // Debugger toggle
+    // Debugger toggle
     DEBUG = true;
 
     // Turn on logging of games (through db api calls)
@@ -25,15 +25,13 @@ export default class TitleScene extends FieldScene {
     promptText;
 
 
+    constructor() {
+        super(gameSettings.SCENENAMES.TITLESCENENAME);
+    }
 
+    preload() {
 
-	constructor() {
-		super(gameSettings.SCENENAMES.TITLESCENENAME);
-	}
-
-	preload() {
-
-	}
+    }
 
     /**
      * Main Title screen
@@ -45,52 +43,59 @@ export default class TitleScene extends FieldScene {
         // Background
         this.titleBackground = this.add.rectangle(0, 0, w, h, 0x000000, 0.5);
         this.titleBackground.setInteractive();
-        this.titleBackground.once('pointerdown', () => this.advance());
-        this.titleText = this.add.text(w/2, (h / 4), 'BoviFree Game', {fontFamily: '"PressStart2P"', fontSize: '300%',});
+        //this.titleBackground.once('pointerdown', () => this.advance());
+        this.titleText = this.add.text(w / 2, (h / 4), 'BoviFree Game', {
+            fontFamily: '"PressStart2P"',
+            fontSize: '300%',
+        });
         this.titleText.setOrigin(0.5, 0.5);
 
-        this.promptText = this.add.text(w/2,  h / 2, 'Press Space', {fontFamily: '"PressStart2P"', fontSize: '200%',});
+        this.promptText = this.add.text(w / 2, h / 2, 'Touch to start', {
+            fontFamily: '"PressStart2P"',
+            fontSize: '200%',
+        });
         this.promptText.setOrigin(0.5, 0.5);
 
-        this.physics.add.sprite(w / 2, h / 2, 'cow_1');
 
     }
 
-	create() {
+    create() {
+        console.log('title started');
+        // const width = this.scale.gameSize.width;
+        // const height = this.scale.gameSize.height;
+        //
+        // this.parent = new Phaser.Structs.Size(width, height);
+        // this.sizer = new Phaser.Structs.Size(this.GAME_WIDTH, this.GAME_HEIGHT, Phaser.Structs.Size.FIT, this.parent);
+        //
+        // this.parent.setSize(width, height);
+        // this.sizer.setSize(width, height);
+        // this.updateCamera();
+        // this.scale.on('resize', this.resize, this);
+        this.createTitleScreen();
+        this.input.once('pointerdown', function () {
 
-      // const width = this.scale.gameSize.width;
-      // const height = this.scale.gameSize.height;
-      //
-      // this.parent = new Phaser.Structs.Size(width, height);
-      // this.sizer = new Phaser.Structs.Size(this.GAME_WIDTH, this.GAME_HEIGHT, Phaser.Structs.Size.FIT, this.parent);
-      //
-      // this.parent.setSize(width, height);
-      // this.sizer.setSize(width, height);
-      // this.updateCamera();
-      // this.scale.on('resize', this.resize, this);
-      this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
-
-      this.createTitleScreen();
+            let scene = this;
+            setTimeout(function () {
+                scene.advance();
+            }, 1000);
+        }, this);
 
 
     }
+
 
     /** advance our prompts in the title screen
      *
      */
     advance() {
         // Show rules, intro etc. eventually
-        this.startGame();
+        console.log('advance');
+        this.scene.start(gameSettings.SCENENAMES.CHARACTERSELECTSCENE);
     }
 
-    startGame() {
-        this.scene.switch(gameSettings.SCENENAMES.CHARACTERSELECTSCENE);
-    }
 
     update() {
-        if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
-            this.startGame();
-        }
+
     }
 
 }

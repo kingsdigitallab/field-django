@@ -1,4 +1,5 @@
 /*jshint esversion: 8 */
+import {gameState} from '../GameState.js';
 
 /**
  * The scoreboard to dispaly player scores at round end
@@ -295,7 +296,7 @@ export default class ScoreBoard {
     }
 
     updateScoreboardTitleText() {
-        return "Turn " + this.scene.gameScene.gameState.currentTurn + " Scores";
+        return "Turn " + gameState.currentTurn + " Scores";
     }
 
     /** Overall scoreboard for all players

@@ -1,6 +1,9 @@
 /*jshint esversion: 8 */
 import {gameSettings} from "../cst.js";
 import FieldScene from './FieldScene.js';
+import eventsCenter from "./EventsCenter.js";
+import {gameState} from '../GameState.js';
+
 
 /** Allows the user to select a character to play the game with
  *
@@ -10,18 +13,68 @@ export default class CharacterSelectScene extends FieldScene {
 
     constructor() {
         super(gameSettings.SCENENAMES.CHARACTERSELECTSCENE);
+        // For this scene only so not adding to main list
+        this.events = {};
+        this.characterCellWidth = 96;
+        this.characterCellHeight = 96;
+        this.characterSprites = [];
+        this.playerSprite = null;
     }
 
     preload() {
 
     }
 
-    characterSelected(characterSprite){
-        console.log(characterSprite.frame.name);
-        // Hide other sprites (timeline?)
+    /**
+     * play cool animation, like walk off screen
+     */
+    walkOff() {
+        const w = this.scale.width;
+        this.playerSprite.play('walk');
+        this.tweens.add({
+            targets: this.playerSprite,
+            ease: 'Power1',
+            x: {value: w+this.characterCellWidth/2, duration: 2000},
+            onComplete: function () {
+                eventsCenter.emit(gameSettings.EVENTS.ONCHARACTERSELECTEDFINISHED);
+            }
+        });
+    }
+
+    /**
+     * Assigns the selected sprite to the character and advances
+     *
+     * @param characterSprite
+     */
+    characterSelected(characterSprite) {
         // Assign the sprite to player
-        // play cool animation, like walk off screen
-        // Start the game
+        gameState.playerSpriteKeyFrame = characterSprite.frame.name;
+        this.playerSprite = characterSprite;
+        for (let s = 0; s < this.characterSprites.length; s++) {
+            // Remove others (animate fade)
+
+            if (this.characterSprites[s] !== characterSprite) {
+                let spriteTween = this.tweens.add({
+                    targets: this.characterSprites[s],
+                    alpha: 0,
+                    ease: 'Cubic.easeOut',
+                    duration: 1500,
+                    onComplete: function () {
+                        eventsCenter.emit(gameSettings.EVENTS.ONCHARACTERSELECTED);
+                    }
+                });
+
+            }
+        }
+
+
+    }
+
+    /** We're done, start the game
+     *
+     */
+    nextScene() {
+        this.scene.start(gameSettings.SCENENAMES.GAMESCENENAME);
     }
 
     /** Display all our weird playable creatures and allow the player to select
@@ -37,7 +90,6 @@ export default class CharacterSelectScene extends FieldScene {
         });
         this.titleText.setOrigin(0.5, 0.5);
         // Create sprites
-        let characterSprites = [];
         let spriteKeys = Object.keys(gameSettings.CHARACTER_FRAMES);
 
         for (let s = 0; s < spriteKeys.length; s++) {
@@ -48,54 +100,59 @@ export default class CharacterSelectScene extends FieldScene {
                 gameSettings.CHARACTER_FRAMES[spriteKeys[s]]
             )
                 .setScale(3);
-            characterSprite.setInteractive().on('pointerup', function (pointer, localX, localY) {
+            // set interactive
+            characterSprite.setInteractive().once('pointerup', function (pointer, localX, localY) {
                 // select the sprite
                 this.characterSelected(characterSprite);
-                }, this);
-
-            /*if (s === 0) {
-                Phaser.Display.Align.To.BottomLeft(
-                    characterSprite, this.titleText, 0, 50
-                );
-            }else{
-                Phaser.Display.Align.To.LeftCenter(
-                    characterSprite, this.titleText, 0, 50
-                );
-            }*/
-
-            characterSprites.push(characterSprite);
+            }, this);
+            // Animations
+            let startFrame = gameSettings.CHARACTER_FRAMES[spriteKeys[s]];
+            characterSprite.anims.create({
+                key: 'walk',
+                frames: this.anims.generateFrameNumbers(
+                    'creature_farmers',
+                    {start: startFrame, end: startFrame + 3}
+                ),
+                frameRate: 8,
+                repeat: -1
+            });
+            this.characterSprites.push(characterSprite);
         }
-        Phaser.Actions.GridAlign(characterSprites, {
+
+        // Display choices
+        Phaser.Actions.GridAlign(this.characterSprites, {
             width: 4,
             height: 10,
-            cellWidth: 96,
-            cellHeight: 96,
+            cellWidth: this.characterCellWidth,
+            cellHeight: this.characterCellHeight,
             position: Phaser.Display.Align.CENTER,
             x: w / 2 - (4 * 96 / 2.5),
             y: h / 2 - (2 * 96 / 2)
         });
 
 
-        /*
-        .setInteractive().on('pointerup', function (pointer, localX, localY) {
-                    if (this.sprite.scene.gameState.isGameBoardActive) {
-                        // If board is touchable, record touch
-                        eventsCenter.emit(gameSettings.EVENTS.AIFARMERPENTOUCHED, this);
+    }
 
-                    }
-                }, aiFarmer);
-         */
-        // Display choices
-        // set interactive
+    loadEvents() {
+        eventsCenter.once(gameSettings.EVENTS.ONCHARACTERSELECTED, this.walkOff, this);
+        eventsCenter.once(gameSettings.EVENTS.ONCHARACTERSELECTEDFINISHED, this.nextScene, this);
     }
 
     create() {
         super.create();
+        // Setup Events
+        console.log('CHARACTER SELECT STARTED');
+        this.loadEvents();
+        this.events.on(Phaser.Scenes.Events.SHUTDOWN, this.unloadEvents);
+        this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
         this.characterSelect();
+        //this.nextScene();
     }
 
-    startGame() {
-        this.scene.launch(gameSettings.SCENENAMES.UISCENENAME);
-        this.scene.start(gameSettings.SCENENAMES.GAMESCENENAME);
+
+    unloadEvents() {
+        eventsCenter.off(gameSettings.EVENTS.ONCHARACTERSELECTED, this.walkOff, this);
+        eventsCenter.off(gameSettings.EVENTS.ONCHARACTERSELECTEDFINISHED, this.nextScene, this);
     }
+
 }

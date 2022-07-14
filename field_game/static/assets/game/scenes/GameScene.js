@@ -5,6 +5,7 @@ import FieldScene from './FieldScene.js';
 import Cow from '../actors/Cow.js';
 import {AIFarmer, Player} from '../actors/Farmer.js';
 import eventsCenter from "./EventsCenter.js";
+import {gameState} from '../GameState.js';
 
 
 export default class GameScene extends FieldScene {
@@ -20,6 +21,8 @@ export default class GameScene extends FieldScene {
         super(gameSettings.SCENENAMES.GAMESCENENAME);
         this.herd = [];
         this.layers = [];
+
+
         // Player/farmer starts, where the cow pens are etc.
         // [[1, 51], [5, 7]],
         // [[33, 51], [5, 7]],
@@ -28,16 +31,7 @@ export default class GameScene extends FieldScene {
         this.gameboardInfo = gameSettings.gameboardInfo;
         //Game rules and constants
 
-        // State of this instance of game
-        this.gameState = {
-            currentTurn: 0,
-            isOnBoarding: true, //Display help messages
-            isGameBoardActive: false, // Is board clickable?
-            lastTransactionOrderNo: 0,
-            playerID: "TESTER",
-            gameID: 110,
-            infectionTotal: 0,
-        };
+
         // Zones on the game board
         this.gameboardZones = {};
         this.waitingForSetup = 0;
@@ -83,10 +77,10 @@ export default class GameScene extends FieldScene {
      */
     logTransaction(messageProps) {
         // todo make this an api when we're ready
-        messageProps.orderno = this.gameState.lastTransactionOrderNo;
-        messageProps.turn = this.gameState.currentTurn;
+        messageProps.orderno = gameState.lastTransactionOrderNo;
+        messageProps.turn = gameState.currentTurn;
         console.log(messageProps);
-        this.gameState.lastTransactionOrderNo += 1;
+        gameState.lastTransactionOrderNo += 1;
     }
 
 
@@ -138,13 +132,13 @@ export default class GameScene extends FieldScene {
                 // console.log(tile);
                 if (tile.index >= 0) {
                     // Road/path
-                    if (tile.properties && tile.properties.cost){
+                    if (tile.properties && tile.properties.cost) {
                         col.push(2);
                     } else {
                         col.push(1);
                     }
 
-                }else{
+                } else {
                     col.push(0);
                 }
 
@@ -163,7 +157,7 @@ export default class GameScene extends FieldScene {
         let hospitalExtent = this.gameboardInfo.hospital.extent;
 
         this.gameboardZones.hospitalZone = this.createZoneFromTiles(hospitalExtent).setOrigin(0, 0).setInteractive().on('pointerup', function (pointer, localX, localY) {
-            if (this.gameState.isGameBoardActive) {
+            if (gameState.isGameBoardActive) {
                 // If board is touchable, record touch
                 eventsCenter.emit(gameSettings.EVENTS.HOSPITALTOUCHED);
                 // console.log('H');
@@ -186,14 +180,21 @@ export default class GameScene extends FieldScene {
         // Player farm
         const startX = this.gameboardInfo.player.start[0] * this.BOARD_TILE_SIZE;
         const startY = (this.gameboardInfo.player.start[1] + 1) * this.BOARD_TILE_SIZE;
-        let sprite = this.physics.add.sprite(startX, startY, 'farmer_1');
-        sprite.setCollideWorldBounds(true);
-        this.player = new Player(1, 'Player', gameSettings.gameRules.startFarmerBalance, sprite, this.gameboardInfo.player.start);
+        console.log(gameState.playerSpriteKeyFrame);
+        let playerSprite = this.physics.add.sprite(
+            startX,
+            startY,
+            gameSettings.CHARACTER_KEY,
+            gameState.playerSpriteKeyFrame
+        ).setScale(gameSettings.CHARACTERSPRITESCALE);
+
+        playerSprite.setCollideWorldBounds(true);
+        this.player = new Player(1, 'Player', gameSettings.gameRules.startFarmerBalance, playerSprite, this.gameboardInfo.player.start);
         this.player.infections = gameSettings.gameRules.startingInfections;
         let penZone = this.createZoneFromTiles(this.gameboardInfo.playerCowPen)
             .setOrigin(0, 0)
             .setInteractive().on('pointerup', function (pointer, localX, localY) {
-                if (this.gameState.isGameBoardActive) {
+                if (gameState.isGameBoardActive) {
                     // If board is touchable, record touch
                     eventsCenter.emit(gameSettings.EVENTS.PLAYERPENTOUCHED);
                     // console.log('player');
@@ -217,7 +218,7 @@ export default class GameScene extends FieldScene {
 
     createCow(owner, startX, startY) {
         //console.log(startX+'::'+startY);
-        let sprite = this.physics.add.sprite(startX+16, startY+16, 'cow_1');
+        let sprite = this.physics.add.sprite(startX + 16, startY + 16, 'cow_1');
         sprite.setCollideWorldBounds(true);
         return new Cow(owner, sprite);
     }
@@ -260,7 +261,7 @@ export default class GameScene extends FieldScene {
 
             }
             owner.infections = 1;
-            this.gameState.infectionTotal += 1;
+            gameState.infectionTotal += 1;
 
         }
 
@@ -272,7 +273,7 @@ export default class GameScene extends FieldScene {
 
         let AISprite = this.physics.add.sprite(
             farmerStart[0] * this.BOARD_TILE_SIZE, (farmerStart[1] + 1) * this.BOARD_TILE_SIZE, spriteKey, spriteFrame
-        );
+        ).setScale(gameSettings.CHARACTERSPRITESCALE);
         AISprite.setCollideWorldBounds(true);
         //AISprite.setVisible(false);
         let aiFarmer = new AIFarmer(
@@ -288,12 +289,20 @@ export default class GameScene extends FieldScene {
      * return keys of farmer sprites not including one chosen
      * by player
      */
-    getAIFarmerSpriteKeys(){
-        let spriteKeys= Object.keys(gameSettings.CHARACTER_FRAMES);
-        // todo get player chosen and remove it.
-        // todo randomise?
-
-        return spriteKeys;
+    getAIFarmerSpriteKeys() {
+        let spriteKeys = [];
+        for (const [key, value] of Object.entries(gameSettings.CHARACTER_FRAMES)) {
+            if (value !== gameState.playerSpriteKeyFrame) {
+                spriteKeys.push(key);
+            }
+        }
+        // Quick and simple randomize
+        // From https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+        let shuffled = spriteKeys
+            .map(value => ({value, sort: Math.random()}))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({value}) => value);
+        return shuffled;
     }
 
     createFarmers() {
@@ -302,16 +311,16 @@ export default class GameScene extends FieldScene {
         let spriteKeys = this.getAIFarmerSpriteKeys();
         for (let x = 0; x < gameSettings.gameRules.AIFarmerTotal; x++) {
             // Split evenly on left  and right side
-            console.log(spriteKeys[x]);
             let aiFarmer = this.createAIFarmer(
                 x, 'AI ' + (x + 1), gameSettings.gameRules.startFarmerBalance,
                 this.gameboardInfo.farmerStarts[x], gameSettings.INFECTIONTHRESHOLDS[x],
-                'creature_farmers',gameSettings.CHARACTER_FRAMES[spriteKeys[x]]
+                'creature_farmers', gameSettings.CHARACTER_FRAMES[spriteKeys[x]]
             );
             let penZone = this.createZoneFromTiles(this.gameboardInfo.farmerCowPens[x])
                 .setOrigin(0, 0)
                 .setInteractive().on('pointerup', function (pointer, localX, localY) {
-                    if (this.sprite.scene.gameState.isGameBoardActive) {
+                    console.log('touched');
+                    if (gameState.isGameBoardActive) {
                         // If board is touchable, record touch
                         eventsCenter.emit(gameSettings.EVENTS.AIFARMERPENTOUCHED, this);
                         /*let zone = this.getPenZone();
@@ -339,7 +348,9 @@ export default class GameScene extends FieldScene {
 
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
 
+
         // Main game board
+
         this.createGameBoard();
 
 
@@ -348,6 +359,7 @@ export default class GameScene extends FieldScene {
         this.createFarmers();
         this.createHerd();
 
+        console.log(this.uiScene.scoreboard);
         this.startGameWhenSetupComplete();
 
     }
@@ -380,11 +392,13 @@ export default class GameScene extends FieldScene {
     async startGameWhenSetupComplete() {
         // Move pieces (currently just cows)
         //await this.sendAllHerdToPens();
-
-        this.uiScene.scoreboard.fillScoreBoard(this.getAllFarmers());
         this.setupComplete = true;
 
+
+        this.uiScene.scoreboard.fillScoreBoard(this.getAllFarmers());
+
         // Launch phase scenes
+
         this.scene.launch(gameSettings.SCENENAMES.BFREESCENENAME);
         this.scene.launch(gameSettings.SCENENAMES.TRADINGSCENENAME);
         this.scene.launch(gameSettings.SCENENAMES.TURNENDSCENENAME);
@@ -395,6 +409,8 @@ export default class GameScene extends FieldScene {
 
         // Start the game
         this.startGame();
+
+
     }
 
     /**
@@ -412,7 +428,7 @@ export default class GameScene extends FieldScene {
     }
 
     startTurn() {
-        this.gameState.currentTurn += 1;
+        gameState.currentTurn += 1;
         this.uiScene.displayTurn();
         eventsCenter.once(gameSettings.EVENTS.TURNSTART, function () {
             this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
@@ -429,14 +445,14 @@ export default class GameScene extends FieldScene {
 
     handlePointerDown() {
         // General advance used for dialogs
-        if (!this.gameState.isGameBoardActive) {
+        if (!gameState.isGameBoardActive) {
             eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
         }
     }
 
     /*
     handlePointerUp(pointer) {
-        if (this.gameState.isGameBoardActive) {
+        if (gameState.isGameBoardActive) {
             let tile = this.map.getTileAtWorldXY(pointer.worldX, pointer.worldY);
             console.log(pointer.worldX, pointer.worldY, tile);
             eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
@@ -492,11 +508,11 @@ export default class GameScene extends FieldScene {
     }
 
     setIsGameBoardActive(isActive) {
-        this.gameState.isGameBoardActive = isActive;
+        gameState.isGameBoardActive = isActive;
     }
 
     getIsGameBoardActive() {
-        return this.gameState.isGameBoardActive;
+        return gameState.isGameBoardActive;
     }
 
 

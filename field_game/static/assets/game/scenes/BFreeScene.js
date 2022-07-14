@@ -1,5 +1,7 @@
 /*jshint esversion: 8 */
 import {gameSettings} from "../cst.js";
+import {gameState} from '../GameState.js';
+
 import eventsCenter from "./EventsCenter.js";
 
 export default class BFreeScene extends Phaser.Scene {
@@ -134,7 +136,7 @@ export default class BFreeScene extends Phaser.Scene {
         this.uiScene.toggleDialogWindow();
         this.uiScene.togglePlayerWindow();
         this.toggleHighlightTweens();
-        if (this.gameScene.gameState.isOnBoarding) {
+        if (gameState.isOnBoarding) {
             this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.onboards);
 
         } else {
@@ -293,7 +295,7 @@ export default class BFreeScene extends Phaser.Scene {
         let totalCost = gameSettings.gameRules.bfreeJoinCost + farmer.infections;
         farmer.balance -= totalCost;
         // Remove infection from cattle
-        this.gameScene.gameState.infectionTotal -= farmer.infections;
+        gameState.infectionTotal -= farmer.infections;
         farmer.setBFree(true);
         // Update the scoreboard
         this.uiScene.scoreboard.updateScoreboardCell(
@@ -317,7 +319,7 @@ export default class BFreeScene extends Phaser.Scene {
     scheme_choice(farmer) {
         if (
             (farmer.infections >= farmer.threshold.local) ||
-            (this.gameScene.gameState.totalInfections >= farmer.threshold.global)
+            (gameState.totalInfections >= farmer.threshold.global)
         ) {
             return true;
         }

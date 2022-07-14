@@ -1,5 +1,7 @@
 /*jshint esversion: 8 */
 import {gameSettings} from "../cst.js";
+import {gameState} from '../GameState.js';
+
 import eventsCenter from "./EventsCenter.js";
 
 /**
@@ -82,7 +84,7 @@ export default class TurnEndScene extends Phaser.Scene {
 
             // If last turn, go to game end
             //Otherwise start new turn
-            if (this.gameScene.gameState.currentTurn >= gameSettings.gameRules.totalTurns){
+            if (gameState.currentTurn >= gameSettings.gameRules.totalTurns){
                 // Game over man
                 this.scene.switch(gameSettings.SCENENAMES.GAMEENDSCENENAME);
             }else{
@@ -179,7 +181,7 @@ export default class TurnEndScene extends Phaser.Scene {
                 );
             }
             farmer.infections += newInfections;
-            this.gameScene.gameState.infectionTotal += newInfections;
+            gameState.infectionTotal += newInfections;
         }
     }
 

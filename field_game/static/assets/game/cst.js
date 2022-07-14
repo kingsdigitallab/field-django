@@ -34,11 +34,11 @@ export const gameSettings = {
 
         ],
         player: {
-            start: [18, 4],
+            start: [18, 3],
             house: [[17, 0], 4, 4]
         },
         farmerStarts: [
-            [3, 4], [3, 40], [19, 40], [35, 40], [35, 4]
+            [3, 3], [3, 39], [19, 39], [35, 39], [35, 3]
         ],
         hospital: {
             extent: [[17, 18], [4, 3]],
@@ -56,6 +56,9 @@ export const gameSettings = {
         GAMEENDSCENENAME: "GameEndScene"
     },
     EVENTS: {
+        UICREATED:'UICREATED',
+        ONCHARACTERSELECTED:'onCHARACTERSELECTED',
+        ONCHARACTERSELECTEDFINISHED:'characterSelectedFINISHED',
         STARTDIALOG: 'dialogStart',
         ADVANCEDIALOG: 'dialogAdvance',
         DIALOGFINISHED: 'dialogFinished',
@@ -128,7 +131,8 @@ export const gameSettings = {
         'mouse_1': 144,
         'pigeon_1': 240,
         'bear_1': 192,
-    }
+    },
+    CHARACTERSPRITESCALE: 1.5 //Scale for farmer sprites
 
 };
 

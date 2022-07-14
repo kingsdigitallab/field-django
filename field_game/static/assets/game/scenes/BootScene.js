@@ -65,6 +65,8 @@ export default class BootScene extends FieldScene {
     }
 
     createAnimations() {
+
+
         this.anims.create({
             key: 'cow_walk_up',
             frames: this.anims.generateFrameNumbers('cow_1', {frames: [0, 1, 2, 3]}),
@@ -96,7 +98,8 @@ export default class BootScene extends FieldScene {
         super.create();
         this.createAnimations();
         this.debug("BOOTING COMPLETE!");
-        this.scene.switch(gameSettings.SCENENAMES.CHARACTERSELECTSCENE);
+        this.scene.launch(gameSettings.SCENENAMES.UISCENENAME);
+        this.scene.start(gameSettings.SCENENAMES.TITLESCENENAME);
 
 
 

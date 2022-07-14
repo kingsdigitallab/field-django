@@ -1,6 +1,7 @@
 /*jshint esversion: 8 */
 import {gameSettings} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
+import {gameState} from '../GameState.js';
 
 /**
  * Final game ending scene

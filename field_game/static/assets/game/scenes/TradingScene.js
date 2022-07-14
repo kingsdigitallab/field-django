@@ -1,5 +1,6 @@
 /*jshint esversion: 8 */
 import {gameSettings} from "../cst.js";
+import {gameState} from '../GameState.js';
 import eventsCenter from "./EventsCenter.js";
 
 /**
@@ -48,7 +49,7 @@ export default class TradingScene extends Phaser.Scene {
         }
 
         //Start text
-        if (this.gameScene.gameState.isOnBoarding === true) {
+        if (gameState.isOnBoarding === true) {
             this.uiScene.addTextAndStartDialog(this.dialogTexts.onboards);
         } else {
             this.uiScene.addTextAndStartDialog(this.dialogTexts.start);
