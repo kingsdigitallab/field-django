@@ -1,6 +1,7 @@
 /*jshint esversion: 8 */
 import FieldScene from './FieldScene.js';
 import {gameSettings} from "../cst.js";
+import DialogModalPlugin from "../plugins/field/DialogModalPlugin.js";
 
 export default class BootScene extends FieldScene {
 
@@ -14,10 +15,21 @@ export default class BootScene extends FieldScene {
 
     constructor() {
         super('BootScene');
+        this.collectEvents();
+    }
+
+    /** Collect events from other scenes/plugins
+     *  into central repo for use by scenes
+     */
+    collectEvents(){
+        // Collect events
+        // todo make this a part of the standard template
+        gameSettings.EVENTS = Object.assign({}, gameSettings.EVENTS, DialogModalPlugin.getEvents());
+        console.log(gameSettings.EVENTS);
+
     }
 
     preload() {
-
         this.loadAssets();
     }
 

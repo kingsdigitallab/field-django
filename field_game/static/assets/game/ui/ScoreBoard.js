@@ -1,5 +1,6 @@
 /*jshint esversion: 8 */
 import {gameState} from '../GameState.js';
+import {gameSettings} from "../cst.js";
 
 /**
  * The scoreboard to dispaly player scores at round end
@@ -89,10 +90,17 @@ export default class ScoreBoard {
             rank, this.defaultTextStyle
         ).setAlpha(alpha);
         //console.log(rankCell.displayWidth);
+        let nameCell = this.scene.physics.add.sprite(
+                x,
+                y,
+                gameSettings.CHARACTER_KEY,
+                farmer.sprite.frame.name
+            ).setScale(2).setAlpha(alpha);
+        /*
         let nameCell = this.scene.add.text(
             x, y,
             farmer.name, this.defaultTextStyle
-        ).setAlpha(alpha);
+        ).setAlpha(alpha);*/
 
         let balanceCell = this.scene.add.text(
             x, y,
@@ -137,7 +145,7 @@ export default class ScoreBoard {
             ).setVisible(false),
             this.scene.add.text(
                 0, 0,
-                'Name',
+                'Player',
                 this.defaultColumnTitleTextStyle
             ).setVisible(false),
             this.scene.add.text(

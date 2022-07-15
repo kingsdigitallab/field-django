@@ -203,6 +203,7 @@ export default class GameScene extends FieldScene {
         this.player.setPenZone(penZone);
         this.allFarmers.push(this.player);
         //this.updatePlayerBalance(this.player.balance);
+        gameState.player = this.player;
 
         eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
     }
@@ -319,9 +320,10 @@ export default class GameScene extends FieldScene {
             let penZone = this.createZoneFromTiles(this.gameboardInfo.farmerCowPens[x])
                 .setOrigin(0, 0)
                 .setInteractive().on('pointerup', function (pointer, localX, localY) {
-                    console.log('touched');
+
                     if (gameState.isGameBoardActive) {
                         // If board is touchable, record touch
+                        console.log('touched');
                         eventsCenter.emit(gameSettings.EVENTS.AIFARMERPENTOUCHED, this);
                         /*let zone = this.getPenZone();
                         let rect = new Phaser.Geom.Rectangle(zone.x,zone.y,zone.width,zone.height);
@@ -431,7 +433,8 @@ export default class GameScene extends FieldScene {
         gameState.currentTurn += 1;
         this.uiScene.displayTurn();
         eventsCenter.once(gameSettings.EVENTS.TURNSTART, function () {
-            this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
+            //this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
+            this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
         }, this);
     }
 

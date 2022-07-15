@@ -8,6 +8,16 @@
 export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
     constructor(pluginManager) {
         super('DialogModalPlugin', pluginManager);
+        // Events emitted by the plugin
+    }
+
+    static getEvents(){
+        return {
+            STARTDIALOG: 'dialogStart',
+            ANIMATEDIALOGFINISHED: 'dialogAdvance',
+            ADVANCEDIALOG: 'dialogAdvance',
+            DIALOGFINISHED: 'dialogFinished'
+        };
     }
 
     // Initialize the dialog modal
@@ -26,6 +36,8 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         this.dialogSpeed = opts.dialogSpeed || 2;
         // used for animating the text
         this.eventCounter = 0;
+        // Event emitter
+        this.eventEmitter = opts.eventEmitter || null;
         // if the dialog window is shown
         this.dialogVisible = true;
         // the current text in the window
@@ -148,7 +160,11 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
 
         if (this.eventCounter === this.dialog.length) {
             this.eventCounter = 0;
+            if (this.eventEmitter) {
+                this.eventEmitter.emit(DialogModalPlugin.getEvents().ANIMATEDIALOGFINISHED);
+            }
             this.timedEvent.remove();
+
         }
     }
 

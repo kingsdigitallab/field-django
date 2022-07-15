@@ -57,6 +57,7 @@ export default class TradingScene extends Phaser.Scene {
         // Player trading phase
 
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
+            console.log('finished');
             this.playerTrade();
         }, this);
     }

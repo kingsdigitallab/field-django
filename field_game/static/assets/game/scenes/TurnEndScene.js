@@ -35,7 +35,7 @@ export default class TurnEndScene extends Phaser.Scene {
         farmer.balance += income;
     }
 
-    updateHerdSize(farmer){
+    updateHerdSize(farmer) {
         this.uiScene.scoreboard.updateScoreboardCell(farmer.slug, this.uiScene.scoreboard.cellKeys.cowCell, farmer.herdTotal);
     }
 
@@ -69,26 +69,50 @@ export default class TurnEndScene extends Phaser.Scene {
         let done = await Promise.all(balancePromises);
         // Calculates infection
         for (let f = 0; f < farmers.length; f++) {
-                infectionPromises.push(this.updateInfection(farmers[f]));
+            infectionPromises.push(this.updateInfection(farmers[f]));
         }
         await Promise.all(infectionPromises);
 
         //Give user a chance to read it
         await this.uiScene.sleep(1000);
-
-        this.uiScene.scoreboard.updateScoreBoardRanks(this, this.sortPlayersByAssets());
+        let currentPlayers = this.sortPlayersByAssets();
+        this.uiScene.scoreboard.updateScoreBoardRanks(this, currentPlayers);
 
         eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
-            this.uiScene.scoreboard.toggleScoreboard();
-            this.uiScene.scoreboard.scoreboardPrompt.visible=false;
-
             // If last turn, go to game end
             //Otherwise start new turn
-            if (gameState.currentTurn >= gameSettings.gameRules.totalTurns){
-                // Game over man
-                this.scene.switch(gameSettings.SCENENAMES.GAMEENDSCENENAME);
-            }else{
-                //
+            if (gameState.currentTurn >= gameSettings.gameRules.totalTurns) {
+                // Final scores
+                // Set the winner
+                gameState.winnerSpriteKeyFrame = currentPlayers[0].sprite.frame.name;
+                gameState.winner = currentPlayers[0];
+                console.log(gameState.winnerSpriteKeyFrame = currentPlayers[0].sprite.frame.name);
+                let scene = this.scene;
+                this.add.tween({
+                    targets: this.uiScene.scoreboard.scoreboardTitle,
+                    alpha: 0,
+                    duration: 1000,
+                    onComplete: () => {
+                        this.uiScene.scoreboard.scoreboardTitle.text = "Final Score";
+                        // Recentre
+                        this.uiScene.scoreboard.scoreboardTitle.x = this.uiScene.scoreboard.rectCentreX - (this.uiScene.scoreboard.scoreboardTitle.displayWidth / 2);
+                        this.add.tween({
+                             targets: this.uiScene.scoreboard.scoreboardTitle,
+                             alpha: 1,
+                             duration: 1000,
+                             onComplete: () => {
+                                 eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
+                                     // Game over man
+                                    scene.start(gameSettings.SCENENAMES.GAMEENDSCENENAME);
+                                 });
+                             }
+                         }, this);
+                    }
+                }, this);
+
+            } else {
+                this.uiScene.scoreboard.toggleScoreboard();
+                this.uiScene.scoreboard.scoreboardPrompt.visible = false;
                 this.resetBoard();
                 // Back to turn start
                 this.gameScene.startTurn();
@@ -96,7 +120,7 @@ export default class TurnEndScene extends Phaser.Scene {
             }
 
         }, this);
-        this.uiScene.scoreboard.scoreboardPrompt.visible=true;
+        this.uiScene.scoreboard.scoreboardPrompt.visible = true;
 
     }
 
@@ -104,7 +128,7 @@ export default class TurnEndScene extends Phaser.Scene {
      * Chores to get board ready for next turn:
      * -Remove tints on bfree cows
      */
-    resetBoard(){
+    resetBoard() {
         // Remove tints on bfree
         for (let c = 0; c < this.gameScene.herd.length; c++) {
             if (this.gameScene.herd[c].sprite.isTinted) {
@@ -118,14 +142,14 @@ export default class TurnEndScene extends Phaser.Scene {
      * Sorting just by their current cash balance
      * @return sorted players
      */
-    sortPlayersByBalance(){
+    sortPlayersByBalance() {
         let players = this.gameScene.getAllFarmers();
-        players.sort(function(a,b){
-            if (a.balance > b.balance){
+        players.sort(function (a, b) {
+            if (a.balance > b.balance) {
                 return -1;
-            }else if (b.balance< a.balance){
+            } else if (b.balance < a.balance) {
                 return 1;
-            }else{
+            } else {
                 return 0;
             }
         });
@@ -136,14 +160,14 @@ export default class TurnEndScene extends Phaser.Scene {
      * Sorting by cash plus assets e.g. cows
      * @return sorted players
      */
-    sortPlayersByAssets(){
+    sortPlayersByAssets() {
         let players = this.gameScene.getAllFarmers();
-        players.sort(function(a,b){
-            if (a.getAssets() > b.getAssets()){
+        players.sort(function (a, b) {
+            if (a.getAssets() > b.getAssets()) {
                 return -1;
-            }else if (b.getAssets()< a.getAssets()){
+            } else if (b.getAssets() < a.getAssets()) {
                 return 1;
-            }else{
+            } else {
                 return 0;
             }
         });
@@ -167,9 +191,9 @@ export default class TurnEndScene extends Phaser.Scene {
     async updateInfection(farmer) {
         let newInfections = 0;
         if (farmer.bfree === false || farmer.infections === farmer.herdTotal) {
-            if ((farmer.infections * 2) <= farmer.herdTotal){
+            if ((farmer.infections * 2) <= farmer.herdTotal) {
                 newInfections = farmer.infections;
-            } else{
+            } else {
                 // Infect all the remaining cows
                 newInfections = farmer.herdTotal - farmer.infections;
             }

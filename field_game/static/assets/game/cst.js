@@ -10,7 +10,7 @@ export const gameSettings = {
         startHerdSize: 48,
         startFarmerBalance: 20,
         AIFarmerTotal: 5,
-        totalTurns: 8,
+        totalTurns: 1,
         // AI farmer will join scheme at least once per this many turns
         bfreeTrigger: 4,
         bfreeJoinCost: 1, // Cost to join scheme
@@ -59,9 +59,7 @@ export const gameSettings = {
         UICREATED:'UICREATED',
         ONCHARACTERSELECTED:'onCHARACTERSELECTED',
         ONCHARACTERSELECTEDFINISHED:'characterSelectedFINISHED',
-        STARTDIALOG: 'dialogStart',
-        ADVANCEDIALOG: 'dialogAdvance',
-        DIALOGFINISHED: 'dialogFinished',
+
         BOARDTOUCHED: "boardTouched",
         HOSPITALTOUCHED: "hospitalTouched",
         PLAYERPENTOUCHED: "playerpenTouched",
@@ -79,6 +77,7 @@ export const gameSettings = {
         TURNSTART: "TURNBEGINS", // Start of turn
         TURNEND: "TURNENDS", // End of turn
         GAMEEND: "GAMEENDS", // End of game
+
 
 
     },

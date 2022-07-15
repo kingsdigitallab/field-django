@@ -33,6 +33,7 @@ export default class UIScene extends Phaser.Scene {
         this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
         this.createTitle();
         // Set up main dialog window on the bottom of the screen
+        this.dialogWindow.eventEmitter = eventsCenter;
         this.dialogWindow.createWindow(this);
         // Player display
         this.createPlayerInfo();
@@ -45,7 +46,7 @@ export default class UIScene extends Phaser.Scene {
         this.togglePlayerWindow();
         this.setupListeners();
         this.events.on(Phaser.Scenes.CREATE, () => {
-            console.log('created');
+            //console.log('created');
             eventsCenter.on(gameSettings.EVENTS.UICREATED);
         });
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
@@ -73,6 +74,7 @@ export default class UIScene extends Phaser.Scene {
     addListeners() {
         eventsCenter.on(gameSettings.EVENTS.STARTDIALOG, this.openDialogWindow, this);
         eventsCenter.on(gameSettings.EVENTS.ADVANCEDIALOG, this.advanceDialogWindowSequence, this);
+        eventsCenter.on(gameSettings.EVENTS.ANIMATEDIALOGFINISHED, this.advanceDialogWindowSequence, this);
         // eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, this.closeDialogWindow, this);
         eventsCenter.on(gameSettings.EVENTS.PLAYERHERDUPDATED, this.updatePlayerInfoHerd, this);
         eventsCenter.on(gameSettings.EVENTS.PLAYERBALANCEUPDATED, this.updatePlayerInfoBalance, this);
@@ -115,6 +117,7 @@ export default class UIScene extends Phaser.Scene {
 
     advanceDialogWindowSequence() {
         // Dialog in progress, dump buffer
+        //console.log('Text advance ->'+this.texts.length);
         if (this.dialogWindow.eventCounter > 0){
             this.dialogWindow.timedEvent.remove();
 
@@ -134,6 +137,7 @@ export default class UIScene extends Phaser.Scene {
 
         } else if (this.texts.length === 0) {
             // Queue empty, hide window
+            //console.log('Text finished');
             eventsCenter.emit(gameSettings.EVENTS.DIALOGFINISHED);
 
         }
