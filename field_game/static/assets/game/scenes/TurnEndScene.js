@@ -68,10 +68,12 @@ export default class TurnEndScene extends Phaser.Scene {
         }
         let done = await Promise.all(balancePromises);
         // Calculates infection
+        let oldInfectionTotal = gameState.infectionTotal;
         for (let f = 0; f < farmers.length; f++) {
-            infectionPromises.push(this.updateInfection(farmers[f]));
+            this.updateInfection(farmers[f]);
         }
-        await Promise.all(infectionPromises);
+
+        await this.uiScene.scoreboard.infectionTickUp(oldInfectionTotal, gameState.infectionTotal);
 
         //Give user a chance to read it
         await this.uiScene.sleep(1000);
@@ -197,16 +199,12 @@ export default class TurnEndScene extends Phaser.Scene {
                 // Infect all the remaining cows
                 newInfections = farmer.herdTotal - farmer.infections;
             }
-            if (newInfections > 0) {
-                this.uiScene.scoreboard.scoreboardLines[farmer.slug][this.uiScene.scoreboard.cellKeys.infectedCell].setColor('red');
-                await this.uiScene.scoreboard.scoreboardTickUp(
-                    farmer.slug, this.uiScene.scoreboard.cellKeys.infectedCell,
-                    farmer.infections, (farmer.infections + newInfections)
-                );
-            }
+
             farmer.infections += newInfections;
             gameState.infectionTotal += newInfections;
         }
     }
+
+
 
 }

@@ -358,7 +358,7 @@ export default class GameScene extends FieldScene {
         this.createFarmers();
         this.createHerd();
 
-        console.log(this.uiScene.scoreboard);
+
         this.startGameWhenSetupComplete();
 
     }

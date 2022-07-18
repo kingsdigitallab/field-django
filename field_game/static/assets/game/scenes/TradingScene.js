@@ -22,7 +22,7 @@ export default class TradingScene extends Phaser.Scene {
             onboards: [
                 "Trading phase\n"+
                 "Buy a cow from a player by touching their pen. Cows cost £" + gameSettings.gameRules.normalCowPrice +
-                "\nWarning! Non-BFree cows may be infected. If you buy one while certified you will lose your certification."
+                "\nYou may only buy from farmers with the same certification"
             ],
             start: ["Trading phase"],
 
@@ -73,7 +73,7 @@ export default class TradingScene extends Phaser.Scene {
     async playerTrade() {
         this.gameScene.setIsGameBoardActive(true);
         // On pen touched
-        eventsCenter.once(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
+        eventsCenter.on(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
 
     }
 
@@ -136,10 +136,24 @@ export default class TradingScene extends Phaser.Scene {
         await this.gameScene.sendHerdToPens(boughtHerd);
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
             this.resetCows();
-            this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
+            this.finishPhase();
         }, this);
 
 
+    }
+
+    /**
+     * Do any housekeeping and move on to next part of turn
+     */
+    async finishPhase(){
+        this.removeListeners();
+        // Short delay before next phase
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
+    }
+
+    removeListeners(){
+        eventsCenter.off(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
     }
 
     resetCows() {
@@ -150,7 +164,7 @@ export default class TradingScene extends Phaser.Scene {
 
     async playerPurchaseCow(seller) {
 
-        if (seller) {
+        if (seller && (seller.isBFree() === this.gameScene.player.isBFree())) {
             this.gameScene.setIsGameBoardActive(false);
             let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
             // Send cow to player pen

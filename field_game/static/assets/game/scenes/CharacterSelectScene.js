@@ -120,13 +120,19 @@ export default class CharacterSelectScene extends FieldScene {
         }
 
         // Display choices
+        /* An example of the craziness of aligning things in phaser.  This is:
+                Total widths of screen - half the total width of the grid
+                BUT because the x,y in grid align is marked for the first cell in the grid
+                AND (this was the annoying bit) it's the CENTER x,y of that first cell
+                we offset by half its width as well
+                 */
         Phaser.Actions.GridAlign(this.characterSprites, {
             width: 4,
             height: 10,
             cellWidth: this.characterCellWidth,
             cellHeight: this.characterCellHeight,
             position: Phaser.Display.Align.CENTER,
-            x: w / 2 - (4 * 96 / 2.5),
+            x: w / 2 - (4 * 96 / 2) + (this.characterCellWidth /2),
             y: h / 2 - (2 * 96 / 2)
         });
 

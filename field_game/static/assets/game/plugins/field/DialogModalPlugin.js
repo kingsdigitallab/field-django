@@ -14,8 +14,9 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
     static getEvents(){
         return {
             STARTDIALOG: 'dialogStart',
-            ANIMATEDIALOGFINISHED: 'dialogAdvance',
+            ANIMATEDIALOGFINISHED: 'dialogAnimationFinished',
             ADVANCEDIALOG: 'dialogAdvance',
+            SKIPDIALOG: 'dialogAdvance',
             DIALOGFINISHED: 'dialogFinished'
         };
     }
@@ -46,9 +47,13 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         this.dialog = [];
         this.graphics;
         this.closeBtn;
+        this.isDialogRunning = false;
         // Create the dialog window
         //this._createWindow();
+
     }
+
+
 
     // Calculates where to place the dialog window based on the game size
     _calculateWindowDimensions(width, height) {
@@ -119,6 +124,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         this.eventCounter = 0;
         this.dialog = text.split('');
         if (this.timedEvent) this.timedEvent.remove();
+        this.isDialogRunning = true;
 
         let tempText = animate ? '' : text;
         this._setText(scene, tempText);
@@ -145,7 +151,8 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
             y,
             text,
             style: {
-                wordWrap: {fontFamily: 'PressStart2P', width: scene.scale.width - (this.padding * 2) - 25}
+                fontFamily: 'PressStart2P', fontSize: '14px',
+                wordWrap: { width: scene.scale.width - (this.padding * 2) - 25}
             }
         });
 

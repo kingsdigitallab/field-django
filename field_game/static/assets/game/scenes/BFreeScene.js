@@ -257,7 +257,10 @@ export default class BFreeScene extends Phaser.Scene {
         this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.yes);
 
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
-            eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
+            setTimeout(function () {
+                eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
+            }, 1500);
+
         }, this);
     }
 
@@ -298,9 +301,9 @@ export default class BFreeScene extends Phaser.Scene {
         gameState.infectionTotal -= farmer.infections;
         farmer.setBFree(true);
         // Update the scoreboard
-        this.uiScene.scoreboard.updateScoreboardCell(
+        /*this.uiScene.scoreboard.updateScoreboardCell(
             farmer.slug, this.uiScene.scoreboard.cellKeys.infectedCell, 0
-        );
+        );*/
         this.logBFreeTransaction(
             farmer,
             farmer.name + " joins BFree scheme  and pays " + totalCost

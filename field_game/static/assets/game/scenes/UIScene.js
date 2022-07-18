@@ -134,8 +134,9 @@ export default class UIScene extends Phaser.Scene {
 
     advanceDialogWindowSequence() {
         // Dialog in progress, dump buffer
-        //console.log('Text advance ->'+this.texts.length);
+
         if (this.dialogWindow.eventCounter > 0){
+            console.log('Text skip ->'+this.texts.length);
             this.dialogWindow.timedEvent.remove();
 
             if (this.dialogWindow.text && this.dialogWindow.dialog){
@@ -147,6 +148,7 @@ export default class UIScene extends Phaser.Scene {
             this.dialogWindow.eventCounter = 0;
         }else if (this.texts && this.texts.length > 0) {
             // Queued text is available
+            console.log('Text advance ->'+this.texts.length);
             //Set the text
             this.dialogWindow.setText(this, this.texts[0], true);
             // Remove it from queue
@@ -154,7 +156,7 @@ export default class UIScene extends Phaser.Scene {
 
         } else if (this.texts.length === 0) {
             // Queue empty, hide window
-            //console.log('Text finished');
+            console.log('Text finished');
             eventsCenter.emit(gameSettings.EVENTS.DIALOGFINISHED);
 
         }
