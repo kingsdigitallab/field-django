@@ -53,6 +53,23 @@ export default class UIScene extends Phaser.Scene {
             this.removeListeners();
         });
 
+        var FKey = this.input.keyboard.addKey('F');
+
+        FKey.on('down', function () {
+
+            if (this.scale.isFullscreen)
+            {
+                //button.setFrame(0);
+                this.scale.stopFullscreen();
+            }
+            else
+            {
+                //button.setFrame(1);
+                this.scale.startFullscreen();
+            }
+
+        }, this);
+
     }
 
     sleep(ms) {

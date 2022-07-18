@@ -49,7 +49,7 @@ let config = {
             ]
         },
     scale: {
-        mode: Phaser.Scale.FIT,
+        mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
         parent: 'phaser-fieldgame',
         autoCenter: Phaser.Scale.CENTER_BOTH,
         width: GAME_WIDTH,
