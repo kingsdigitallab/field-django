@@ -2,6 +2,8 @@
 import {gameSettings} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
 import ScoreBoard from "../ui/ScoreBoard.js";
+import {gameState} from '../GameState.js';
+
 
 
 export default class UIScene extends Phaser.Scene {
@@ -31,20 +33,42 @@ export default class UIScene extends Phaser.Scene {
         this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
         this.createTitle();
         // Set up main dialog window on the bottom of the screen
+        this.dialogWindow.eventEmitter = eventsCenter;
         this.dialogWindow.createWindow(this);
         // Player display
         this.createPlayerInfo();
+
         this.scoreboard = new ScoreBoard(this);
         this.scoreboard.createScoreboard();
 
-
-        //Start hidden
+        //Start bottom windows hidden
         this.toggleDialogWindow();
+        this.togglePlayerWindow();
         this.setupListeners();
-
+        this.events.on(Phaser.Scenes.CREATE, () => {
+            //console.log('created');
+            eventsCenter.on(gameSettings.EVENTS.UICREATED);
+        });
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, () => {
             this.removeListeners();
         });
+
+        var FKey = this.input.keyboard.addKey('F');
+
+        FKey.on('down', function () {
+
+            if (this.scale.isFullscreen)
+            {
+                //button.setFrame(0);
+                this.scale.stopFullscreen();
+            }
+            else
+            {
+                //button.setFrame(1);
+                this.scale.startFullscreen();
+            }
+
+        }, this);
 
     }
 
@@ -67,7 +91,8 @@ export default class UIScene extends Phaser.Scene {
     addListeners() {
         eventsCenter.on(gameSettings.EVENTS.STARTDIALOG, this.openDialogWindow, this);
         eventsCenter.on(gameSettings.EVENTS.ADVANCEDIALOG, this.advanceDialogWindowSequence, this);
-        eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, this.closeDialogWindow, this);
+        eventsCenter.on(gameSettings.EVENTS.ANIMATEDIALOGFINISHED, this.advanceDialogWindowSequence, this);
+        // eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, this.closeDialogWindow, this);
         eventsCenter.on(gameSettings.EVENTS.PLAYERHERDUPDATED, this.updatePlayerInfoHerd, this);
         eventsCenter.on(gameSettings.EVENTS.PLAYERBALANCEUPDATED, this.updatePlayerInfoBalance, this);
     }
@@ -90,29 +115,48 @@ export default class UIScene extends Phaser.Scene {
         this.dialogWindow.closeDialogWindow();
     }
 
+    togglePlayerWindow() {
+
+        if (this.playerInfoContainer.visible){
+            this.playerInfoContainer.visible = false;
+            this.playerInfoBalance.visible = false;
+            this.playerInfoHerd.visible = false;
+            this.playerInfoTitle.visible = false;
+        }else{
+            this.playerInfoContainer.visible = true;
+            this.playerInfoBalance.visible = true;
+            this.playerInfoHerd.visible = true;
+            this.playerInfoTitle.visible = true;
+        }
+
+
+    }
+
     advanceDialogWindowSequence() {
-        // Queued text is available
+        // Dialog in progress, dump buffer
 
-        if (this.texts && this.texts.length > 0) {
-            // if (this.dialogWindow.eventCounter > 0 && this.dialogWindow.text && this.dialogWindow.dialog) {
-            //     // Advance and dump all text
-            //     console.log(this.dialogWindow.text);
-            //     console.log(this.dialogWindow.eventCounter);
-            //     this.dialogWindow.timedEvent.remove();
-            //     //this.dialogWindow.text.text = this.dialogWindow.text.text + this.dialogWindow.dialog.slice(this.dialogWindow.eventCounter - 1, this.dialogWindow.dialog.length).join('');
-            //
-            //
-            // } else {
-            if (this.dialogWindow.eventCounter === 0){
-                //Set the text
-                this.dialogWindow.setText(this, this.texts[0], true);
-                // Remove it from queue
-                this.texts.shift();
+        if (this.dialogWindow.eventCounter > 0){
+            console.log('Text skip ->'+this.texts.length);
+            this.dialogWindow.timedEvent.remove();
+
+            if (this.dialogWindow.text && this.dialogWindow.dialog){
+                let bufferText = this.dialogWindow.dialog.slice(
+                    this.dialogWindow.eventCounter, this.dialogWindow.dialog.length
+                ).join('');
+                this.dialogWindow.text.text=this.dialogWindow.text.text+bufferText;
             }
-
+            this.dialogWindow.eventCounter = 0;
+        }else if (this.texts && this.texts.length > 0) {
+            // Queued text is available
+            console.log('Text advance ->'+this.texts.length);
+            //Set the text
+            this.dialogWindow.setText(this, this.texts[0], true);
+            // Remove it from queue
+            this.texts.shift();
 
         } else if (this.texts.length === 0) {
             // Queue empty, hide window
+            console.log('Text finished');
             eventsCenter.emit(gameSettings.EVENTS.DIALOGFINISHED);
 
         }
@@ -176,8 +220,8 @@ export default class UIScene extends Phaser.Scene {
      *
      */
     displayTurn() {
-        this.updateTitleDisplay("Turn " + this.gameScene.gameState.currentTurn, function () {
-            eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+        this.updateTitleDisplay("Turn " + gameState.currentTurn, function () {
+            eventsCenter.emit(gameSettings.EVENTS.TURNSTART);
         });
     }
 
@@ -208,8 +252,8 @@ export default class UIScene extends Phaser.Scene {
      * Scoreboard with all player/AI totals
      */
     createPlayerInfo() {
-        let board_width = this.GAME_WIDTH / 4;
-        let board_height = this.GAME_HEIGHT / 8;
+        let board_width = this.dialogWindow.padding * 2;
+        let board_height = this.dialogWindow.windowHeight; //this.GAME_HEIGHT / 8;
         this.playerInfoContainer = this.add.container(board_width, board_height);
         this.playerInfoBackground = this.add.rectangle(0, 0, board_width, board_height, 0x000000, 0.4);
         this.playerInfoTitle = this.add.text(0, 0, 'Player', this.defaultTextStyle);
@@ -225,18 +269,18 @@ export default class UIScene extends Phaser.Scene {
         this.playerInfoContainer.add(this.playerInfoBalance);
         this.playerInfoContainer.add(this.playerInfoHerd);
 
-        Phaser.Display.Align.In.TopCenter(
-            this.playerInfoTitle, this.playerInfoBackground
+        Phaser.Display.Align.In.Center(
+            this.playerInfoTitle, this.playerInfoBackground,0,-30
         );
         Phaser.Display.Align.To.BottomLeft(
-            this.playerInfoBalance, this.playerInfoTitle
+            this.playerInfoBalance, this.playerInfoTitle,0,5
         );
         Phaser.Display.Align.To.BottomLeft(
-            this.playerInfoHerd, this.playerInfoBalance
+            this.playerInfoHerd, this.playerInfoBalance,0,5
         );
 
-        this.playerInfoContainer.x = this.GAME_WIDTH / 2;
-        this.playerInfoContainer.y = board_height / 2 + 10;
+        this.playerInfoContainer.x = this.dialogWindow.padding;
+        this.playerInfoContainer.y = this.scale.height - this.dialogWindow.windowHeight + (board_height/2);//board_height / 2 + 10;
 
         // Start hidden
         this.playerInfoContainer.setVisible(true);

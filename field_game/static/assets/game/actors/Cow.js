@@ -104,7 +104,8 @@ export default class Cow {
             this.sprite.scene.finder.findPath(
                 startTile.x, startTile.y, endX, endY, function (path) {
                     if (path === null) {
-                        console.log("Path was not found.");
+                        console.log(
+                            "Path between "+startTile.x+","+startTile.y+"-"+endX+","+endY+" was not found.");
                         reject(false);
                     } else {
                         cow.isMoving = true;
@@ -135,6 +136,8 @@ export default class Cow {
                 cow.isMoving = false;
                 // Reset movepath
                 cow.movePath = [];
+                 //Face up for now
+                cow.sprite.angle = 0;
                 resolve(-1);
             });
             timeline.play();

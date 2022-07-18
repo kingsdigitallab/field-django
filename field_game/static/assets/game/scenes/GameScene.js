@@ -5,6 +5,7 @@ import FieldScene from './FieldScene.js';
 import Cow from '../actors/Cow.js';
 import {AIFarmer, Player} from '../actors/Farmer.js';
 import eventsCenter from "./EventsCenter.js";
+import {gameState} from '../GameState.js';
 
 
 export default class GameScene extends FieldScene {
@@ -20,37 +21,14 @@ export default class GameScene extends FieldScene {
         super(gameSettings.SCENENAMES.GAMESCENENAME);
         this.herd = [];
         this.layers = [];
+
+
         // Player/farmer starts, where the cow pens are etc.
-        this.gameboardInfo = {
-            playerCowPen: [[16, 9], [5, 7]],
-            farmerCowPens: [
-                [[1, 9], [5, 7]],
-                [[33, 9], [5, 7]],
-                [[1, 33], [5, 7]],
-                [[33, 33], [5, 7]],
-                [[1, 51], [5, 7]],
-                [[33, 51], [5, 7]],
-            ],
-            player: {
-                start: [20, 6],
-                house: [[18, 1], 3, 4]
-            },
-            farmerStarts: [
-                [4, 6], [4, 30], [4, 48], [36, 6], [36, 30], [36, 48]
-            ],
-            hospital: {
-                extent: [[17, 28], [4, 3]],
-                door: [19, 34]
-            }
-        };
+
+        this.gameboardInfo = gameSettings.gameboardInfo;
         //Game rules and constants
 
-        // State of this instance of game
-        this.gameState = {
-            currentTurn: 0,
-            isOnBoarding: false, //Display help messages
-            isGameBoardActive: false // Is board clickable?
-        };
+
         // Zones on the game board
         this.gameboardZones = {};
         this.waitingForSetup = 0;
@@ -77,6 +55,29 @@ export default class GameScene extends FieldScene {
      */
     gameLog(message) {
         this.log += "\n" + message;
+    }
+
+    /**
+     * playerID = models.CharField(null=True, blank=True, max_length=128)
+     gameID = models.BigIntegerField(default=0)
+     turn = models.IntegerField(default=0)
+     orderno = models.IntegerField(default=0)
+     event_type = models.ForeignKey("EventType", on_delete=models.SET_NULL, null=True)
+     farmerA = models.ForeignKey(
+     "Farmer", null=True, on_delete=models.SET_NULL, related_name="farmer_A"
+     )
+     farmerB = models.ForeignKey(
+     "Farmer", null=True, on_delete=models.SET_NULL, related_name="farmer_B"
+     )
+     description = models.CharField(null=True, blank=True, max_length=128)
+     * @param messageProps
+     */
+    logTransaction(messageProps) {
+        // todo make this an api when we're ready
+        messageProps.orderno = gameState.lastTransactionOrderNo;
+        messageProps.turn = gameState.currentTurn;
+        console.log(messageProps);
+        gameState.lastTransactionOrderNo += 1;
     }
 
 
@@ -110,10 +111,11 @@ export default class GameScene extends FieldScene {
         const tileset = this.map.addTilesetImage('simple_farm', 'tiles');
         const modern = this.map.addTilesetImage('modern', 'modern');
         // Buildings and fences
-        this.layers.pathLayer = this.map.createLayer('Paths', tileset, 0, 0);
+        this.layers.pathLayer = this.map.createLayer('Paths', [tileset, modern], 0, 0);
+        this.layers.decorationLayer = this.map.createLayer('Decoration', [tileset, modern], 0, 0);
         this.layers.buildingLayer = this.map.createLayer('Buildings', [tileset, modern], 0, 0);
 
-        //Build Easyjs map
+        //Build Easystar js map
         // from https://www.dynetisgames.com/2018/03/06/pathfinding-easystar-phaser-3/
         // obstacles = 0, road = 1 , grass = 2
         let grid = [];
@@ -123,24 +125,25 @@ export default class GameScene extends FieldScene {
                 // In each cell we store the ID of the tile, which corresponds
                 // to its index in the tileset of the map ("ID" field in Tiled)
                 //
-                let tile = this.map.getTileAt(x, y, true, this.layers.buildingLayer);
-
+                let tile = this.map.getTileAt(x, y, true, this.layers.pathLayer);
+                // console.log(tile);
                 if (tile.index >= 0) {
-                    // Building, fence, or other obstacle
-                    col.push(0);
-                } else {
-                    tile = this.map.getTileAt(x, y, true, this.layers.pathLayer);
-                    if (tile.index >= 0) {
-                        // Road/path
-                        col.push(1);
-                    } else {
-                        // Assume grass in our basic map
+                    // Road/path
+                    if (tile.properties && tile.properties.cost) {
                         col.push(2);
+                    } else {
+                        col.push(1);
                     }
+
+                } else {
+                    col.push(0);
                 }
+
+
             }
             grid.push(col);
         }
+
         this.finder.setGrid(grid);
         this.finder.enableDiagonals();
         this.finder.setAcceptableTiles([1, 2]);
@@ -151,10 +154,10 @@ export default class GameScene extends FieldScene {
         let hospitalExtent = this.gameboardInfo.hospital.extent;
 
         this.gameboardZones.hospitalZone = this.createZoneFromTiles(hospitalExtent).setOrigin(0, 0).setInteractive().on('pointerup', function (pointer, localX, localY) {
-            if (this.gameState.isGameBoardActive) {
+            if (gameState.isGameBoardActive) {
                 // If board is touchable, record touch
                 eventsCenter.emit(gameSettings.EVENTS.HOSPITALTOUCHED);
-                console.log('H');
+                // console.log('H');
             }
         }, this);
 
@@ -174,22 +177,30 @@ export default class GameScene extends FieldScene {
         // Player farm
         const startX = this.gameboardInfo.player.start[0] * this.BOARD_TILE_SIZE;
         const startY = (this.gameboardInfo.player.start[1] + 1) * this.BOARD_TILE_SIZE;
-        let sprite = this.physics.add.sprite(startX, startY, 'farmer_1');
-        sprite.setCollideWorldBounds(true);
-        this.player = new Player(1, 'Player', gameSettings.gameRules.startFarmerBalance, sprite, this.gameboardInfo.player.start);
-        this.player.infections=gameSettings.gameRules.startingInfections;
+        console.log(gameState.playerSpriteKeyFrame);
+        let playerSprite = this.physics.add.sprite(
+            startX,
+            startY,
+            gameSettings.CHARACTER_KEY,
+            gameState.playerSpriteKeyFrame
+        ).setScale(gameSettings.CHARACTERSPRITESCALE);
+
+        playerSprite.setCollideWorldBounds(true);
+        this.player = new Player(1, 'Player', gameSettings.gameRules.startFarmerBalance, playerSprite, this.gameboardInfo.player.start);
+        this.player.infections = gameSettings.gameRules.startingInfections;
         let penZone = this.createZoneFromTiles(this.gameboardInfo.playerCowPen)
             .setOrigin(0, 0)
             .setInteractive().on('pointerup', function (pointer, localX, localY) {
-                if (this.gameState.isGameBoardActive) {
+                if (gameState.isGameBoardActive) {
                     // If board is touchable, record touch
                     eventsCenter.emit(gameSettings.EVENTS.PLAYERPENTOUCHED);
-                    console.log('player');
+                    // console.log('player');
                 }
             }, this);
         this.player.setPenZone(penZone);
         this.allFarmers.push(this.player);
         //this.updatePlayerBalance(this.player.balance);
+        gameState.player = this.player;
 
         eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
     }
@@ -205,7 +216,7 @@ export default class GameScene extends FieldScene {
 
     createCow(owner, startX, startY) {
         //console.log(startX+'::'+startY);
-        let sprite = this.physics.add.sprite(startX, startY, 'cow_1');
+        let sprite = this.physics.add.sprite(startX + 16, startY + 16, 'cow_1');
         sprite.setCollideWorldBounds(true);
         return new Cow(owner, sprite);
     }
@@ -216,7 +227,7 @@ export default class GameScene extends FieldScene {
      * All cows split evenly amongst players
      * Currently default cows are NOT sick and NOT bovifree
      */
-    createHerd() {
+    async createHerd() {
         this.debug('Creating herd...');
         // Even split for now
         let cowsPerPlayer = Math.floor(gameSettings.gameRules.startHerdSize / (gameSettings.gameRules.AIFarmerTotal + 1));
@@ -225,7 +236,9 @@ export default class GameScene extends FieldScene {
         let pen = this.gameboardInfo.playerCowPen;
         owner.pen = pen;
 
+
         for (let p = -1; p < gameSettings.gameRules.AIFarmerTotal; p++) {
+            let playerHerd = [];
             if (p >= 0) {
                 owner = this.AIFarmers[p];
                 pen = this.gameboardInfo.farmerCowPens[p];
@@ -233,39 +246,81 @@ export default class GameScene extends FieldScene {
                 owner.pen = pen;
             }
             for (let c = 0; c < cowsPerPlayer; c++) {
-                let cow = this.createCow(owner, (19 * this.BOARD_TILE_SIZE), (34 * this.BOARD_TILE_SIZE));
+                let spawnPoint = owner.getPenTile(c);
+                let cow = this.createCow(
+                    owner,
+                    ((spawnPoint[0]) * this.BOARD_TILE_SIZE),
+                    (spawnPoint[1] * this.BOARD_TILE_SIZE)
+                );
                 // Pick
-                owner.herdTotal+=1;
+                owner.herdTotal += 1;
                 this.herd.push(cow);
+                playerHerd.push(cow);
+
             }
+            owner.infections = 1;
+            gameState.infectionTotal += 1;
 
         }
+
         eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
         return true;
     }
 
-    createAIFarmer(id, name, balance, farmerStart) {
+    createAIFarmer(id, name, balance, farmerStart, threshold, spriteKey, spriteFrame) {
 
-        let AISprite = this.physics.add.sprite(farmerStart[0] * this.BOARD_TILE_SIZE, (farmerStart[1] + 1) * this.BOARD_TILE_SIZE, 'farmer_2');
+        let AISprite = this.physics.add.sprite(
+            farmerStart[0] * this.BOARD_TILE_SIZE, (farmerStart[1] + 1) * this.BOARD_TILE_SIZE, spriteKey, spriteFrame
+        ).setScale(gameSettings.CHARACTERSPRITESCALE);
         AISprite.setCollideWorldBounds(true);
         //AISprite.setVisible(false);
-        let aiFarmer = new AIFarmer(id, name, balance, AISprite, farmerStart);
-        aiFarmer.infections=gameSettings.gameRules.startingInfections;
+        let aiFarmer = new AIFarmer(
+            id, name, balance, AISprite, farmerStart, threshold
+        );
+        aiFarmer.infections = gameSettings.gameRules.startingInfections;
         this.AIFarmers.push(aiFarmer);
         this.allFarmers.push(aiFarmer);
         return aiFarmer;
     }
 
+    /**
+     * return keys of farmer sprites not including one chosen
+     * by player
+     */
+    getAIFarmerSpriteKeys() {
+        let spriteKeys = [];
+        for (const [key, value] of Object.entries(gameSettings.CHARACTER_FRAMES)) {
+            if (value !== gameState.playerSpriteKeyFrame) {
+                spriteKeys.push(key);
+            }
+        }
+        // Quick and simple randomize
+        // From https://stackoverflow.com/questions/2450954/how-to-randomize-shuffle-a-javascript-array
+        let shuffled = spriteKeys
+            .map(value => ({value, sort: Math.random()}))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({value}) => value);
+        return shuffled;
+    }
+
     createFarmers() {
         //let farm = this.add.image(this.GAME_WIDTH, 0, 'AI_farm').setOrigin(1, 0);
+
+        let spriteKeys = this.getAIFarmerSpriteKeys();
         for (let x = 0; x < gameSettings.gameRules.AIFarmerTotal; x++) {
             // Split evenly on left  and right side
-            let aiFarmer = this.createAIFarmer(x, 'AI ' + (x + 1), gameSettings.gameRules.startFarmerBalance, this.gameboardInfo.farmerStarts[x]);
+            let aiFarmer = this.createAIFarmer(
+                x, 'AI ' + (x + 1), gameSettings.gameRules.startFarmerBalance,
+                this.gameboardInfo.farmerStarts[x], gameSettings.INFECTIONTHRESHOLDS[x],
+                'creature_farmers', gameSettings.CHARACTER_FRAMES[spriteKeys[x]]
+            );
             let penZone = this.createZoneFromTiles(this.gameboardInfo.farmerCowPens[x])
                 .setOrigin(0, 0)
                 .setInteractive().on('pointerup', function (pointer, localX, localY) {
-                    if (this.sprite.scene.gameState.isGameBoardActive) {
+
+                    if (gameState.isGameBoardActive) {
                         // If board is touchable, record touch
+                        console.log('touched');
                         eventsCenter.emit(gameSettings.EVENTS.AIFARMERPENTOUCHED, this);
                         /*let zone = this.getPenZone();
                         let rect = new Phaser.Geom.Rectangle(zone.x,zone.y,zone.width,zone.height);
@@ -283,23 +338,26 @@ export default class GameScene extends FieldScene {
     }
 
 
-    create() {
+    async create() {
         // ### Pathfinding stuff ###
         // Initializing the pathfinder
         this.setupComplete = false;
         this.finder = new EasyStar.js();
+        this.finder.enableCornerCutting(false);
 
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
 
-        // Main game board
-        this.createGameBoard();
 
+        // Main game board
+
+        this.createGameBoard();
 
 
         // Pieces
         this.createPlayer();
         this.createFarmers();
         this.createHerd();
+
 
         this.startGameWhenSetupComplete();
 
@@ -314,10 +372,13 @@ export default class GameScene extends FieldScene {
 
     async sendHerdToPens(cows) {
         let promiseArray = [];
+
         for (let c = 0; c < cows.length; c++) {
             promiseArray.push(cows[c].owner.sendCowToPen(cows[c]));
         }
         let done = await Promise.all(promiseArray);
+
+
         return true;
     }
 
@@ -329,20 +390,26 @@ export default class GameScene extends FieldScene {
      */
     async startGameWhenSetupComplete() {
         // Move pieces (currently just cows)
-        await this.sendAllHerdToPens();
-
-        this.uiScene.scoreboard.fillScoreBoard(this.getAllFarmers());
+        //await this.sendAllHerdToPens();
         this.setupComplete = true;
 
+
+        this.uiScene.scoreboard.fillScoreBoard(this.getAllFarmers());
+
         // Launch phase scenes
+
         this.scene.launch(gameSettings.SCENENAMES.BFREESCENENAME);
         this.scene.launch(gameSettings.SCENENAMES.TRADINGSCENENAME);
         this.scene.launch(gameSettings.SCENENAMES.TURNENDSCENENAME);
 
         // UI Containers
         this.scene.bringToTop(gameSettings.SCENENAMES.UISCENENAME);
+
+
         // Start the game
         this.startGame();
+
+
     }
 
     /**
@@ -359,11 +426,12 @@ export default class GameScene extends FieldScene {
 
     }
 
-    startTurn(){
-        this.gameState.currentTurn +=1;
+    startTurn() {
+        gameState.currentTurn += 1;
         this.uiScene.displayTurn();
-        eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
+        eventsCenter.once(gameSettings.EVENTS.TURNSTART, function () {
             this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
+            //this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
         }, this);
     }
 
@@ -377,47 +445,10 @@ export default class GameScene extends FieldScene {
 
     handlePointerDown() {
         // General advance used for dialogs
-        if (!this.gameState.isGameBoardActive) {
+        if (!gameState.isGameBoardActive) {
             eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
         }
     }
-
-    /*
-    handlePointerUp(pointer) {
-        if (this.gameState.isGameBoardActive) {
-            let tile = this.map.getTileAtWorldXY(pointer.worldX, pointer.worldY);
-            console.log(pointer.worldX, pointer.worldY, tile);
-            eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
-        }
-    }*/
-
-    /*
-    DEPRECATED
-    moveCows(delta) {
-        let herd = this.herd;
-        for (let c = 0; c < herd.length; c++) {
-            if (herd[c].isMoving === true && herd[c].movePath.length > 0) {
-                if (!herd[c].sprite.anims.isPlaying) {
-                    herd[c].sprite.play('cow_walk_up');
-                }
-                if (herd[c].sinceLastMove >= gameSettings.gameRules.cowSpeed) {
-                    // Move the cow
-                    herd[c].doPathMove(herd[c].movePath[0], gameSettings.gameRules.cowSpeed);
-                    herd[c].movePath.shift();
-                    herd[c].sinceLastMove = 0;
-                    if (herd[c].movePath.length === 0) {
-                        // Reset our cows, give them a rest
-                        herd[c].isMoving = false;
-                        herd[c].sinceLastMove = 0;
-                        herd[c].sprite.stop();
-                    }
-                } else {
-                    //add delta
-                    herd[c].sinceLastMove += delta;
-                }
-            }
-        }
-    }*/
 
     /** Wait until all the pieces are in place before
      starting
@@ -434,52 +465,17 @@ export default class GameScene extends FieldScene {
     }
 
     update(time, delta) {
-        /* if (!this.setupComplete) {
-             if (this.waitingForSetup + delta > 500) {
-                 this.startGameWhenSetupComplete();
-                 this.waitingForSetup = 0;
-             } else {
-                 this.waitingForSetup += delta;
-             }
-         }*/
+
         // todo add farm idle animations
 
     }
 
-
-
-    /**
-
-     Gameplay flow functions
-
-     Each round of the game is as follows:
-
-     1. Ask player if they wish to join the Bovifree scheme
-     If so, set cows to bovifree and deduct fee
-
-     2. Player chooses which farm to purchase cow from
-
-     3.Calculate cow infection rate
-
-     4.  Calculate balance totals
-
-     5. End round
-
-     If round max is reached:
-     Display results of game
-     Prompt to play again /share?
-
-     */
-
-
-
-
     setIsGameBoardActive(isActive) {
-        this.gameState.isGameBoardActive = isActive;
+        gameState.isGameBoardActive = isActive;
     }
 
     getIsGameBoardActive() {
-        return this.gameState.isGameBoardActive;
+        return gameState.isGameBoardActive;
     }
 
 

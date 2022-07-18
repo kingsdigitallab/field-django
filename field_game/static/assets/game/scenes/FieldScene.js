@@ -67,12 +67,14 @@ export default class FieldScene extends Phaser.Scene {
         const width = this.scale.gameSize.width;
         const height = this.scale.gameSize.height;
 
-        this.parent = new Phaser.Structs.Size(width, height);
+        console.log(this.scale.baseSize);
+        console.log(this.scale.displaySize);
+        /*this.parent = new Phaser.Structs.Size(width, height);
         this.sizer = new Phaser.Structs.Size(this.GAME_WIDTH, this.GAME_HEIGHT, Phaser.Structs.Size.FIT, this.parent);
 
         this.parent.setSize(width, height);
-        this.sizer.setSize(width, height);
-        this.updateCamera();
+        this.sizer.setSize(width, height);*/
+        //this.updateCamera();
         //this.scale.on('resize', this.resize, this);
     }
 

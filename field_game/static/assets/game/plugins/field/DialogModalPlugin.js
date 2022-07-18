@@ -8,6 +8,17 @@
 export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
     constructor(pluginManager) {
         super('DialogModalPlugin', pluginManager);
+        // Events emitted by the plugin
+    }
+
+    static getEvents(){
+        return {
+            STARTDIALOG: 'dialogStart',
+            ANIMATEDIALOGFINISHED: 'dialogAnimationFinished',
+            ADVANCEDIALOG: 'dialogAdvance',
+            SKIPDIALOG: 'dialogAdvance',
+            DIALOGFINISHED: 'dialogFinished'
+        };
     }
 
     // Initialize the dialog modal
@@ -21,26 +32,32 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         this.windowAlpha = opts.windowAlpha || 0.8;
         this.windowColor = opts.windowColor || 0x303030;
         this.windowHeight = opts.windowHeight || 150;
-        this.padding = opts.padding || 0;
+        this.padding = opts.padding || 80;
         this.closeBtnColor = opts.closeBtnColor || 'darkgoldenrod';
         this.dialogSpeed = opts.dialogSpeed || 2;
         // used for animating the text
         this.eventCounter = 0;
+        // Event emitter
+        this.eventEmitter = opts.eventEmitter || null;
         // if the dialog window is shown
         this.dialogVisible = true;
         // the current text in the window
         this.text;
         // the text that will be displayed in the window
-        this.dialog;
+        this.dialog = [];
         this.graphics;
         this.closeBtn;
+        this.isDialogRunning = false;
         // Create the dialog window
         //this._createWindow();
+
     }
+
+
 
     // Calculates where to place the dialog window based on the game size
     _calculateWindowDimensions(width, height) {
-        var x = this.padding;
+        var x = this.padding *2 ;
         var y = height - this.windowHeight; // - this.padding;
         var rectWidth = width - (this.padding * 2);
         var rectHeight = this.windowHeight;
@@ -95,6 +112,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         let gameWidth = scene.scale.width;
         let dimensions = this._calculateWindowDimensions(gameWidth, gameHeight);
         this.graphics = scene.add.graphics();
+        console.log(dimensions);
         this._createOuterWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
         this._createInnerWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
 
@@ -106,6 +124,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         this.eventCounter = 0;
         this.dialog = text.split('');
         if (this.timedEvent) this.timedEvent.remove();
+        this.isDialogRunning = true;
 
         let tempText = animate ? '' : text;
         this._setText(scene, tempText);
@@ -125,14 +144,15 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
     _setText(scene, text) {
         // Reset the dialog
         if (this.text) this.text.destroy();
-        var x = this.padding + 10;
-        var y = scene.scale.height - this.windowHeight - this.padding + 10;
+        var x = this.padding * 2  + 10;
+        var y = scene.scale.height - this.windowHeight +5 ;
         this.text = scene.make.text({
             x,
             y,
             text,
             style: {
-                wordWrap: {fontFamily: 'PressStart2P', width: scene.scale.width - (this.padding * 2) - 25}
+                fontFamily: 'PressStart2P', fontSize: '14px',
+                wordWrap: { width: scene.scale.width - (this.padding * 2) - 25}
             }
         });
 
@@ -147,7 +167,11 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
 
         if (this.eventCounter === this.dialog.length) {
             this.eventCounter = 0;
+            if (this.eventEmitter) {
+                this.eventEmitter.emit(DialogModalPlugin.getEvents().ANIMATEDIALOGFINISHED);
+            }
             this.timedEvent.remove();
+
         }
     }
 
@@ -164,6 +188,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
 
 
     closeDialogWindow(){
+        if (this.timedEvent) this.timedEvent.remove();
         if (this.text) this.text.visible = false;
         if (this.graphics) this.graphics.visible = false;
         if (this.text) this.text.destroy();

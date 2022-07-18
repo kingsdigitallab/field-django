@@ -1,5 +1,6 @@
 /*jshint esversion: 8 */
 import {gameSettings} from "../cst.js";
+import {gameState} from '../GameState.js';
 import eventsCenter from "./EventsCenter.js";
 
 /**
@@ -19,9 +20,9 @@ export default class TradingScene extends Phaser.Scene {
         super(gameSettings.SCENENAMES.TRADINGSCENENAME);
         this.dialogTexts = {
             onboards: [
-                "Trading phase",
-                "Buy a cow from a player by touching their pen.", "Bfree cows cost £" + gameSettings.gameRules.bfreeCowPrice + ", others £" + gameSettings.gameRules.normalCowPrice,
-                "Warning! Non-BFree cows may be infected"
+                "Trading phase\n"+
+                "Buy a cow from a player by touching their pen. Cows cost £" + gameSettings.gameRules.normalCowPrice +
+                "\nYou may only buy from farmers with the same certification"
             ],
             start: ["Trading phase"],
 
@@ -39,17 +40,16 @@ export default class TradingScene extends Phaser.Scene {
         this.addListeners();
 
 
-
     }
 
-    tradingPhase(){
-        if (gameSettings.DEBUG){
+    tradingPhase() {
+        if (gameSettings.DEBUG) {
             console.log("Trading Phase Start");
 
         }
 
         //Start text
-        if (this.gameScene.gameState.isOnBoarding === true) {
+        if (gameState.isOnBoarding === true) {
             this.uiScene.addTextAndStartDialog(this.dialogTexts.onboards);
         } else {
             this.uiScene.addTextAndStartDialog(this.dialogTexts.start);
@@ -57,6 +57,7 @@ export default class TradingScene extends Phaser.Scene {
         // Player trading phase
 
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
+            console.log('finished');
             this.playerTrade();
         }, this);
     }
@@ -72,7 +73,7 @@ export default class TradingScene extends Phaser.Scene {
     async playerTrade() {
         this.gameScene.setIsGameBoardActive(true);
         // On pen touched
-        eventsCenter.once(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
+        eventsCenter.on(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
 
     }
 
@@ -92,20 +93,38 @@ export default class TradingScene extends Phaser.Scene {
         let tradingSummary = '';
         let summary = '';
         let boughtCow = null;
-        let sellers =[] ;
-        sellers.push(...this.gameScene.getAllFarmers());
+        let uncertifiedSellers = [];
         let boughtHerd = [];
-
+        let certifiedSellers = [];
+        for (let s = 0; s < this.gameScene.getAllFarmers().length; s++) {
+            let farmer = this.gameScene.getAllFarmers()[s];
+            if (farmer.herdTotal > 0) {
+                if (farmer.isBFree()) {
+                    certifiedSellers.push(farmer);
+                } else {
+                    uncertifiedSellers.push(farmer);
+                }
+            }
+        }
 
         // Do all the trades
         // Write results in one big text bloc for speed
 
         for (let x = 0; x < this.gameScene.AIFarmers.length; x++) {
-            [summary, boughtCow] = this.purchaseCow(this.gameScene.AIFarmers[x], sellers);
-            if (summary && summary.length >0){
+            if (this.gameScene.AIFarmers[x].isBFree()) {
+                [summary, boughtCow] = this.purchaseCow(
+                    this.gameScene.AIFarmers[x], certifiedSellers
+                );
+            } else {
+                [summary, boughtCow] = this.purchaseCow(
+                    this.gameScene.AIFarmers[x], uncertifiedSellers
+                );
+            }
+
+            if (summary && summary.length > 0) {
                 tradingSummary += summary + "\n";
             }
-            if (boughtCow){
+            if (boughtCow) {
                 boughtHerd.push(boughtCow);
             }
         }
@@ -117,26 +136,40 @@ export default class TradingScene extends Phaser.Scene {
         await this.gameScene.sendHerdToPens(boughtHerd);
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
             this.resetCows();
-                this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
-            }, this);
+            this.finishPhase();
+        }, this);
 
 
     }
 
-    resetCows(){
+    /**
+     * Do any housekeeping and move on to next part of turn
+     */
+    async finishPhase(){
+        this.removeListeners();
+        // Short delay before next phase
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
+    }
+
+    removeListeners(){
+        eventsCenter.off(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
+    }
+
+    resetCows() {
         for (let x = 0; x < this.gameScene.herd.length; x++) {
-            this.gameScene.herd[x].isTrading=false;
+            this.gameScene.herd[x].isTrading = false;
         }
     }
 
     async playerPurchaseCow(seller) {
 
-        if (seller) {
-             this.gameScene.setIsGameBoardActive(false);
+        if (seller && (seller.isBFree() === this.gameScene.player.isBFree())) {
+            this.gameScene.setIsGameBoardActive(false);
             let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
             // Send cow to player pen
             this.uiScene.addTextAndStartDialog([summary]);
-            if (boughtCow){
+            if (boughtCow) {
                 eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
                 eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
             }
@@ -148,7 +181,9 @@ export default class TradingScene extends Phaser.Scene {
 
     /**
      * Buy a cow from another AI or the player
-     * If the player has the money
+     * BETA: certified buyers ONLY but from certified sellers
+     *
+     * Uncertified from uncertified
      *
      * @param farmers
      * @return summary of transactions
@@ -156,19 +191,9 @@ export default class TradingScene extends Phaser.Scene {
     purchaseCow(buyer, sellers) {
         let summary = '';
         let boughtCow = null;
-        if (buyer.balance >= gameSettings.gameRules.bfreeCowPricee) {
-            this.transaction(buyer, buyer.calculatePurchaseChoice(sellers));
-        } else if (buyer.balance >= gameSettings.gameRules.normalCowPrice) {
-            // Player can't afford premium cows, only buy from nonbfree
-            let normalSellers = [];
 
-            for (let s = 0; s < sellers.length; s++) {
-
-                if (!sellers[s].isBFree()) {
-                    normalSellers.push(sellers[s]);
-                }
-            }
-            [summary, boughtCow] = this.transaction(buyer, buyer.calculatePurchaseChoice(normalSellers));
+        if (buyer.balance >= gameSettings.gameRules.normalCowPrice) {
+            [summary, boughtCow] = this.transaction(buyer, buyer.calculatePurchaseChoice(sellers));
         } else {
             summary = buyer.name + " can't afford to buy a cow";
         }
@@ -216,21 +241,21 @@ export default class TradingScene extends Phaser.Scene {
             // Set the ownership of cow to seller
             for (let c = 0; c < this.gameScene.herd.length; c++) {
 
-                if (this.gameScene.herd[c].owner === seller && this.gameScene.herd[c].isTrading===false) {
+                if (this.gameScene.herd[c].owner === seller && this.gameScene.herd[c].isTrading === false) {
                     boughtCow = this.gameScene.herd[c];
-                    boughtCow.isTrading=true;
+                    boughtCow.isTrading = true;
                     break;
                 }
             }
-            if (boughtCow){
+            if (boughtCow) {
                 console.log('REASSIGNED');
                 boughtCow.owner = buyer;
                 //let penTile = buyer.findRandomPenTile();
             }
 
-            if (gameSettings.DEBUG){
-                console.log("Buyer: "+buyer.name+" "+buyer.herdTotal);
-                console.log("Seller: "+seller.name+" "+seller.herdTotal);
+            if (gameSettings.DEBUG) {
+                console.log("Buyer: " + buyer.name + " " + buyer.herdTotal);
+                console.log("Seller: " + seller.name + " " + seller.herdTotal);
             }
 
             // Reset time since last sale for seller

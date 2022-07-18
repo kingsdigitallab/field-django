@@ -1,5 +1,7 @@
 /*jshint esversion: 8 */
 import {gameSettings} from "../cst.js";
+import {gameState} from '../GameState.js';
+
 import eventsCenter from "./EventsCenter.js";
 
 /**
@@ -25,7 +27,7 @@ export default class TurnEndScene extends Phaser.Scene {
     }
 
     async updateFarmerIncome(farmer) {
-        let income = (farmer.herdTotal - farmer.infections) * 10;
+        let income = (farmer.herdTotal - farmer.infections);
         await this.uiScene.scoreboard.scoreboardTickUp(
             farmer.slug, this.uiScene.scoreboard.cellKeys.balanceCell,
             farmer.balance, (farmer.balance + income)
@@ -33,7 +35,7 @@ export default class TurnEndScene extends Phaser.Scene {
         farmer.balance += income;
     }
 
-    updateHerdSize(farmer){
+    updateHerdSize(farmer) {
         this.uiScene.scoreboard.updateScoreboardCell(farmer.slug, this.uiScene.scoreboard.cellKeys.cowCell, farmer.herdTotal);
     }
 
@@ -43,8 +45,11 @@ export default class TurnEndScene extends Phaser.Scene {
     async turnEndPhase() {
         // For each farmer
         let farmers = this.gameScene.getAllFarmers();
-
         this.uiScene.scoreboard.updateScoreBoardTitles();
+
+        this.uiScene.toggleDialogWindow();
+        this.uiScene.togglePlayerWindow();
+
         this.uiScene.scoreboard.toggleScoreboard();
         await this.uiScene.sleep(1500);
 
@@ -63,41 +68,108 @@ export default class TurnEndScene extends Phaser.Scene {
         }
         let done = await Promise.all(balancePromises);
         // Calculates infection
+        let oldInfectionTotal = gameState.infectionTotal;
         for (let f = 0; f < farmers.length; f++) {
-                infectionPromises.push(this.updateInfection(farmers[f]));
+            this.updateInfection(farmers[f]);
         }
-        await Promise.all(infectionPromises);
 
-        this.uiScene.scoreboard.updateScoreBoardRanks(this, this.sortPlayersByBalance());
+        await this.uiScene.scoreboard.infectionTickUp(oldInfectionTotal, gameState.infectionTotal);
+
+        //Give user a chance to read it
+        await this.uiScene.sleep(1000);
+        let currentPlayers = this.sortPlayersByAssets();
+        this.uiScene.scoreboard.updateScoreBoardRanks(this, currentPlayers);
 
         eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
-            this.uiScene.scoreboard.toggleScoreboard();
-            this.uiScene.scoreboard.scoreboardPrompt.visible=false;
-
             // If last turn, go to game end
             //Otherwise start new turn
-            if (this.gameScene.gameState.currentTurn >= gameSettings.gameRules.totalTurns){
-                // Game over man
-                this.scene.switch(gameSettings.SCENENAMES.GAMEENDSCENENAME);
-            }else{
+            if (gameState.currentTurn >= gameSettings.gameRules.totalTurns) {
+                // Final scores
+                // Set the winner
+                gameState.winnerSpriteKeyFrame = currentPlayers[0].sprite.frame.name;
+                gameState.winner = currentPlayers[0];
+                console.log(gameState.winnerSpriteKeyFrame = currentPlayers[0].sprite.frame.name);
+                let scene = this.scene;
+                this.add.tween({
+                    targets: this.uiScene.scoreboard.scoreboardTitle,
+                    alpha: 0,
+                    duration: 1000,
+                    onComplete: () => {
+                        this.uiScene.scoreboard.scoreboardTitle.text = "Final Score";
+                        // Recentre
+                        this.uiScene.scoreboard.scoreboardTitle.x = this.uiScene.scoreboard.rectCentreX - (this.uiScene.scoreboard.scoreboardTitle.displayWidth / 2);
+                        this.add.tween({
+                             targets: this.uiScene.scoreboard.scoreboardTitle,
+                             alpha: 1,
+                             duration: 1000,
+                             onComplete: () => {
+                                 eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
+                                     // Game over man
+                                    scene.start(gameSettings.SCENENAMES.GAMEENDSCENENAME);
+                                 });
+                             }
+                         }, this);
+                    }
+                }, this);
+
+            } else {
+                this.uiScene.scoreboard.toggleScoreboard();
+                this.uiScene.scoreboard.scoreboardPrompt.visible = false;
+                this.resetBoard();
                 // Back to turn start
                 this.gameScene.startTurn();
                 //this.scene.sleep();
             }
 
         }, this);
-        this.uiScene.scoreboard.scoreboardPrompt.visible=true;
+        this.uiScene.scoreboard.scoreboardPrompt.visible = true;
 
     }
 
-    sortPlayersByBalance(){
+    /**
+     * Chores to get board ready for next turn:
+     * -Remove tints on bfree cows
+     */
+    resetBoard() {
+        // Remove tints on bfree
+        for (let c = 0; c < this.gameScene.herd.length; c++) {
+            if (this.gameScene.herd[c].sprite.isTinted) {
+                this.gameScene.herd[c].sprite.clearTint();
+            }
+        }
+
+    }
+
+    /**
+     * Sorting just by their current cash balance
+     * @return sorted players
+     */
+    sortPlayersByBalance() {
         let players = this.gameScene.getAllFarmers();
-        players.sort(function(a,b){
-            if (a.balance > b.balance){
+        players.sort(function (a, b) {
+            if (a.balance > b.balance) {
                 return -1;
-            }else if (b.balance< a.balance){
+            } else if (b.balance < a.balance) {
                 return 1;
-            }else{
+            } else {
+                return 0;
+            }
+        });
+        return players;
+    }
+
+    /**
+     * Sorting by cash plus assets e.g. cows
+     * @return sorted players
+     */
+    sortPlayersByAssets() {
+        let players = this.gameScene.getAllFarmers();
+        players.sort(function (a, b) {
+            if (a.getAssets() > b.getAssets()) {
+                return -1;
+            } else if (b.getAssets() < a.getAssets()) {
+                return 1;
+            } else {
                 return 0;
             }
         });
@@ -108,39 +180,31 @@ export default class TurnEndScene extends Phaser.Scene {
 
     }
 
-    /*
-    For farm in {0,1,…,8}
-        Use N = cows[farm] - infections[farm]
-        p = β * infections[farm] ÷ Cows[farm]
-    Select n from Binomial distribution B( N,p)
-        Increase Infections[farm] by n
-     */
 
+    /**
+     *
+     * Increase infection in farms that have infected cows.
+     *
+     * New simple beta version that doubles infection (if herd allows)
+     *
+     * @param farmer
+     * @return {Promise<void>}
+     */
     async updateInfection(farmer) {
         let newInfections = 0;
-        if (farmer.bfree === false) {
-            let infectionChance = gameSettings.gameRules.infectionBeta * farmer.infections / farmer.herdTotal;
-            for (let c = 0; c < (farmer.herdTotal - farmer.infections); c++) {
-
-                if (Math.random() <= infectionChance) {
-                    newInfections += 1;
-                }
-
-                if ((farmer.infections + newInfections) >= farmer.herdTotal) {
-                    break;
-
-                }
-
+        if (farmer.bfree === false || farmer.infections === farmer.herdTotal) {
+            if ((farmer.infections * 2) <= farmer.herdTotal) {
+                newInfections = farmer.infections;
+            } else {
+                // Infect all the remaining cows
+                newInfections = farmer.herdTotal - farmer.infections;
             }
-            if (newInfections > 0) {
-                this.uiScene.scoreboard.scoreboardLines[farmer.slug][this.uiScene.scoreboard.cellKeys.infectedCell].setColor('red');
-                await this.uiScene.scoreboard.scoreboardTickUp(
-                    farmer.slug, this.uiScene.scoreboard.cellKeys.infectedCell,
-                    farmer.infections, (farmer.infections + newInfections)
-                );
-            }
+
             farmer.infections += newInfections;
+            gameState.infectionTotal += newInfections;
         }
     }
+
+
 
 }

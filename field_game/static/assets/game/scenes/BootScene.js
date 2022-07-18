@@ -1,6 +1,7 @@
 /*jshint esversion: 8 */
 import FieldScene from './FieldScene.js';
 import {gameSettings} from "../cst.js";
+import DialogModalPlugin from "../plugins/field/DialogModalPlugin.js";
 
 export default class BootScene extends FieldScene {
 
@@ -14,14 +15,26 @@ export default class BootScene extends FieldScene {
 
     constructor() {
         super('BootScene');
+        this.collectEvents();
+    }
+
+    /** Collect events from other scenes/plugins
+     *  into central repo for use by scenes
+     */
+    collectEvents(){
+        // Collect events
+        // todo make this a part of the standard template
+        gameSettings.EVENTS = Object.assign({}, gameSettings.EVENTS, DialogModalPlugin.getEvents());
+        console.log(gameSettings.EVENTS);
+
     }
 
     preload() {
-
         this.loadAssets();
     }
 
     loadAssets() {
+
         // Farmers
         this.load.spritesheet('farmer_1',
             this.ASSET_URL + '/textures/farmer_1.png',
@@ -33,6 +46,12 @@ export default class BootScene extends FieldScene {
             {frameWidth: 32, frameHeight: 32}
         );
 
+       this.load.spritesheet('creature_farmers',
+            this.ASSET_URL + '/sprites/TL_Creatures.png',
+            {frameWidth: 32, frameHeight: 32}
+        );
+
+
         //Animals
         this.load.spritesheet('cow_1',
             '/static/assets/game/textures/cow_walk_64.png',
@@ -40,22 +59,26 @@ export default class BootScene extends FieldScene {
         );
 
 
-        this.load.image('player_farm', this.ASSET_URL + '/maps/player_farm.png');
-        this.load.image('AI_farm_left', this.ASSET_URL + '/maps/AI_farm_left.png');
-        this.load.image('AI_farm_right', this.ASSET_URL + '/maps/AI_farm_right.png');
+
+
 
         // Decorations (Grass, buildings, trees, fences, etc.)
         this.load.image('grass', this.ASSET_URL + '/textures/grass_1.png');
-        this.load.image('tree_1', this.ASSET_URL + '/textures/tree_1.png');
+
+        // Hospital and house for flashing highlights
+        this.load.image('hospital', this.ASSET_URL + '/textures/hospital.png');
+        this.load.image('playerFarm', this.ASSET_URL + '/textures/player_farm.png');
 
         // Load the export Tiled JSON
         this.load.image('tiles', this.ASSET_URL + '/textures/simple_farm.png');
         this.load.image('modern', this.ASSET_URL + '/textures/statics.png');
-        this.load.tilemapTiledJSON('map', this.ASSET_URL + '/maps/fieldfarm.json');
+        this.load.tilemapTiledJSON('map', this.ASSET_URL + '/maps/fieldfarm_beta.json');
 
     }
 
     createAnimations() {
+
+
         this.anims.create({
             key: 'cow_walk_up',
             frames: this.anims.generateFrameNumbers('cow_1', {frames: [0, 1, 2, 3]}),
@@ -88,7 +111,8 @@ export default class BootScene extends FieldScene {
         this.createAnimations();
         this.debug("BOOTING COMPLETE!");
         this.scene.launch(gameSettings.SCENENAMES.UISCENENAME);
-        this.scene.start(gameSettings.SCENENAMES.GAMESCENENAME);
+        this.scene.start(gameSettings.SCENENAMES.TITLESCENENAME);
+
 
 
     }

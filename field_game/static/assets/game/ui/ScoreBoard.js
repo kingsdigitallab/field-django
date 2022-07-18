@@ -1,4 +1,6 @@
 /*jshint esversion: 8 */
+import {gameState} from '../GameState.js';
+import {gameSettings} from "../cst.js";
 
 /**
  * The scoreboard to dispaly player scores at round end
@@ -24,12 +26,12 @@ export default class ScoreBoard {
         this.borderAlpha = 1;
         this.windowAlpha = 0.8;
         this.windowColor = 0x303030;
-        this.defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '12px'};
+        this.defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '14px'};
         this.defaultColumnTitleTextStyle = {fontFamily: 'PressStart2P', fontSize: '14px'};
         this.defaultTitleTextStyle = {fontFamily: 'PressStart2P', fontSize: '24px'};
         this.defaultPromptTextStyle = {fontFamily: 'PressStart2P', fontSize: '16px'};
 
-        this.columns = 5;
+        this.columns = 4;
         this.cellWidth = 80;
         this.cellHeight = 64;
 
@@ -40,10 +42,16 @@ export default class ScoreBoard {
             nameCell: 'nameCell',
             balanceCell: 'balanceCell',
             cowCell: 'cowCell',
-            infectedCell: 'infectedCell'
+            //infectedCell: 'infectedCell'
         };
+        this.scoreFadeIn = null;
+        this.scoreFadeOut = null;
+        this.promptOffset = 50;
 
         this.visible = false;
+        this.infectionsTotalLabel = "Total Infections ";
+        this.infectionsTotal = null;
+
     }
 
     toggleScoreboard() {
@@ -54,11 +62,23 @@ export default class ScoreBoard {
             this.scoreboardPrompt.visible = false;
             this.scoreboardBackground.visible = false;
             this.scoreboardEdge.visible = false;
+            this.infectionsTotal.visible= false;
+            // Check we're not mid update score
+            if ((this.scoreFadeOut && this.scoreFadeOut.isPlaying()) || (this.scoreFadeIn && this.scoreFadeIn.isPlaying())) {
+                this.scoreFadeOut.stop();
+                this.scoreFadeIn.stop();
+                // Fix the scoreboard
+                /*this.scoreboardGroup.destroy(true);
+                let rankedGroup = this.generateScoreGrid(players,0);
+                this.arrangeScoreGrid();*/
+
+            }
         } else {
             this.scoreboardTitle.visible = true;
             this.scoreboardPrompt.visible = true;
             this.scoreboardBackground.visible = true;
             this.scoreboardEdge.visible = true;
+            this.infectionsTotal.visible= true;
         }
         this.visible = !this.visible;
     }
@@ -76,10 +96,17 @@ export default class ScoreBoard {
             rank, this.defaultTextStyle
         ).setAlpha(alpha);
         //console.log(rankCell.displayWidth);
+        let nameCell = this.scene.physics.add.sprite(
+            x,
+            y,
+            gameSettings.CHARACTER_KEY,
+            farmer.sprite.frame.name
+        ).setScale(2).setAlpha(alpha);
+        /*
         let nameCell = this.scene.add.text(
             x, y,
             farmer.name, this.defaultTextStyle
-        ).setAlpha(alpha);
+        ).setAlpha(alpha);*/
 
         let balanceCell = this.scene.add.text(
             x, y,
@@ -91,27 +118,27 @@ export default class ScoreBoard {
             farmer.herdTotal,
             this.defaultTextStyle
         ).setAlpha(alpha);
-        let infectedCell = this.scene.add.text(
+        /*let infectedCell = this.scene.add.text(
             x, y,
             farmer.infections,
             this.defaultTextStyle
-        ).setAlpha(alpha);
+        ).setAlpha(alpha);*/
 
         this.scoreboardLines[farmer.slug] = {
             'rankCell': rankCell,
             'nameCell': nameCell,
             'balanceCell': balanceCell,
             'cowCell': cowCell,
-            'infectedCell': infectedCell
+            //'infectedCell': infectedCell
         };
-        return [rankCell, nameCell, balanceCell, cowCell, infectedCell];
+        return [rankCell, nameCell, balanceCell, cowCell];
     }
 
     /**
      * Headings for our scoreboard
      * Hidden by default
      */
-    createGridTitles(){
+    createGridTitles() {
         this.scoreboardTitles = this.scene.add.group({
             name: 'scoreboard_group',
             active: true,
@@ -124,7 +151,7 @@ export default class ScoreBoard {
             ).setVisible(false),
             this.scene.add.text(
                 0, 0,
-                'Name',
+                'Player',
                 this.defaultColumnTitleTextStyle
             ).setVisible(false),
             this.scene.add.text(
@@ -137,11 +164,11 @@ export default class ScoreBoard {
                 'Cows',
                 this.defaultColumnTitleTextStyle
             ).setVisible(false),
-            this.scene.add.text(
+            /*this.scene.add.text(
                 0, 0,
                 'Sick',
                 this.defaultColumnTitleTextStyle
-            ).setVisible(false),
+            ).setVisible(false),*/
         ];
         this.scoreboardTitles.addMultiple(this.columnHeadings);
 
@@ -152,8 +179,8 @@ export default class ScoreBoard {
      *
      * Fixed char widths for easy reading below
      *
-     * Name     £      Cows   Infected
-     * 10       5       4         8
+     * Name     £      Cows
+     * 10       5       4
      *
      * 1 char padding
      *
@@ -174,19 +201,30 @@ export default class ScoreBoard {
 
     }
 
-    arrangeScoreGrid(){
+    arrangeScoreGrid() {
         let scoreGrid = [];
-        scoreGrid.push(...this.scoreboardTitles.getChildren());
-        scoreGrid.push(...this.scoreboardGroup.getChildren());
-        Phaser.Actions.GridAlign(scoreGrid, {
-            width: 5,
-            height: 10,
-            cellWidth: this.cellWidth,
-            cellHeight: this.cellHeight,
-            position: Phaser.Display.Align.CENTER,
-            x: this.rectCentreX - Math.round(((this.cellWidth * this.columns) / 2.5)),
-            y: this.rectCentreY - ((this.cellHeight * 8) / 2)
-        });
+        if (this.scoreboardTitles && this.scoreboardGroup) {
+            scoreGrid.push(...this.scoreboardTitles.getChildren());
+            scoreGrid.push(...this.scoreboardGroup.getChildren());
+            Phaser.Actions.GridAlign(scoreGrid, {
+                width: this.columns,
+                height: 7,
+                cellWidth: this.cellWidth,
+                cellHeight: this.cellHeight,
+                position: Phaser.Display.Align.CENTER,
+                /* An example of the craziness of aligning things in phaser.  This is:
+                Total widths of screen - half the total width of the grid
+                BUT because the x,y in grid align is marked for the first cell in the grid
+                AND (this was the annoying bit) it's the CENTER x,y of that first cell
+                we offset by half its width as well
+                 */
+                x: this.rectCentreX - ((this.cellWidth * this.columns) / 2) + (this.cellWidth/2),
+                y: this.rectCentreY - ((this.cellHeight * 7) / 2)
+            });
+
+
+        }
+
     }
 
 
@@ -199,7 +237,6 @@ export default class ScoreBoard {
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
-
     /**
      * Use a timer to progressively increase a number on the scoreboard
      */
@@ -213,26 +250,27 @@ export default class ScoreBoard {
             }
 
         }
+        return true;
+    }
 
-        /*if (currentValue < value) {
-            // Add another tick
-            this.scene.time.addEvent({
-                delay: this.tickDelay,
-                callback: this.scoreboardTickUp,
-                args:[farmer_slug,cellKey,currentValue,value],
-                callbackScope: this,
-                loop: false
-            });
-        }*/
+    async infectionTickUp(currentValue, value) {
+        if (currentValue < value) {
+            while (currentValue < value) {
+                currentValue += 1;
+                this.infectionsTotal.text = this.infectionsTotalLabel+' '+currentValue;
+                await this.sleep(this.tickDelay);
+            }
+
+        }
         return true;
     }
 
     fillScoreBoard(players) {
-
-
         this.generateScoreGrid(players, 1);
         this.arrangeScoreGrid();
         this.scoreboardGroup.toggleVisible();
+        // Update the base infection now that farmers created
+        this.infectionsTotal.text = this.infectionsTotalLabel+' '+gameState.infectionTotal;
     }
 
     updateScoreBoardTitles() {
@@ -255,35 +293,37 @@ export default class ScoreBoard {
         console.log(players);
         let scoreboard = this;
         let group = this.scoreboardGroup;
-        let timeline = scene.tweens.createTimeline();
+        let fadeOut = this.scoreFadeOut;
+        fadeOut = scene.tweens.createTimeline();
+        let fadeIn = this.scoreFadeIn;
         group.getChildren().forEach(function (child) {
-            timeline.add({
+            fadeOut.add({
                 targets: child,
                 alpha: {value: 0, duration: 50, ease: 'Power1'},
 
             });
         });
-        timeline.setCallback('onComplete', function () {
+        fadeOut.setCallback('onComplete', function () {
             console.log('complete');
             group.destroy(true);
-            let rankedGroup = scoreboard.generateScoreGrid(players,0);
+            let rankedGroup = scoreboard.generateScoreGrid(players, 0);
             scoreboard.arrangeScoreGrid();
-            let timeline2 = scene.tweens.createTimeline();
+            fadeIn = scene.tweens.createTimeline();
             rankedGroup.getChildren().forEach(function (child) {
-                timeline2.add({
+                fadeIn.add({
                     targets: child,
                     alpha: {value: 1, duration: 100, ease: 'Power1'},
 
                 });
             });
-            timeline2.play();
-        });
-        timeline.play();
+            fadeIn.play();
+        }, this);
+        fadeOut.play();
 
     }
 
     updateScoreboardTitleText() {
-        return "Turn " + this.scene.gameScene.gameState.currentTurn + " Scores";
+        return "Turn " + gameState.currentTurn + " Scores";
     }
 
     /** Overall scoreboard for all players
@@ -294,8 +334,8 @@ export default class ScoreBoard {
         this.board_height = this.scene.GAME_HEIGHT - (this.scene.GAME_HEIGHT / 6);
         this.rectX = this.scene.GAME_WIDTH / 2 - (this.board_width / 2);
         this.rectY = this.scene.GAME_HEIGHT / 2 - (this.board_height / 2);
-        this.rectCentreX = this.scene.GAME_WIDTH / 2;
-        this.rectCentreY = this.scene.GAME_HEIGHT / 2;
+        this.rectCentreX = this.scene.scale.width / 2;
+        this.rectCentreY = this.scene.scale.height / 2;
         // Nicked from the plugin
         let graphics = this.scene.add.graphics();
         graphics.lineStyle(
@@ -321,11 +361,23 @@ export default class ScoreBoard {
         );
         this.createGridTitles();
 
+        // Phaser.Display.Align.To.LeftBottom(
+        //     this.infectionsTotalLabel, this.scoreboardTitle
+        // );
+        //this.infectionsTotalNumber = this.scene.add.text(0,0, '0', this.defaultColumnTitleTextStyle);
 
         this.scoreboardPrompt = this.scene.add.text(
-            this.rectCentreX, this.rectY + this.board_height - 50, 'Touch to continue',
+            this.rectCentreX, this.rectY + this.board_height - this.promptOffset, 'Touch to continue',
             this.defaultPromptTextStyle
         );
+        this.infectionsTotal =
+            this.scene.add.text(0,0,
+                this.infectionsTotalLabel+' '+gameState.infectionTotal, this.defaultColumnTitleTextStyle);
+        this.infectionsTotal.x = this.rectCentreX - (this.infectionsTotal.displayWidth / 2);
+        this.infectionsTotal.y =
+            this.rectY + this.board_height - this.promptOffset - (this.scoreboardPrompt.displayHeight *4);
+
+        this.infectionsTotal.visible= false;
         this.scoreboardPrompt.visible = false;
         this.scoreboardBackground.visible = false;
         this.scoreboardTitle.visible = false;

@@ -1,5 +1,7 @@
 /*jshint esversion: 8 */
 
+import {gameSettings} from "../cst.js";
+
 /**
  * The base farmer class, used by the AI and human players
  * This class stores all information about the player
@@ -51,26 +53,41 @@ export class Farmer {
         return this.penZone;
     }
 
+    /** Player's cash plus the value of their herd (healthy cows times normal price)
+     *  Cow value may need to be changed
+     */
+    getAssets(){
+        return ((this.herdTotal-this.infections) * gameSettings.gameRules.normalCowPrice)+this.balance;
+    }
+
 
     /**
      * Find a tile in a player pen for a cow
      * that IS NOT currently occupied by another cow
      * Used for spawning and transferring cows during sales
-     * @param penTileCoords top left of pen
-     * @param width width of pen
-     * @param height of pen
+     * NOTE: x+1, y-1 below because of fence sprite, so we don't spawn on the fence
      * @return [x,y] coordinates
      */
-    findRandomPenTile(penTileCoords, width, height) {
+    findRandomPenTile() {
         if (this.pen) {
             let freePenPoint = [
-                this.pen[0][0] + Math.round(Math.random() * this.pen[1][0]),
-                this.pen[0][1] + Math.round(Math.random() * this.pen[1][1])
+                (this.pen[0][0]+1) + Math.round(Math.random() * this.pen[1][0]-1),
+                (this.pen[0][1]-1) + Math.round(Math.random() * this.pen[1][1]-1)
             ];
             // todo Make sure no cow shares this?
             return freePenPoint;
         }
         return null;
+
+    }
+
+
+    getPenTile(cowIndex){
+        let maxRows = Math.floor(this.pen[1][1] /2); // 3
+        let maxCols = Math.floor(this.pen[1][0] /2); // 4
+        let row = Math.floor(cowIndex/maxCols);
+        let col = Math.floor(cowIndex-(row*maxCols))*2;
+        return [this.pen[0][0]+col,this.pen[0][1]+(row*2)];
 
     }
 
@@ -81,7 +98,7 @@ export class Farmer {
      */
     async sendCowToPen(cow) {
         cow.isMoving = true;
-        let penPoint = this.findRandomPenTile();
+        let penPoint = this.getPenTile(this.herdTotal+1); //this.findRandomPenTile();
         if (penPoint) {
             let done = await cow.calculateMovePath(
                 penPoint[0], penPoint[1]
@@ -124,8 +141,9 @@ export class Farmer {
  * behaviour
  */
 export class AIFarmer extends Farmer {
-    constructor(id, name, balance, sprite, farmerStart) {
+    constructor(id, name, balance, sprite, farmerStart,threshold) {
         super(id, name, balance, sprite, farmerStart);
+        this.threshold = threshold;
     }
 
     /**
@@ -149,9 +167,7 @@ export class AIFarmer extends Farmer {
      * @return farmer we're buying from
      */
     calculatePurchaseChoice(farmers) {
-        // Todo this must be changed
-        // after discussions so random choice
-        // for now as a placeholder
+        // One at random from available sellers
         if (farmers && farmers.length > 0) {
             let selected = false;
             let choice = Math.ceil(Math.random() * farmers.length) - 1;
