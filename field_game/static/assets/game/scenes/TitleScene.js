@@ -74,12 +74,26 @@ export default class TitleScene extends FieldScene {
         this.createTitleScreen();
         this.input.once('pointerdown', function () {
             let scene = this;
+
             setTimeout(function () {
                 scene.advance();
             }, 1000);
         }, this);
 
 
+    }
+
+    startFullscreen(){
+        if (this.scale.isFullscreen)
+            {
+                //button.setFrame(0);
+                this.scale.stopFullscreen();
+            }
+            else
+            {
+                //button.setFrame(1);
+                this.scale.startFullscreen();
+            }
     }
 
 
