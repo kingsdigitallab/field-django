@@ -183,9 +183,11 @@ export default class Cow {
         timeline.add({
             targets: this.sprite,
             ease: 'Linear',
+            tint: 0x0000ff,
             angle: {value: 360 * 3, duration: 1000},
-
         });
+
+
         return timeline;
     }
 

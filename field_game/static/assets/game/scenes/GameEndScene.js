@@ -4,6 +4,9 @@ import eventsCenter from "./EventsCenter.js";
 
 /**
  * Final game ending scene
+ *
+ * Show game endinge screen
+ * Then High Scores?
  */
 export default class GameEndScene extends Phaser.Scene {
     constructor() {

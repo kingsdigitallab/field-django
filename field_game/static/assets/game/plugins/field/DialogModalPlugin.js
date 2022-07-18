@@ -141,8 +141,12 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
 
     _animateText() {
         this.eventCounter++;
-        this.text.setText(this.text.text + this.dialog[this.eventCounter - 1]);
+        if (this.text && this.dialog && this.dialog.length > 0){
+            this.text.setText(this.text.text + this.dialog[this.eventCounter - 1]);
+        }
+
         if (this.eventCounter === this.dialog.length) {
+            this.eventCounter = 0;
             this.timedEvent.remove();
         }
     }

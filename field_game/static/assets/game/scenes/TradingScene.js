@@ -136,7 +136,10 @@ export default class TradingScene extends Phaser.Scene {
             let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
             // Send cow to player pen
             this.uiScene.addTextAndStartDialog([summary]);
-
+            if (boughtCow){
+                eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
+                eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
+            }
             await this.gameScene.player.sendCowToPen(boughtCow);
             this.AITrade();
 

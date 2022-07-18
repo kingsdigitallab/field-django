@@ -190,6 +190,8 @@ export default class GameScene extends FieldScene {
         this.player.setPenZone(penZone);
         this.allFarmers.push(this.player);
         //this.updatePlayerBalance(this.player.balance);
+
+        eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
     }
 
     updatePlayerBalance(balance) {
@@ -238,6 +240,7 @@ export default class GameScene extends FieldScene {
             }
 
         }
+        eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
         return true;
     }
 
