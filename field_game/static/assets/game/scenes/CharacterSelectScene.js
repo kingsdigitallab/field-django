@@ -103,6 +103,7 @@ export default class CharacterSelectScene extends FieldScene {
             // set interactive
             characterSprite.setInteractive().once('pointerup', function (pointer, localX, localY) {
                 // select the sprite
+                this.scale.startFullscreen();
                 this.characterSelected(characterSprite);
             }, this);
             // Animations
