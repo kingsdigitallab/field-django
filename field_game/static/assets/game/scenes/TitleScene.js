@@ -73,7 +73,6 @@ export default class TitleScene extends FieldScene {
         // this.scale.on('resize', this.resize, this);
         this.createTitleScreen();
         this.input.once('pointerdown', function () {
-
             let scene = this;
             setTimeout(function () {
                 scene.advance();

@@ -35,6 +35,9 @@ let gameScene = new GameScene();
 
 let config = {
     type: Phaser.AUTO,
+    parent: 'phaser-fieldgame',
+    width: GAME_WIDTH,
+        height: GAME_HEIGHT,
     physics: {
         default: 'arcade',
         arcade: {
@@ -49,11 +52,10 @@ let config = {
             ]
         },
     scale: {
-        mode: Phaser.Scale.HEIGHT_CONTROLS_WIDTH,
-        parent: 'phaser-fieldgame',
+        mode: Phaser.Scale.FIT,
+
         autoCenter: Phaser.Scale.CENTER_BOTH,
-        width: GAME_WIDTH,
-        height: GAME_HEIGHT,
+
         min: {
             width: MIN_WIDTH,
             height: MIN_HEIGHT
@@ -61,7 +63,8 @@ let config = {
         max: {
             width: MAX_WIDTH,
             height: MAX_HEIGHT
-        }
+        },
+        zoom:1.5 // Added for mobile
     },
 
 };
