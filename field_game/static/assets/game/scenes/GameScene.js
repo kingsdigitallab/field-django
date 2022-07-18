@@ -24,10 +24,7 @@ export default class GameScene extends FieldScene {
 
 
         // Player/farmer starts, where the cow pens are etc.
-        // [[1, 51], [5, 7]],
-        // [[33, 51], [5, 7]],
-        // [4, 48],
-        // , [36, 48]
+
         this.gameboardInfo = gameSettings.gameboardInfo;
         //Game rules and constants
 
@@ -433,8 +430,8 @@ export default class GameScene extends FieldScene {
         gameState.currentTurn += 1;
         this.uiScene.displayTurn();
         eventsCenter.once(gameSettings.EVENTS.TURNSTART, function () {
-            //this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
-            this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
+            this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
+            //this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
         }, this);
     }
 
@@ -452,43 +449,6 @@ export default class GameScene extends FieldScene {
             eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
         }
     }
-
-    /*
-    handlePointerUp(pointer) {
-        if (gameState.isGameBoardActive) {
-            let tile = this.map.getTileAtWorldXY(pointer.worldX, pointer.worldY);
-            console.log(pointer.worldX, pointer.worldY, tile);
-            eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
-        }
-    }*/
-
-    /*
-    DEPRECATED
-    moveCows(delta) {
-        let herd = this.herd;
-        for (let c = 0; c < herd.length; c++) {
-            if (herd[c].isMoving === true && herd[c].movePath.length > 0) {
-                if (!herd[c].sprite.anims.isPlaying) {
-                    herd[c].sprite.play('cow_walk_up');
-                }
-                if (herd[c].sinceLastMove >= gameSettings.gameRules.cowSpeed) {
-                    // Move the cow
-                    herd[c].doPathMove(herd[c].movePath[0], gameSettings.gameRules.cowSpeed);
-                    herd[c].movePath.shift();
-                    herd[c].sinceLastMove = 0;
-                    if (herd[c].movePath.length === 0) {
-                        // Reset our cows, give them a rest
-                        herd[c].isMoving = false;
-                        herd[c].sinceLastMove = 0;
-                        herd[c].sprite.stop();
-                    }
-                } else {
-                    //add delta
-                    herd[c].sinceLastMove += delta;
-                }
-            }
-        }
-    }*/
 
     /** Wait until all the pieces are in place before
      starting

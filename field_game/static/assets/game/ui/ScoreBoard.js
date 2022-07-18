@@ -26,7 +26,7 @@ export default class ScoreBoard {
         this.borderAlpha = 1;
         this.windowAlpha = 0.8;
         this.windowColor = 0x303030;
-        this.defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '12px'};
+        this.defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '14px'};
         this.defaultColumnTitleTextStyle = {fontFamily: 'PressStart2P', fontSize: '14px'};
         this.defaultTitleTextStyle = {fontFamily: 'PressStart2P', fontSize: '24px'};
         this.defaultPromptTextStyle = {fontFamily: 'PressStart2P', fontSize: '16px'};
@@ -59,7 +59,7 @@ export default class ScoreBoard {
             this.scoreboardBackground.visible = false;
             this.scoreboardEdge.visible = false;
             // Check we're not mid update score
-            if ((this.scoreFadeOut && this.scoreFadeOut.isPlaying())||(this.scoreFadeIn && this.scoreFadeIn.isPlaying())){
+            if ((this.scoreFadeOut && this.scoreFadeOut.isPlaying()) || (this.scoreFadeIn && this.scoreFadeIn.isPlaying())) {
                 this.scoreFadeOut.stop();
                 this.scoreFadeIn.stop();
                 // Fix the scoreboard
@@ -91,11 +91,11 @@ export default class ScoreBoard {
         ).setAlpha(alpha);
         //console.log(rankCell.displayWidth);
         let nameCell = this.scene.physics.add.sprite(
-                x,
-                y,
-                gameSettings.CHARACTER_KEY,
-                farmer.sprite.frame.name
-            ).setScale(2).setAlpha(alpha);
+            x,
+            y,
+            gameSettings.CHARACTER_KEY,
+            farmer.sprite.frame.name
+        ).setScale(2).setAlpha(alpha);
         /*
         let nameCell = this.scene.add.text(
             x, y,
@@ -132,7 +132,7 @@ export default class ScoreBoard {
      * Headings for our scoreboard
      * Hidden by default
      */
-    createGridTitles(){
+    createGridTitles() {
         this.scoreboardTitles = this.scene.add.group({
             name: 'scoreboard_group',
             active: true,
@@ -195,7 +195,7 @@ export default class ScoreBoard {
 
     }
 
-    arrangeScoreGrid(){
+    arrangeScoreGrid() {
         let scoreGrid = [];
         scoreGrid.push(...this.scoreboardTitles.getChildren());
         scoreGrid.push(...this.scoreboardGroup.getChildren());
@@ -287,7 +287,7 @@ export default class ScoreBoard {
         fadeOut.setCallback('onComplete', function () {
             console.log('complete');
             group.destroy(true);
-            let rankedGroup = scoreboard.generateScoreGrid(players,0);
+            let rankedGroup = scoreboard.generateScoreGrid(players, 0);
             scoreboard.arrangeScoreGrid();
             fadeIn = scene.tweens.createTimeline();
             rankedGroup.getChildren().forEach(function (child) {
