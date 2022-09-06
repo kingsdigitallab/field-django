@@ -1,5 +1,5 @@
 /*jshint esversion: 8 */
-import {gameSettings} from "../cst.js";
+import {gameSettings, States} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
 import ScoreBoard from "../ui/ScoreBoard.js";
 import {gameState} from '../GameState.js';
@@ -95,6 +95,15 @@ export default class UIScene extends Phaser.Scene {
         // eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, this.closeDialogWindow, this);
         eventsCenter.on(gameSettings.EVENTS.PLAYERHERDUPDATED, this.updatePlayerInfoHerd, this);
         eventsCenter.on(gameSettings.EVENTS.PLAYERBALANCEUPDATED, this.updatePlayerInfoBalance, this);
+        /*
+        Handle click events that might relevant to the ui
+
+        this.input.on('pointerup', function(){
+            // Advance scrolling text
+            if (gameState.textScrolling === true){
+                eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
+            }
+        }, this);*/
     }
 
     removeListeners() {
@@ -134,7 +143,6 @@ export default class UIScene extends Phaser.Scene {
 
     advanceDialogWindowSequence() {
         // Dialog in progress, dump buffer
-
         if (this.dialogWindow.eventCounter > 0){
             console.log('Text skip ->'+this.texts.length);
             this.dialogWindow.timedEvent.remove();
@@ -147,6 +155,7 @@ export default class UIScene extends Phaser.Scene {
             }
             this.dialogWindow.eventCounter = 0;
         }else if (this.texts && this.texts.length > 0) {
+            gameState.textScrolling = true;
             // Queued text is available
             console.log('Text advance ->'+this.texts.length);
             //Set the text
@@ -158,6 +167,7 @@ export default class UIScene extends Phaser.Scene {
             // Queue empty, hide window
             console.log('Text finished');
             eventsCenter.emit(gameSettings.EVENTS.DIALOGFINISHED);
+            gameState.textScrolling = false;
 
         }
     }

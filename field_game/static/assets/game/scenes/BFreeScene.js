@@ -1,5 +1,5 @@
 /*jshint esversion: 8 */
-import {gameSettings} from "../cst.js";
+import {gameSettings, States} from "../cst.js";
 import {gameState} from '../GameState.js';
 
 import eventsCenter from "./EventsCenter.js";
@@ -13,10 +13,10 @@ export default class BFreeScene extends Phaser.Scene {
             no: 'Bovifree not joined!',
         };
         this.bFreeDialogTexts = {
-            onboards: ["Click on the hospital to join BoviFree (Lasts one turn)\n\nAll your cows will be cured for £1 + £1 per infected cow, and you'll be certified Boviflu free.\nOr touch your house to skip."],
+            onboards: ["Click on the hospital to join BoviFree (Lasts one turn) Or touch your house to skip.\n\n"],
             start: ["BFree phase"],
             yes: ["Cows have been cured. Your herd is disease free"],
-            no: ["No infection cured.\nYour herd may still have disease"]
+            no: ["Your herd may still have disease"]
         };
         this.highlights = {
             hospital: {
@@ -41,6 +41,8 @@ export default class BFreeScene extends Phaser.Scene {
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
         this.addListeners();
         this.createHighlightGraphics();
+
+
     }
 
     update(times, delta) {
@@ -91,7 +93,7 @@ export default class BFreeScene extends Phaser.Scene {
             duration: 1000,
             repeat: -1,
             yoyo: true,
-            paused:true,
+            paused: true,
         });
         this.houseHighlightTween = this.tweens.add({
             targets: this.playerHouseSprite,
@@ -100,7 +102,7 @@ export default class BFreeScene extends Phaser.Scene {
             duration: 1000,
             repeat: -1,
             yoyo: true,
-            paused:true
+            paused: true
         });
 
 
@@ -133,6 +135,7 @@ export default class BFreeScene extends Phaser.Scene {
     async bFreePhase() {
         console.log('BFree phase start');
         // Start text and onboarding if enabled
+        gameState.currentState = States.BOVISTART;
         this.uiScene.toggleDialogWindow();
         this.uiScene.togglePlayerWindow();
         this.toggleHighlightTweens();
@@ -143,20 +146,36 @@ export default class BFreeScene extends Phaser.Scene {
             this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.start);
 
         }
-        eventsCenter.once(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
-        eventsCenter.once(gameSettings.EVENTS.PLAYERHOUSETOUCHED, this.joinBFreeNo, this);
-        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
-            this.gameScene.setIsGameBoardActive(true);
-
-        }, this);
-        //this.innoculationAnimation(this.gameScene.player);
-
 
     }
 
     addListeners() {
-        eventsCenter.on(gameSettings.EVENTS.BFREEPHASEEND, this.endPhase, this);
+        /*
+        eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, function () {
+            // Start choosing
+            gameState.currentState = States.BOVICHOOSE;
+        }, this);
 
+        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, async function () {
+            await this.AIFarmersJoinBFree();
+            eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
+        }, this);
+
+        */
+
+        /* If we've chosen, once that's done and dialog over, go to next phase */
+        eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, function () {
+            if (gameState.currentState === States.BOVINO || gameState.currentState === States.BOVIYES) {
+                setTimeout(function () {
+                    eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
+                }, 1500);
+            }
+
+        }, this);
+
+        eventsCenter.on(gameSettings.EVENTS.BFREEPHASEEND, this.endPhase, this);
+        eventsCenter.on(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
+        eventsCenter.on(gameSettings.EVENTS.PLAYERHOUSETOUCHED, this.joinBFreeNo, this);
     }
 
     /**
@@ -244,24 +263,44 @@ export default class BFreeScene extends Phaser.Scene {
         });
     }
 
+    joinBFree(farmer) {
+        let totalCost = gameSettings.gameRules.bfreeJoinCost + farmer.infections;
+        farmer.balance -= totalCost;
+        // Remove infection from cattle
+        gameState.infectionTotal -= farmer.infections;
+        farmer.setBFree(true);
+        // Update the scoreboard
+        /*this.uiScene.scoreboard.updateScoreboardCell(
+            farmer.slug, this.uiScene.scoreboard.cellKeys.infectedCell, 0
+        );*/
+        this.logBFreeTransaction(
+            farmer,
+            farmer.name + " joins BFree scheme  and pays " + totalCost
+        );
+        eventsCenter.emit(gameSettings.EVENTS.BFREEJOINED);
+    }
+
     async joinBFreeYes() {
-        // Remove no listener
-        eventsCenter.off(gameSettings.EVENTS.PLAYERPENTOUCHED, this.joinBFreeNo, this);
-        this.gameScene.setIsGameBoardActive(false);
-        // Subtract the cost
-        console.log("Joining Bovi Free");
-        this.toggleHighlightTweens();
-        this.joinBFree(this.gameScene.player);
-        await this.innoculationAnimation(this.gameScene.player);
-        await this.AIFarmersJoinBFree();
-        this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.yes);
+        if (gameState.currentState === States.BOVICHOOSE) {
+            // Subtract the cost
+            gameState.currentState = States.BOVIYES;
+            console.log("Joining Bovi Free");
+            this.toggleHighlightTweens();
+            this.joinBFree(this.gameScene.player);
+            await this.innoculationAnimation(this.gameScene.player);
+            await this.AIFarmersJoinBFree();
+            this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.yes);
+        }
+    }
 
-        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
-            setTimeout(function () {
-                eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
-            }, 1500);
-
-        }, this);
+    joinBFreeNo() {
+        console.log("Not joining Bovi Free");
+        if (gameState.currentState === States.BOVICHOOSE) {
+            // Subtract the cost
+            gameState.currentState = States.BOVINO;
+            this.toggleHighlightTweens();
+            this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.no);
+        }
     }
 
     async AIFarmersJoinBFree() {
@@ -294,22 +333,7 @@ export default class BFreeScene extends Phaser.Scene {
         this.gameScene.logTransaction(messageProps);
     }
 
-    joinBFree(farmer) {
-        let totalCost = gameSettings.gameRules.bfreeJoinCost + farmer.infections;
-        farmer.balance -= totalCost;
-        // Remove infection from cattle
-        gameState.infectionTotal -= farmer.infections;
-        farmer.setBFree(true);
-        // Update the scoreboard
-        /*this.uiScene.scoreboard.updateScoreboardCell(
-            farmer.slug, this.uiScene.scoreboard.cellKeys.infectedCell, 0
-        );*/
-        this.logBFreeTransaction(
-            farmer,
-            farmer.name + " joins BFree scheme  and pays " + totalCost
-        );
-        eventsCenter.emit(gameSettings.EVENTS.BFREEJOINED);
-    }
+
 
     /**
      * Decide if farmer joins the bfree scheme this turn.
@@ -329,25 +353,12 @@ export default class BFreeScene extends Phaser.Scene {
         return false;
     }
 
-    joinBFreeNo() {
-        console.log("Not joining Bovi Free");
-        this.gameScene.setIsGameBoardActive(false);
-        this.toggleHighlightTweens();
-        eventsCenter.off(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
-        this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.no);
 
-        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, async function () {
-            await this.AIFarmersJoinBFree();
-            eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
-        }, this);
-    }
 
     endPhase() {
         console.log("Joining Bovi Free COMPLETE");
         this.scene.get(gameSettings.SCENENAMES.TRADINGSCENENAME).tradingPhase();
     }
-
-
 
 
 }

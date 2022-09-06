@@ -7,7 +7,8 @@ Stats of current game like turns, current player etc.
 export let gameState = {
     currentTurn: 0,
     isOnBoarding: true, //Display help messages
-    isGameBoardActive: false, // Is board clickable?
+    currentState: null,
+    textScrolling: false,
     lastTransactionOrderNo: 0,
     playerID: "TESTER",
     gameID: 110,

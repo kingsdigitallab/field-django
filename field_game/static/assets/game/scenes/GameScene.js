@@ -1,5 +1,5 @@
 /*jshint esversion: 8 */
-import {gameSettings} from "../cst.js";
+import {gameSettings, States} from "../cst.js";
 
 import FieldScene from './FieldScene.js';
 import Cow from '../actors/Cow.js';
@@ -154,7 +154,7 @@ export default class GameScene extends FieldScene {
         let hospitalExtent = this.gameboardInfo.hospital.extent;
 
         this.gameboardZones.hospitalZone = this.createZoneFromTiles(hospitalExtent).setOrigin(0, 0).setInteractive().on('pointerup', function (pointer, localX, localY) {
-            if (gameState.isGameBoardActive) {
+            if (gameState.currentState === States.BOVICHOOSE) {
                 // If board is touchable, record touch
                 eventsCenter.emit(gameSettings.EVENTS.HOSPITALTOUCHED);
                 // console.log('H');
@@ -191,7 +191,7 @@ export default class GameScene extends FieldScene {
         let penZone = this.createZoneFromTiles(this.gameboardInfo.playerCowPen)
             .setOrigin(0, 0)
             .setInteractive().on('pointerup', function (pointer, localX, localY) {
-                if (gameState.isGameBoardActive) {
+                if (gameState.currentState === States.BOVICHOOSE) {
                     // If board is touchable, record touch
                     eventsCenter.emit(gameSettings.EVENTS.PLAYERPENTOUCHED);
                     // console.log('player');
@@ -318,7 +318,7 @@ export default class GameScene extends FieldScene {
                 .setOrigin(0, 0)
                 .setInteractive().on('pointerup', function (pointer, localX, localY) {
 
-                    if (gameState.isGameBoardActive) {
+                    if (gameState.currentState === States.TRADINGCHOOSE) {
                         // If board is touchable, record touch
                         console.log('touched');
                         eventsCenter.emit(gameSettings.EVENTS.AIFARMERPENTOUCHED, this);
@@ -344,23 +344,16 @@ export default class GameScene extends FieldScene {
         this.setupComplete = false;
         this.finder = new EasyStar.js();
         this.finder.enableCornerCutting(false);
-
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
-
-
         // Main game board
-
         this.createGameBoard();
-
 
         // Pieces
         this.createPlayer();
         this.createFarmers();
         this.createHerd();
 
-
         this.startGameWhenSetupComplete();
-
     }
 
     /**
@@ -405,6 +398,8 @@ export default class GameScene extends FieldScene {
         // UI Containers
         this.scene.bringToTop(gameSettings.SCENENAMES.UISCENENAME);
 
+        // Create events
+        this.addEvents();
 
         // Start the game
         this.startGame();
@@ -417,37 +412,32 @@ export default class GameScene extends FieldScene {
      */
     startGame() {
         this.debug('Begin Game');
-        // Create events
-        this.addEvents();
-
-        // todo restore
         this.startTurn();
-
-
     }
 
     startTurn() {
         gameState.currentTurn += 1;
         this.uiScene.displayTurn();
-        eventsCenter.once(gameSettings.EVENTS.TURNSTART, function () {
-            this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
-            //this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
-        }, this);
+
     }
 
     /**
      * Add global click/touch events
      */
     addEvents() {
-        this.input.on('pointerdown', this.handlePointerDown, this);
-        //this.input.on('pointerup', this.handlePointerUp, this);
+        //this.input.on('pointerdown', this.handlePointerDown, this);
+        //
+        eventsCenter.on(gameSettings.EVENTS.TURNSTART, function () {
+            this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
+            //this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
+        }, this);
     }
 
     handlePointerDown() {
         // General advance used for dialogs
-        if (!gameState.isGameBoardActive) {
+        /*if (!gameState.isGameBoardActive) {
             eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
-        }
+        }*/
     }
 
     /** Wait until all the pieces are in place before
@@ -470,13 +460,6 @@ export default class GameScene extends FieldScene {
 
     }
 
-    setIsGameBoardActive(isActive) {
-        gameState.isGameBoardActive = isActive;
-    }
-
-    getIsGameBoardActive() {
-        return gameState.isGameBoardActive;
-    }
 
 
 }

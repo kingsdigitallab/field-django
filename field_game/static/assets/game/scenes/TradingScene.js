@@ -1,5 +1,5 @@
 /*jshint esversion: 8 */
-import {gameSettings} from "../cst.js";
+import {gameSettings, States} from "../cst.js";
 import {gameState} from '../GameState.js';
 import eventsCenter from "./EventsCenter.js";
 
@@ -20,7 +20,7 @@ export default class TradingScene extends Phaser.Scene {
         super(gameSettings.SCENENAMES.TRADINGSCENENAME);
         this.dialogTexts = {
             onboards: [
-                "Trading phase\n"+
+                "Trading phase\n" +
                 "Buy a cow from a player by touching their pen. Cows cost £" + gameSettings.gameRules.normalCowPrice +
                 "\nYou may only buy from farmers with the same certification"
             ],
@@ -42,12 +42,16 @@ export default class TradingScene extends Phaser.Scene {
 
     }
 
+    addListeners() {
+
+    }
+
     tradingPhase() {
         if (gameSettings.DEBUG) {
             console.log("Trading Phase Start");
 
         }
-
+        gameState.currentState = States.TRADINGSTART;
         //Start text
         if (gameState.isOnBoarding === true) {
             this.uiScene.addTextAndStartDialog(this.dialogTexts.onboards);
@@ -55,23 +59,17 @@ export default class TradingScene extends Phaser.Scene {
             this.uiScene.addTextAndStartDialog(this.dialogTexts.start);
         }
         // Player trading phase
-
+        /*
         eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
             console.log('finished');
             this.playerTrade();
-        }, this);
+        }, this);*/
+        this.playerTrade();
     }
 
-    addListeners() {
-
-    }
-
-    update(times, delta) {
-
-    }
 
     async playerTrade() {
-        this.gameScene.setIsGameBoardActive(true);
+        gameState.currentState = States.TRADINGCHOOSE;
         // On pen touched
         eventsCenter.on(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
 
@@ -86,6 +84,7 @@ export default class TradingScene extends Phaser.Scene {
      * Display results in dialog window as we go
      */
     async AITrade() {
+        gameState.currentState = States.TRADINGAI;
         if (gameSettings.DEBUG) {
             console.log('AI Trading phase start');
         }
@@ -134,25 +133,23 @@ export default class TradingScene extends Phaser.Scene {
 
         // Unleash the cows!
         await this.gameScene.sendHerdToPens(boughtHerd);
-        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
-            this.resetCows();
-            this.finishPhase();
-        }, this);
-
+        this.resetCows();
+        this.finishPhase();
 
     }
 
     /**
      * Do any housekeeping and move on to next part of turn
      */
-    async finishPhase(){
-        this.removeListeners();
+    async finishPhase() {
+        gameState.currentState = States.TRADINGFINISH;
+
         // Short delay before next phase
         await new Promise(resolve => setTimeout(resolve, 1500));
         this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
     }
 
-    removeListeners(){
+    removeListeners() {
         eventsCenter.off(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
     }
 
@@ -163,19 +160,19 @@ export default class TradingScene extends Phaser.Scene {
     }
 
     async playerPurchaseCow(seller) {
+        if (gameState.currentState === States.TRADINGCHOOSE) {
+            if (seller && (seller.isBFree() === this.gameScene.player.isBFree())) {
+                let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
+                // Send cow to player pen
+                this.uiScene.addTextAndStartDialog([summary]);
+                if (boughtCow) {
+                    eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
+                    eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
+                }
+                await this.gameScene.player.sendCowToPen(boughtCow);
+                this.AITrade();
 
-        if (seller && (seller.isBFree() === this.gameScene.player.isBFree())) {
-            this.gameScene.setIsGameBoardActive(false);
-            let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
-            // Send cow to player pen
-            this.uiScene.addTextAndStartDialog([summary]);
-            if (boughtCow) {
-                eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
-                eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
             }
-            await this.gameScene.player.sendCowToPen(boughtCow);
-            this.AITrade();
-
         }
     }
 

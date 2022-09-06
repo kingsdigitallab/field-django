@@ -1,5 +1,5 @@
 /*jshint esversion: 8 */
-import {gameSettings} from "../cst.js";
+import {gameSettings, States} from "../cst.js";
 import {gameState} from '../GameState.js';
 
 import eventsCenter from "./EventsCenter.js";
@@ -16,14 +16,78 @@ export default class TurnEndScene extends Phaser.Scene {
     }
 
     create() {
-        if (gameSettings.DEBUG) {
-            console.log('Round End Start');
-        }
         this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
-        this.events.on('wake', this.turnEndPhase);
+        this.addListeners();
+    }
+
+    addListeners() {
+        // Show the prompt once scoreboard update complete
+        eventsCenter.on(gameSettings.EVENTS.SCOREBOARDFINISH, function () {
+            if (gameState.currentState === States.TURNEND) {
+                // Prompt for touch to continue
+                this.uiScene.scoreboard.scoreboardPrompt.visible = true;
+                gameState.currentState = States.TURNENDFINISH;
+            }
+        }, this);
+
+        // Touch to continue prompt
+        this.input.on('pointerup', function(){
+            if (gameState.currentState === States.TURNENDFINISH){
+                this.endTurn();
+            }
+        }, this);
 
 
+    }
+
+    /**
+     * End our turn, and start a new one or end the game
+     */
+    endTurn() {
+        // Await a touch anywhere
+
+        // If last turn, go to game end
+        //Otherwise start new turn
+        if (gameState.currentTurn >= gameSettings.gameRules.totalTurns) {
+            // Final scores
+            // Set the winner
+            let currentPlayers = this.sortPlayersByAssets();
+
+            gameState.winnerSpriteKeyFrame = currentPlayers[0].sprite.frame.name;
+            gameState.winner = currentPlayers[0];
+            console.log(gameState.winnerSpriteKeyFrame = currentPlayers[0].sprite.frame.name);
+            let scene = this.scene;
+            this.add.tween({
+                targets: this.uiScene.scoreboard.scoreboardTitle,
+                alpha: 0,
+                duration: 1000,
+                onComplete: () => {
+                    this.uiScene.scoreboard.scoreboardTitle.text = "Final Score";
+                    // Recentre
+                    this.uiScene.scoreboard.scoreboardTitle.x = this.uiScene.scoreboard.rectCentreX - (this.uiScene.scoreboard.scoreboardTitle.displayWidth / 2);
+                    this.add.tween({
+                        targets: this.uiScene.scoreboard.scoreboardTitle,
+                        alpha: 1,
+                        duration: 1000,
+                        onComplete: () => {
+                            eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
+                                // Game over man
+                                scene.start(gameSettings.SCENENAMES.GAMEENDSCENENAME);
+                            });
+                        }
+                    }, this);
+                }
+            }, this);
+
+        } else {
+            this.uiScene.scoreboard.toggleScoreboard();
+            this.uiScene.scoreboard.scoreboardPrompt.visible = false;
+            this.resetBoard();
+            // Back to turn start
+            this.gameScene.startTurn();
+            //this.scene.sleep();
+        }
     }
 
     async updateFarmerIncome(farmer) {
@@ -44,6 +108,8 @@ export default class TurnEndScene extends Phaser.Scene {
      */
     async turnEndPhase() {
         // For each farmer
+        gameState.currentState = States.TURNEND;
+
         let farmers = this.gameScene.getAllFarmers();
         this.uiScene.scoreboard.updateScoreBoardTitles();
 
@@ -80,49 +146,8 @@ export default class TurnEndScene extends Phaser.Scene {
         let currentPlayers = this.sortPlayersByAssets();
         this.uiScene.scoreboard.updateScoreBoardRanks(this, currentPlayers);
 
-        eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
-            // If last turn, go to game end
-            //Otherwise start new turn
-            if (gameState.currentTurn >= gameSettings.gameRules.totalTurns) {
-                // Final scores
-                // Set the winner
-                gameState.winnerSpriteKeyFrame = currentPlayers[0].sprite.frame.name;
-                gameState.winner = currentPlayers[0];
-                console.log(gameState.winnerSpriteKeyFrame = currentPlayers[0].sprite.frame.name);
-                let scene = this.scene;
-                this.add.tween({
-                    targets: this.uiScene.scoreboard.scoreboardTitle,
-                    alpha: 0,
-                    duration: 1000,
-                    onComplete: () => {
-                        this.uiScene.scoreboard.scoreboardTitle.text = "Final Score";
-                        // Recentre
-                        this.uiScene.scoreboard.scoreboardTitle.x = this.uiScene.scoreboard.rectCentreX - (this.uiScene.scoreboard.scoreboardTitle.displayWidth / 2);
-                        this.add.tween({
-                             targets: this.uiScene.scoreboard.scoreboardTitle,
-                             alpha: 1,
-                             duration: 1000,
-                             onComplete: () => {
-                                 eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
-                                     // Game over man
-                                    scene.start(gameSettings.SCENENAMES.GAMEENDSCENENAME);
-                                 });
-                             }
-                         }, this);
-                    }
-                }, this);
 
-            } else {
-                this.uiScene.scoreboard.toggleScoreboard();
-                this.uiScene.scoreboard.scoreboardPrompt.visible = false;
-                this.resetBoard();
-                // Back to turn start
-                this.gameScene.startTurn();
-                //this.scene.sleep();
-            }
 
-        }, this);
-        this.uiScene.scoreboard.scoreboardPrompt.visible = true;
 
     }
 
@@ -204,7 +229,6 @@ export default class TurnEndScene extends Phaser.Scene {
             gameState.infectionTotal += newInfections;
         }
     }
-
 
 
 }

@@ -1,6 +1,7 @@
 /*jshint esversion: 8 */
 import {gameState} from '../GameState.js';
-import {gameSettings} from "../cst.js";
+import {gameSettings, States} from "../cst.js";
+import eventsCenter from "../scenes/EventsCenter.js";
 
 /**
  * The scoreboard to dispaly player scores at round end
@@ -75,7 +76,7 @@ export default class ScoreBoard {
             }
         } else {
             this.scoreboardTitle.visible = true;
-            this.scoreboardPrompt.visible = true;
+            //this.scoreboardPrompt.visible = true;
             this.scoreboardBackground.visible = true;
             this.scoreboardEdge.visible = true;
             this.infectionsTotal.visible= true;
@@ -304,16 +305,22 @@ export default class ScoreBoard {
             });
         });
         fadeOut.setCallback('onComplete', function () {
-            console.log('complete');
+
             group.destroy(true);
             let rankedGroup = scoreboard.generateScoreGrid(players, 0);
             scoreboard.arrangeScoreGrid();
             fadeIn = scene.tweens.createTimeline();
+            fadeIn.setCallback('onComplete', function () {
+                if (gameState.currentState === States.TURNEND) {
+                    console.log('complete');
+                    eventsCenter.emit(gameSettings.EVENTS.SCOREBOARDFINISH);
+                }
+
+            });
             rankedGroup.getChildren().forEach(function (child) {
                 fadeIn.add({
                     targets: child,
                     alpha: {value: 1, duration: 100, ease: 'Power1'},
-
                 });
             });
             fadeIn.play();

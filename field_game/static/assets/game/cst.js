@@ -55,6 +55,7 @@ export const gameSettings = {
         TURNENDSCENENAME: "RoundEndScene",
         GAMEENDSCENENAME: "GameEndScene"
     },
+
     EVENTS: {
         UICREATED:'UICREATED',
         ONCHARACTERSELECTED:'onCHARACTERSELECTED',
@@ -74,12 +75,10 @@ export const gameSettings = {
         PLAYERBALANCEUPDATED: "PLAYERBALANCEUPDATED",
         PLAYERHERDUPDATED: "PLAYERHERDUPDATED",
         BFREEUPDATED: "BFREEUPDATED",
+        SCOREBOARDFINISH: "SCOREBOARDFINISH",
         TURNSTART: "TURNBEGINS", // Start of turn
         TURNEND: "TURNENDS", // End of turn
         GAMEEND: "GAMEENDS", // End of game
-
-
-
     },
     DIALOGSPEEDS: {
         slow: 2,
@@ -136,7 +135,23 @@ export const gameSettings = {
 };
 
 /**
- * Custom event string names
+ * Different phases of the game
  *
+ * @type {{BOVINO: number, BOVISTART: number, TURNEND: number, TRADINGSTART: number, TRADINGCHOOSE: number, TRADINGFINISH: number, GAMEEND: number, CHARACTERSELECT: number, BOVICHOOSE: number, TURNSTART: number, BOVIYES: number}}
  */
+export const States = {
+    CHARACTERSELECT: 0,
+    TURNSTART: 1,
+    BOVISTART: 2,
+    BOVICHOOSE: 2,
+    BOVINO: 3,
+    BOVIYES: 4,
+    TRADINGSTART: 5,
+    TRADINGCHOOSE: 6,
+    TRADINGAI: 10,
+    TRADINGFINISH:7,
+    TURNEND: 8,
+    TURNENDFINISH: 9,
 
+    GAMEEND: 20,
+};
