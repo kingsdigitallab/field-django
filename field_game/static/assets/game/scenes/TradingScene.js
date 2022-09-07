@@ -43,7 +43,8 @@ export default class TradingScene extends Phaser.Scene {
     }
 
     addListeners() {
-
+        // On pen touched
+        eventsCenter.on(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
     }
 
     tradingPhase() {
@@ -70,8 +71,7 @@ export default class TradingScene extends Phaser.Scene {
 
     async playerTrade() {
         gameState.currentState = States.TRADINGCHOOSE;
-        // On pen touched
-        eventsCenter.on(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
+
 
     }
 
@@ -161,6 +161,7 @@ export default class TradingScene extends Phaser.Scene {
 
     async playerPurchaseCow(seller) {
         if (gameState.currentState === States.TRADINGCHOOSE) {
+            console.log('Player purchase');
             if (seller && (seller.isBFree() === this.gameScene.player.isBFree())) {
                 let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
                 // Send cow to player pen
