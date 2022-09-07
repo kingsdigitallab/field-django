@@ -68,11 +68,6 @@ export default class ScoreBoard {
             if ((this.scoreFadeOut && this.scoreFadeOut.isPlaying()) || (this.scoreFadeIn && this.scoreFadeIn.isPlaying())) {
                 this.scoreFadeOut.stop();
                 this.scoreFadeIn.stop();
-                // Fix the scoreboard
-                /*this.scoreboardGroup.destroy(true);
-                let rankedGroup = this.generateScoreGrid(players,0);
-                this.arrangeScoreGrid();*/
-
             }
         } else {
             this.scoreboardTitle.visible = true;

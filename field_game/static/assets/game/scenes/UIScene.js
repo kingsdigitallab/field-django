@@ -35,15 +35,16 @@ export default class UIScene extends Phaser.Scene {
         // Set up main dialog window on the bottom of the screen
         this.dialogWindow.eventEmitter = eventsCenter;
         this.dialogWindow.createWindow(this);
-        // Player display
-        this.createPlayerInfo();
+
 
         this.scoreboard = new ScoreBoard(this);
         this.scoreboard.createScoreboard();
 
+
+
         //Start bottom windows hidden
         this.toggleDialogWindow();
-        this.togglePlayerWindow();
+
         this.setupListeners();
         this.events.on(Phaser.Scenes.CREATE, () => {
             //console.log('created');
@@ -107,7 +108,7 @@ export default class UIScene extends Phaser.Scene {
     }
 
     removeListeners() {
-        console.log('listener removed');
+
         eventsCenter.off(gameSettings.EVENTS.ADVANCEDIALOG, this.advanceDialogWindowSequence, this);
     }
 
@@ -130,12 +131,12 @@ export default class UIScene extends Phaser.Scene {
             this.playerInfoContainer.visible = false;
             this.playerInfoBalance.visible = false;
             this.playerInfoHerd.visible = false;
-            this.playerInfoTitle.visible = false;
+            this.playerPortrait.visible = false;
         }else{
             this.playerInfoContainer.visible = true;
             this.playerInfoBalance.visible = true;
             this.playerInfoHerd.visible = true;
-            this.playerInfoTitle.visible = true;
+            this.playerPortrait.visible = true;
         }
 
 
@@ -196,7 +197,7 @@ export default class UIScene extends Phaser.Scene {
     }
 
     updateBalance(balance) {
-        this.playerInfoBalance.setText(this.balanceText + balance);
+        this.playerInfoBalance.setText(balance);
         Phaser.Display.Align.To.BottomLeft(
             this.playerInfoBalance, this.playerInfoTitle
         );
@@ -204,7 +205,7 @@ export default class UIScene extends Phaser.Scene {
     }
 
     updateHerd(herdTotal) {
-        this.playerInfoHerd.setText(this.herdText + herdTotal);
+        this.playerInfoHerd.setText(herdTotal);
         Phaser.Display.Align.To.BottomLeft(
             this.playerInfoHerd, this.playerInfoBalance
         );
@@ -247,14 +248,14 @@ export default class UIScene extends Phaser.Scene {
     }
 
     updatePlayerInfoHerd() {
-        this.playerInfoHerd.text = this.herdText + this.gameScene.player.herdTotal;
+        this.playerInfoHerd.text = this.gameScene.player.herdTotal;
     }
 
     /** Update UI to show new player balance
      *
      */
     updatePlayerInfoBalance() {
-        this.playerInfoBalance.text = this.balanceText + this.gameScene.player.balance;
+        this.playerInfoBalance.text = this.gameScene.player.balance;
     }
 
 
@@ -266,34 +267,71 @@ export default class UIScene extends Phaser.Scene {
         let board_height = this.dialogWindow.windowHeight; //this.GAME_HEIGHT / 8;
         this.playerInfoContainer = this.add.container(board_width, board_height);
         this.playerInfoBackground = this.add.rectangle(0, 0, board_width, board_height, 0x000000, 0.4);
-        this.playerInfoTitle = this.add.text(0, 0, 'Player', this.defaultTextStyle);
+
 
         this.playerInfoBalance = this.add.text(0, 1, this.balanceText, this.defaultTextStyle);
         this.playerInfoHerd = this.add.text(0, 22, this.herdText, this.defaultTextStyle);
         this.playerInfoHerd.setOrigin(0, 0);
         this.playerInfoBalance.setOrigin(0, 0);
-        this.playerInfoTitle.setOrigin(0.5, 0);
+        this.playerPortrait = this.add.image(
+            0,
+            0,
+            gameSettings.CHARACTER_KEY,
+            gameState.playerSpriteKeyFrame
+        ).setScale(gameSettings.PORTRAITSCALE);
+
+        this.coinIcon = this.add.image(
+            0,
+            0,
+            'coin',
+            0
+        ).setScale(0.5);
+
+        this.cowIcon = this.add.image(
+            0,
+            0,
+            'cow_1',
+            12
+        );
 
         this.playerInfoContainer.add(this.playerInfoBackground);
-        this.playerInfoContainer.add(this.playerInfoTitle);
+        this.playerInfoContainer.add(this.playerPortrait);
+        this.playerInfoContainer.add(this.coinIcon);
+        this.playerInfoContainer.add(this.cowIcon);
+
         this.playerInfoContainer.add(this.playerInfoBalance);
         this.playerInfoContainer.add(this.playerInfoHerd);
 
-        Phaser.Display.Align.In.Center(
-            this.playerInfoTitle, this.playerInfoBackground,0,-30
+        eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
+        eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
+
+        Phaser.Display.Align.In.TopLeft(
+            this.playerPortrait,
+            this.playerInfoBackground,
+            -10,-5
         );
-        Phaser.Display.Align.To.BottomLeft(
-            this.playerInfoBalance, this.playerInfoTitle,0,5
+        Phaser.Display.Align.To.RightCenter(
+            this.coinIcon, this.playerPortrait,
+            10,0
         );
+
+        Phaser.Display.Align.To.RightCenter(
+            this.playerInfoBalance, this.coinIcon,
+            10,0
+        );
+
         Phaser.Display.Align.To.BottomLeft(
-            this.playerInfoHerd, this.playerInfoBalance,0,5
+            this.cowIcon, this.coinIcon,
+            10, this.cowIcon.height /2 * -1 + 5
+        );
+        Phaser.Display.Align.To.RightCenter(
+            this.playerInfoHerd, this.cowIcon ,0,5
         );
 
         this.playerInfoContainer.x = this.dialogWindow.padding;
         this.playerInfoContainer.y = this.scale.height - this.dialogWindow.windowHeight + (board_height/2);//board_height / 2 + 10;
 
-        // Start hidden
-        this.playerInfoContainer.setVisible(true);
+        this.togglePlayerWindow();
     }
 
 

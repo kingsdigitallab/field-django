@@ -138,6 +138,7 @@ export default class BFreeScene extends Phaser.Scene {
         gameState.currentState = States.BOVISTART;
         this.uiScene.toggleDialogWindow();
         this.uiScene.togglePlayerWindow();
+
         this.toggleHighlightTweens();
         if (gameState.isOnBoarding) {
             this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.onboards);

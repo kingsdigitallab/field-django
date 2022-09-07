@@ -202,7 +202,7 @@ export default class GameScene extends FieldScene {
         //this.updatePlayerBalance(this.player.balance);
         gameState.player = this.player;
 
-        eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
+
     }
 
     updatePlayerBalance(balance) {
@@ -263,7 +263,6 @@ export default class GameScene extends FieldScene {
 
         }
 
-        eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
         return true;
     }
 
@@ -389,6 +388,7 @@ export default class GameScene extends FieldScene {
 
         this.uiScene.scoreboard.fillScoreBoard(this.getAllFarmers());
 
+
         // Launch phase scenes
 
         this.scene.launch(gameSettings.SCENENAMES.BFREESCENENAME);
@@ -397,6 +397,10 @@ export default class GameScene extends FieldScene {
 
         // UI Containers
         this.scene.bringToTop(gameSettings.SCENENAMES.UISCENENAME);
+
+        // Player display
+        this.uiScene.createPlayerInfo();
+
 
         // Create events
         this.addEvents();

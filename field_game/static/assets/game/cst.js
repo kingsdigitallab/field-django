@@ -130,7 +130,8 @@ export const gameSettings = {
         'pigeon_1': 240,
         'bear_1': 192,
     },
-    CHARACTERSPRITESCALE: 1.5 //Scale for farmer sprites
+    CHARACTERSPRITESCALE: 1.5, //Scale for farmer sprites
+    PORTRAITSCALE: 2, // Player portrait scale
 
 };
 

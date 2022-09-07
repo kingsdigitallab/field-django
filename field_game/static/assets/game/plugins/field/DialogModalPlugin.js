@@ -34,7 +34,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         this.windowHeight = opts.windowHeight || 150;
         this.padding = opts.padding || 80;
         this.closeBtnColor = opts.closeBtnColor || 'darkgoldenrod';
-        this.dialogSpeed = opts.dialogSpeed || 2;
+        this.dialogSpeed = opts.dialogSpeed || 5;
         // used for animating the text
         this.eventCounter = 0;
         // Event emitter
@@ -112,7 +112,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         let gameWidth = scene.scale.width;
         let dimensions = this._calculateWindowDimensions(gameWidth, gameHeight);
         this.graphics = scene.add.graphics();
-        console.log(dimensions);
+
         this._createOuterWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
         this._createInnerWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
 
