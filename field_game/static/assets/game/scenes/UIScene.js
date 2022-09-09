@@ -18,7 +18,9 @@ export default class UIScene extends Phaser.Scene {
         this.herdText = "Cows: ";
         this.texts = [];//Queue for dialog text
         this.defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '16px'};
-        this.titleTextStyle = {fontFamily: 'PressStart2P', fontSize: '54px'};
+        this.titleTextStyle = {fontFamily: 'PressStart2P', fontSize: '64px'};
+        // Width of ui infection display
+        this.infectionBarWidth = 100;
     }
 
 
@@ -39,6 +41,8 @@ export default class UIScene extends Phaser.Scene {
 
         this.scoreboard = new ScoreBoard(this);
         this.scoreboard.createScoreboard();
+
+
 
 
 
@@ -96,6 +100,7 @@ export default class UIScene extends Phaser.Scene {
         // eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, this.closeDialogWindow, this);
         eventsCenter.on(gameSettings.EVENTS.PLAYERHERDUPDATED, this.updatePlayerInfoHerd, this);
         eventsCenter.on(gameSettings.EVENTS.PLAYERBALANCEUPDATED, this.updatePlayerInfoBalance, this);
+        eventsCenter.on(gameSettings.EVENTS.INFECTIONLEVELUPDATED, this.updateInfectionLevel, this);
         /*
         Handle click events that might relevant to the ui
 
@@ -126,20 +131,17 @@ export default class UIScene extends Phaser.Scene {
     }
 
     togglePlayerWindow() {
-
         if (this.playerInfoContainer.visible){
             this.playerInfoContainer.visible = false;
-            this.playerInfoBalance.visible = false;
+            /*this.playerInfoBalance.visible = false;
             this.playerInfoHerd.visible = false;
-            this.playerPortrait.visible = false;
+            this.playerPortrait.visible = false;*/
         }else{
             this.playerInfoContainer.visible = true;
-            this.playerInfoBalance.visible = true;
+            /*this.playerInfoBalance.visible = true;
             this.playerInfoHerd.visible = true;
-            this.playerPortrait.visible = true;
+            this.playerPortrait.visible = true;*/
         }
-
-
     }
 
     advanceDialogWindowSequence() {
@@ -219,6 +221,7 @@ export default class UIScene extends Phaser.Scene {
     updateTitleDisplay(text, complete) {
         this.gameTitle.text = text;
         this.gameTitle.x = (this.GAME_WIDTH / 2) - (this.gameTitle.displayWidth / 2);
+        this.gameTitle.y = (this.GAME_HEIGHT / 2) - (this.gameTitle.displayHeight / 2);
         this.tweens.add({
             targets: this.gameTitle,
             alpha: {value: 1, duration: 2000, ease: 'Power1'},
@@ -264,10 +267,16 @@ export default class UIScene extends Phaser.Scene {
      */
     createPlayerInfo() {
         let board_width = this.dialogWindow.padding * 2;
-        let board_height = this.dialogWindow.windowHeight; //this.GAME_HEIGHT / 8;
-        this.playerInfoContainer = this.add.container(board_width, board_height);
+        let board_height = 4 *16;//this.dialogWindow.windowHeight;
+        this.playerInfoContainer = this.add.container(0,0);
         this.playerInfoBackground = this.add.rectangle(0, 0, board_width, board_height, 0x000000, 0.4);
 
+        /*
+        graphics = this.add.graphics({x: 0, y: 0});
+        this.scene.graphics.lineStyle(this.dialogWindow.borderThickness,
+            this.dialogWindow.borderColor, this.dialogWindow.borderAlpha
+        );
+        this.scene.graphics.strokeRect(0, 0, board_width, board_height);*/
 
         this.playerInfoBalance = this.add.text(0, 1, this.balanceText, this.defaultTextStyle);
         this.playerInfoHerd = this.add.text(0, 22, this.herdText, this.defaultTextStyle);
@@ -294,13 +303,18 @@ export default class UIScene extends Phaser.Scene {
             12
         );
 
+
+
         this.playerInfoContainer.add(this.playerInfoBackground);
         this.playerInfoContainer.add(this.playerPortrait);
         this.playerInfoContainer.add(this.coinIcon);
         this.playerInfoContainer.add(this.cowIcon);
 
+
         this.playerInfoContainer.add(this.playerInfoBalance);
         this.playerInfoContainer.add(this.playerInfoHerd);
+
+
 
         eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
         eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
@@ -328,11 +342,60 @@ export default class UIScene extends Phaser.Scene {
             this.playerInfoHerd, this.cowIcon ,0,5
         );
 
+
         this.playerInfoContainer.x = this.dialogWindow.padding;
         this.playerInfoContainer.y = this.scale.height - this.dialogWindow.windowHeight + (board_height/2);//board_height / 2 + 10;
 
         this.togglePlayerWindow();
+
     }
 
+    createInfectionInfo(){
+        this.infectionInfoContainer = this.add.container(
+            this.scale.width/2, this.scale.height /2
+        );
+        this.infectionInfoBackground = this.add.rectangle(0, 0, 192, 144, 0x000000, 0.4);
+        this.infectionTitle = this.add.text(0, 1, 'Infection', this.defaultTextStyle);
+        this.infectionLevelBackground = this.add.rectangle(0, 0, 100, 16, 0xffffff, 1);
+        this.infectionLevel = this.add.rectangle(0, 0, this.infectionBarWidth * this.getInfectionLevel() , 16, 0xff0000, 1);
+        this.infectionIcon = this.add.image(
+            0,
+            0,
+            'cow_1',
+            12
+        ).setScale(2);
+        this.infectionInfoContainer.add(this.infectionInfoBackground);
+         this.infectionInfoContainer.add(this.infectionTitle);
+         this.infectionInfoContainer.add(this.infectionIcon);
+         this.infectionInfoContainer.add(this.infectionLevelBackground);
+        this.infectionInfoContainer.add(this.infectionLevel);
+        Phaser.Display.Align.In.TopCenter(
+            this.infectionTitle, this.infectionInfoBackground, 0, -10
+        );
+
+        Phaser.Display.Align.To.BottomCenter(
+            this.infectionIcon, this.infectionTitle, 0, 0
+        );
+
+        Phaser.Display.Align.To.BottomCenter(
+            this.infectionLevelBackground, this.infectionIcon, 0, 20
+        );
+        Phaser.Display.Align.In.LeftCenter(
+            this.infectionLevel, this.infectionLevelBackground, 0, 0
+        );
+
+    }
+
+    /** When cows are cured or infections increase, change the bar in the UI
+     *
+     */
+    updateInfectionLevel(){
+        this.infectionLevel.width = this.infectionBarWidth * this.getInfectionLevel();
+    }
+
+    getInfectionLevel(){
+        console.log(gameState.infectionTotal +'::'+ gameSettings.gameRules.startHerdSize);
+        return gameState.infectionTotal / gameSettings.gameRules.startHerdSize;
+    }
 
 }
