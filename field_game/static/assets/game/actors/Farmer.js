@@ -53,6 +53,12 @@ export class Farmer {
         return this.penZone;
     }
 
+    getPenCentre(){
+        if (this.penZone !== null){
+            return [this.penZone.x + this.penZone.width/2, this.penZone.y +  this.penZone.height/2];
+        }
+    }
+
     /** Player's cash plus the value of their herd (healthy cows times normal price)
      *  Cow value may need to be changed
      */

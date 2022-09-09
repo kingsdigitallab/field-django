@@ -140,6 +140,7 @@ export default class TurnEndScene extends Phaser.Scene {
         }
 
         await this.uiScene.scoreboard.infectionTickUp(oldInfectionTotal, gameState.infectionTotal);
+        eventsCenter.emit(gameSettings.EVENTS.INFECTIONLEVELUPDATED);
 
         //Give user a chance to read it
         await this.uiScene.sleep(1000);

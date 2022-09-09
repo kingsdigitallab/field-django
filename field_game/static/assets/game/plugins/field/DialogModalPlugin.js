@@ -31,8 +31,8 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         this.borderAlpha = opts.borderAlpha || 1;
         this.windowAlpha = opts.windowAlpha || 0.8;
         this.windowColor = opts.windowColor || 0x303030;
-        this.windowHeight = opts.windowHeight || 150;
-        this.padding = opts.padding || 80;
+        this.windowHeight = opts.windowHeight || 5 * 16;
+        this.padding = opts.padding || 0;
         this.closeBtnColor = opts.closeBtnColor || 'darkgoldenrod';
         this.dialogSpeed = opts.dialogSpeed || 5;
         // used for animating the text
@@ -78,7 +78,9 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
 
     // Creates the border rectangle of the dialog window
     _createOuterWindow(x, y, rectWidth, rectHeight) {
-        this.graphics.lineStyle(this.borderThickness, this.borderColor, this.borderAlpha);
+        this.graphics.lineStyle(this.borderThickness,
+            this.borderColor, this.borderAlpha
+        );
         this.graphics.strokeRect(x, y, rectWidth, rectHeight);
     }
 

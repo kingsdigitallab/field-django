@@ -151,18 +151,7 @@ export default class BFreeScene extends Phaser.Scene {
     }
 
     addListeners() {
-        /*
-        eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, function () {
-            // Start choosing
-            gameState.currentState = States.BOVICHOOSE;
-        }, this);
 
-        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, async function () {
-            await this.AIFarmersJoinBFree();
-            eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
-        }, this);
-
-        */
 
         /* If we've chosen, once that's done and dialog over, go to next phase */
         eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, function () {
@@ -222,7 +211,6 @@ export default class BFreeScene extends Phaser.Scene {
                     await cow.moveCowAlongPath(cowSpeed);
                     return true;
                 }
-
             }
         } else {
             console.log("Error: No path for cow!");
@@ -278,30 +266,34 @@ export default class BFreeScene extends Phaser.Scene {
             farmer,
             farmer.name + " joins BFree scheme  and pays " + totalCost
         );
+        console.log(farmer.getPenCentre());
+        this.gameScene.coinAnimation(farmer.getPenCentre()[0], farmer.getPenCentre()[1],
+            totalCost, false);
+        eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
         eventsCenter.emit(gameSettings.EVENTS.BFREEJOINED);
+        eventsCenter.emit(gameSettings.EVENTS.INFECTIONLEVELUPDATED);
     }
 
     async joinBFreeYes() {
-        if (gameState.currentState === States.BOVICHOOSE) {
-            // Subtract the cost
-            gameState.currentState = States.BOVIYES;
-            console.log("Joining Bovi Free");
-            this.toggleHighlightTweens();
-            this.joinBFree(this.gameScene.player);
-            await this.innoculationAnimation(this.gameScene.player);
-            await this.AIFarmersJoinBFree();
-            this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.yes);
-        }
+
+        // Subtract the cost
+        gameState.currentState = States.BOVIYES;
+        console.log("Joining Bovi Free");
+        this.toggleHighlightTweens();
+        this.joinBFree(this.gameScene.player);
+        await this.innoculationAnimation(this.gameScene.player);
+        await this.AIFarmersJoinBFree();
+        this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.yes);
+        return true;
     }
 
     joinBFreeNo() {
         console.log("Not joining Bovi Free");
-        if (gameState.currentState === States.BOVICHOOSE) {
-            // Subtract the cost
-            gameState.currentState = States.BOVINO;
-            this.toggleHighlightTweens();
-            this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.no);
-        }
+        // Subtract the cost
+        gameState.currentState = States.BOVINO;
+        this.toggleHighlightTweens();
+        this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.no);
+        this.gameScene.player.setBFree(false);
     }
 
     async AIFarmersJoinBFree() {
@@ -314,6 +306,8 @@ export default class BFreeScene extends Phaser.Scene {
                 }
                 this.joinBFree(farmers[f]);
                 innoculationPromises.push(this.innoculationAnimation(farmers[f]));
+            } else {
+                farmers[f].setBFree(false);
             }
         }
         await Promise.all(innoculationPromises);
@@ -335,7 +329,6 @@ export default class BFreeScene extends Phaser.Scene {
     }
 
 
-
     /**
      * Decide if farmer joins the bfree scheme this turn.
      *
@@ -353,7 +346,6 @@ export default class BFreeScene extends Phaser.Scene {
         }
         return false;
     }
-
 
 
     endPhase() {

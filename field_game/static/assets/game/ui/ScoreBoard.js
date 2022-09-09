@@ -50,8 +50,6 @@ export default class ScoreBoard {
         this.promptOffset = 50;
 
         this.visible = false;
-        this.infectionsTotalLabel = "Total Infections ";
-        this.infectionsTotal = null;
 
     }
 
@@ -63,7 +61,6 @@ export default class ScoreBoard {
             this.scoreboardPrompt.visible = false;
             this.scoreboardBackground.visible = false;
             this.scoreboardEdge.visible = false;
-            this.infectionsTotal.visible= false;
             // Check we're not mid update score
             if ((this.scoreFadeOut && this.scoreFadeOut.isPlaying()) || (this.scoreFadeIn && this.scoreFadeIn.isPlaying())) {
                 this.scoreFadeOut.stop();
@@ -74,7 +71,6 @@ export default class ScoreBoard {
             //this.scoreboardPrompt.visible = true;
             this.scoreboardBackground.visible = true;
             this.scoreboardEdge.visible = true;
-            this.infectionsTotal.visible= true;
         }
         this.visible = !this.visible;
     }
@@ -253,7 +249,6 @@ export default class ScoreBoard {
         if (currentValue < value) {
             while (currentValue < value) {
                 currentValue += 1;
-                this.infectionsTotal.text = this.infectionsTotalLabel+' '+currentValue;
                 await this.sleep(this.tickDelay);
             }
 
@@ -265,8 +260,7 @@ export default class ScoreBoard {
         this.generateScoreGrid(players, 1);
         this.arrangeScoreGrid();
         this.scoreboardGroup.toggleVisible();
-        // Update the base infection now that farmers created
-        this.infectionsTotal.text = this.infectionsTotalLabel+' '+gameState.infectionTotal;
+
     }
 
     updateScoreBoardTitles() {
@@ -362,24 +356,11 @@ export default class ScoreBoard {
             this.defaultTitleTextStyle
         );
         this.createGridTitles();
-
-        // Phaser.Display.Align.To.LeftBottom(
-        //     this.infectionsTotalLabel, this.scoreboardTitle
-        // );
-        //this.infectionsTotalNumber = this.scene.add.text(0,0, '0', this.defaultColumnTitleTextStyle);
-
         this.scoreboardPrompt = this.scene.add.text(
             this.rectCentreX, this.rectY + this.board_height - this.promptOffset, 'Touch to continue',
             this.defaultPromptTextStyle
         );
-        this.infectionsTotal =
-            this.scene.add.text(0,0,
-                this.infectionsTotalLabel+' '+gameState.infectionTotal, this.defaultColumnTitleTextStyle);
-        this.infectionsTotal.x = this.rectCentreX - (this.infectionsTotal.displayWidth / 2);
-        this.infectionsTotal.y =
-            this.rectY + this.board_height - this.promptOffset - (this.scoreboardPrompt.displayHeight *4);
 
-        this.infectionsTotal.visible= false;
         this.scoreboardPrompt.visible = false;
         this.scoreboardBackground.visible = false;
         this.scoreboardTitle.visible = false;

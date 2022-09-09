@@ -160,8 +160,9 @@ export default class TradingScene extends Phaser.Scene {
     }
 
     async playerPurchaseCow(seller) {
+
         if (gameState.currentState === States.TRADINGCHOOSE) {
-            console.log('Player purchase');
+
             if (seller && (seller.isBFree() === this.gameScene.player.isBFree())) {
                 let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
                 // Send cow to player pen
@@ -234,6 +235,23 @@ export default class TradingScene extends Phaser.Scene {
                 }
 
             }
+
+            // Coins
+
+            this.gameScene.coinAnimation(
+                seller.getPenCentre()[0],
+                seller.getPenCentre()[1],
+                price,
+                true
+            );
+            this.gameScene.coinAnimation(
+                buyer.getPenCentre()[0],
+                buyer.getPenCentre()[1],
+                price,
+                false
+            );
+
+
             buyer.herdTotal += 1;
             seller.herdTotal -= 1;
             // Set the ownership of cow to seller

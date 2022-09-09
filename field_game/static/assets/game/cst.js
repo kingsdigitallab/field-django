@@ -23,26 +23,26 @@ export const gameSettings = {
     },
     gameboardInfo: {
         herdSpawn: [19, 29],
-        playerHouse: [[17, 0], [4, 4]],
-        playerCowPen: [[15, 7], [9, 7]],
+        playerHouse: [[17, 4], [4, 4]],
+        playerCowPen: [[15, 11], [9, 7]],
         farmerCowPens: [
-            [[0, 7], [9, 7]],
-            [[0, 43], [9, 7]],
-            [[15, 43], [9, 7]],
-            [[31, 43], [9, 7]],
-            [[31, 7], [8, 7]],
+            [[0, 11], [9, 7]],
+            [[0, 47], [9, 7]],
+            [[15, 47], [9, 7]],
+            [[31, 47], [9, 7]],
+            [[31, 11], [8, 7]],
 
         ],
         player: {
-            start: [18, 3],
-            house: [[17, 0], 4, 4]
+            start: [18, 7],
+            house: [[17, 6], 4, 4]
         },
         farmerStarts: [
-            [3, 3], [3, 39], [19, 39], [35, 39], [35, 3]
+            [3, 7], [3, 43], [19, 43], [35, 43], [35, 7]
         ],
         hospital: {
-            extent: [[17, 18], [4, 3]],
-            door: [19, 24]
+            extent: [[17, 22], [4, 3]],
+            door: [19, 27]
         }
     },
     SCENENAMES: {
@@ -74,6 +74,8 @@ export const gameSettings = {
         // Player stats update events for UI
         PLAYERBALANCEUPDATED: "PLAYERBALANCEUPDATED",
         PLAYERHERDUPDATED: "PLAYERHERDUPDATED",
+        INFECTIONLEVELUPDATED: "INFECTIONLEVELUPDATED",
+        TURNUPDATED:"TURNUPDATED",
         BFREEUPDATED: "BFREEUPDATED",
         SCOREBOARDFINISH: "SCOREBOARDFINISH",
         TURNSTART: "TURNBEGINS", // Start of turn

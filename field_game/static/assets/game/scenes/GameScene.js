@@ -374,6 +374,44 @@ export default class GameScene extends FieldScene {
         return true;
     }
 
+    /** Our spinning coin animation to show
+     * money being made and spent
+     *
+     * @param x sprite x
+     * @param y sprite y
+     * @param number how many coins we're showing
+     * @param reverse forward is up (spend) reverse is down (make)
+     */
+    coinAnimation(x, y, number, reverse) {
+        let deltaY = y - 176;
+        if (reverse) {
+            y -= 176;
+            deltaY = y + 176;
+        }
+        for (let c = 0; c < number; c++) {
+
+            let coinSprite = this.physics.add.sprite(
+                x, y, 'coin', 0
+            ).setScale(0.75);
+            coinSprite.play({key: 'coin_up'});
+
+            this.tweens.add(
+                {
+                    targets: coinSprite,
+                    ease: 'Power1',
+                    y: {value: deltaY, duration: 1000},
+                    onComplete: function () {
+                        this.targets[0].destroy();
+                    },
+                    delay: 200 * c
+                }
+            );
+
+        }
+    }
+
+
+
 
     /**
      * Let all the board stuff happen
@@ -398,8 +436,9 @@ export default class GameScene extends FieldScene {
         // UI Containers
         this.scene.bringToTop(gameSettings.SCENENAMES.UISCENENAME);
 
-        // Player display
+        // Player display and infections
         this.uiScene.createPlayerInfo();
+        //this.uiScene.createInfectionInfo();
 
 
         // Create events
@@ -463,6 +502,7 @@ export default class GameScene extends FieldScene {
         // todo add farm idle animations
 
     }
+
 
 
 
