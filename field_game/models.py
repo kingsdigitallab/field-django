@@ -1,4 +1,9 @@
+import random
 from django.db import models
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from faker import Faker
+from faker.providers import person
 
 
 class FieldGame(models.Model):
@@ -8,7 +13,7 @@ class FieldGame(models.Model):
     playerID = models.CharField(null=True, blank=True, max_length=128)
     gameID = models.BigIntegerField(default=0)
     final_score = models.IntegerField(default=0)
-    seedPhrase = models.CharField(null=True, blank=True, max_length=128)
+    seed = models.FloatField(default=0.0)
     created_at = models.DateTimeField(auto_now_add=True)
     log = models.TextField(null=True, blank=True)
 
@@ -16,6 +21,38 @@ class FieldGame(models.Model):
         verbose_name = "Field game record"
         verbose_name_plural = "Field game records"
         ordering = ["created_at"]
+
+def make_player_name():
+    """
+    Generate a player id at random to keep track of games played
+    by the same device, without any personal identifying information
+    :return:
+    """
+    fake = Faker()
+    fake.add_provider(person)
+    newPlayerName = fake.first_name()+\
+                    fake.last_name()+str(random.randint(0, 100000))
+    # double check they're not already in there, unlikely
+    if FieldGame.objects.filter(playerID=newPlayerName).count() > 0:
+        # Add a zero
+        newPlayerName = newPlayerName +'0';
+    return newPlayerName
+
+@receiver(post_save, sender=FieldGame)
+def game_post_save(sender, instance, created, **kwargs):
+    """ After a new game is pushed, generate an id
+    and a player id if one wasn't provided"""
+    if created:
+        # New player, generate name
+        instance.playerID = make_player_name()
+        # Create new game id
+        games = FieldGame.objects.filter().all().order_by('-gameID')
+        newGameID = 1
+        if games.count() > 0:
+            g = games[0]
+            newGameID = g.gameID + 1
+        instance.gameId = newGameID
+        instance.save()
 
 
 class Farmer(models.Model):
@@ -46,8 +83,8 @@ class GameEvent(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        verbose_name = "Field game record"
-        verbose_name_plural = "Field game records"
+        verbose_name = "Field game event"
+        verbose_name_plural = "Field game events"
         ordering = ["created_at"]
 
 

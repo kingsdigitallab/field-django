@@ -1,4 +1,4 @@
-from field_game.models import FieldGame, Farmer, GameEvent
+from .models import FieldGame, Farmer, GameEvent
 from rest_framework import serializers
 
 
@@ -9,7 +9,7 @@ class FieldGameSerializer(serializers.ModelSerializer):
             "playerID",
             "gameID",
             "final_score",
-            "seedPhrase",
+            "seed",
             "log"
         ]
 

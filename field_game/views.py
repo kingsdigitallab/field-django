@@ -7,12 +7,14 @@ from field_game.serializers import (
 )
 from rest_framework import permissions
 from rest_framework import viewsets
+from .permissions import AllowedHostPermission
+
 
 # to toggle between easy for debug and production
 if settings.DEBUG:
-    API_PERMISSIONS = [permissions.AllowAny]
+    API_PERMISSIONS = [AllowedHostPermission]
 else:
-    API_PERMISSIONS = [permissions.IsAuthenticatedOrReadOnly]
+    API_PERMISSIONS = [AllowedHostPermission]
 
 
 class FieldGameViewSet(viewsets.ModelViewSet):
@@ -34,3 +36,5 @@ class GameEventViewSet(viewsets.ModelViewSet):
     queryset = GameEvent.objects.all()
     serializer_class = GameEventSerializer
     permission_classes = API_PERMISSIONS
+
+

@@ -6,6 +6,7 @@ import Cow from '../actors/Cow.js';
 import {AIFarmer, Player} from '../actors/Farmer.js';
 import eventsCenter from "./EventsCenter.js";
 import {gameState} from '../GameState.js';
+//import axios from "axios";
 
 
 export default class GameScene extends FieldScene {
@@ -22,12 +23,9 @@ export default class GameScene extends FieldScene {
         this.herd = [];
         this.layers = [];
 
-
         // Player/farmer starts, where the cow pens are etc.
-
         this.gameboardInfo = gameSettings.gameboardInfo;
         //Game rules and constants
-
 
         // Zones on the game board
         this.gameboardZones = {};
@@ -46,6 +44,15 @@ export default class GameScene extends FieldScene {
         //Herd of cows (Cow)
         this.herd = [];
 
+        // Random number and seed
+        this.randomSeed = Math.random();
+        this.currentRandom = this.randomSeed;
+
+        this.apiURLs = {
+            'game': '/game/api/games/',
+            'event': '/game/api/events/',
+        };
+
     }
 
 
@@ -56,6 +63,49 @@ export default class GameScene extends FieldScene {
     gameLog(message) {
         this.log += "\n" + message;
     }
+
+    /**
+     * Return a random between 0 and 1 based
+     * on seed
+     */
+    seededRandom() {
+        this.currentRandom = (this.currentRandom * 1000) % 89; //round(r/89)
+        return this.currentRandom / 89;
+    }
+
+    /** Submit the game we've just created to the database via the api
+     *
+     */
+    /*
+    {
+    "playerID": "1",
+    "gameID": 1,
+    "final_score": 0,
+    "seed": 0.8887665,
+    "log": "asdf"
+}
+     */
+    logNewGame(){
+        axios({
+            method: 'post',
+            url: this.apiURLs.game,
+            data: {
+                playerID: "1",
+                final_score: '0',
+                seed: 0.8887665,
+                log: "asdf"
+            }
+        })
+        .then(function (response) {
+                // handle success
+                console.log(response);
+            })
+         .catch(function (error) {
+                // handle error
+                console.log(error);
+            });
+    }
+
 
     /**
      * playerID = models.CharField(null=True, blank=True, max_length=128)
@@ -78,6 +128,15 @@ export default class GameScene extends FieldScene {
         messageProps.turn = gameState.currentTurn;
         console.log(messageProps);
         gameState.lastTransactionOrderNo += 1;
+        axios.get('/game/api/events/')
+            .then(function (response) {
+                // handle success
+                console.log(response);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            });
     }
 
 
@@ -411,8 +470,6 @@ export default class GameScene extends FieldScene {
     }
 
 
-
-
     /**
      * Let all the board stuff happen
      * then call game start when ready
@@ -422,6 +479,7 @@ export default class GameScene extends FieldScene {
         // Move pieces (currently just cows)
         //await this.sendAllHerdToPens();
         this.setupComplete = true;
+        this.logNewGame();
 
 
         this.uiScene.scoreboard.fillScoreBoard(this.getAllFarmers());
@@ -502,8 +560,6 @@ export default class GameScene extends FieldScene {
         // todo add farm idle animations
 
     }
-
-
 
 
 }

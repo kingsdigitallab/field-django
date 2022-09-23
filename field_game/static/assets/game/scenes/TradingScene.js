@@ -227,7 +227,7 @@ export default class TradingScene extends Phaser.Scene {
                 buyer.balance -= gameSettings.gameRules.normalCowPrice;
                 // is the cow infected?
                 // todo tie break?
-                if (Math.random() < (seller.infections / seller.herdTotal)) {
+                if (this.gameScene.seededRandom() < (seller.infections / seller.herdTotal)) {
                     // Buyer bought an infected cow!
                     buyer.infections += 1;
                     seller.infections -= 1;

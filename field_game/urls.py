@@ -1,7 +1,7 @@
 from django.urls import include, path
 from django.views.generic import TemplateView
 from rest_framework import routers
-
+from rest_framework.authtoken import views
 from .views import FieldGameViewSet, FarmerViewSet, GameEventViewSet
 
 router = routers.DefaultRouter()
@@ -16,6 +16,7 @@ farmer_list = FarmerViewSet.as_view({
 
 urlpatterns = [
     path("api/", include(urlpatterns)),
+    path("api/api-token-auth/", views.obtain_auth_token),
     path("", TemplateView.as_view(template_name="game/game_module.html"),
          name="game"),
 

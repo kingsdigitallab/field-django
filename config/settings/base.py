@@ -107,6 +107,7 @@ THIRD_PARTY_APPS = [
     'kdl_wagtail.people',
     'django_kdl_timeline',
     'rest_framework',
+    'rest_framework.authtoken'
 ]
 
 LOCAL_APPS = [
@@ -182,6 +183,7 @@ MIDDLEWARE = [
     "django.middleware.common.BrokenLinkEmailsMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "wagtail.contrib.redirects.middleware.RedirectMiddleware",
+
 ]
 
 # STATIC
@@ -412,6 +414,11 @@ KDL_WAGTAIL_HIDDEN_PAGE_TYPES = [
     ('kdl_wagtail_people.personpage'),
 ]
 
+KDL_WAGTAIL_KRACKDOWN_FILTERS = [
+    "kdl_wagtail.core.utils.krackdown_anchor",
+    "kdl_wagtail.core.utils.krackdown_link",
+]
+
 MAILING_LIST_FORM_WEB_PATH = '/mailing-list/'
 
 # -----------------------------------------------------------------------------
@@ -445,7 +452,6 @@ GA_ID = 'UA-67707155-9'
 MAILCHIMP_LIST_ID = env('MAILCHIMP_LIST_ID', default='')
 MAILCHIMP_API_KEY = env('MAILCHIMP_API_KEY', default='')
 
-
 # ----------------------------------------------------------------------------
 # Rest API
 # ----------------------------------------------------------------------------
@@ -455,5 +461,8 @@ REST_FRAMEWORK = {
     # or allow read-only access for unauthenticated users.
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.DjangoModelPermissionsOrAnonReadOnly'
+    ],
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
     ]
 }
