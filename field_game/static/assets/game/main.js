@@ -14,7 +14,6 @@ import DialogModalPlugin from "./plugins/field/DialogModalPlugin.js";
 import TurnEndScene from "./scenes/TurnEndScene.js";
 
 
-
 /**
  *  Main game config
  *
@@ -26,6 +25,8 @@ const MAX_WIDTH = 1400;
 const MAX_HEIGHT = 1200;
 const GAME_WIDTH = 640; // In 16 tiles, 40 X 60
 const GAME_HEIGHT = 960;
+
+
 
 
 // Load scenes
@@ -53,9 +54,7 @@ let config = {
         },
     scale: {
         mode: Phaser.Scale.FIT,
-
         autoCenter: Phaser.Scale.CENTER_BOTH,
-
         min: {
             width: MIN_WIDTH,
             height: MIN_HEIGHT

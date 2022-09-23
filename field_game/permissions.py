@@ -1,16 +1,22 @@
 from rest_framework import permissions
 from django.conf import settings
 
-class AllowedHostPermission(permissions.BasePermission):
+class IsCreatorOrReadOnly(permissions.BasePermission):
     """
-    Only allow access from local clients
+    Custom permission to only allow creators of games to edit them
+    if the user is game guest
     """
 
-    def has_permission(self, request, view):
+    def has_object_permission(self, request, view, obj):
+        # Read permissions are allowed to any request,
+        # so we'll always allow GET, HEAD or OPTIONS requests.
         if request.method in permissions.SAFE_METHODS:
             return True
+
+        # Write permissions are only allowed to the owner of the snippet.
+        if request.user == settings.FIELD_GAME_USER:
+            obj.owner == request.user
         else:
-            host_addr = request.META['REMOTE_ADDR']
-            if host_addr in settings.ALLOWED_HOSTS:
-                return True
-            return False
+            # let ordinary authentication handle it
+            return True
+

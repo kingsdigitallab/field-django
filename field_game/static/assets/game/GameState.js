@@ -11,7 +11,7 @@ export let gameState = {
     textScrolling: false,
     lastTransactionOrderNo: 0,
     playerID: "TESTER",
-    gameID: 110,
+    gameID: 0,
     infectionTotal: 0,
     playerSpriteKeyFrame:null,
     player:null,

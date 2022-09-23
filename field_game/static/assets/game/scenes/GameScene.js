@@ -86,19 +86,35 @@ export default class GameScene extends FieldScene {
 }
      */
     logNewGame(){
+        let playerID = localStorage.getItem('playerID');
+        let game_data = {
+                final_score: '0',
+                csrfmiddlewaretoken: sessionStorage.getItem('csrf_token'),
+                creator_sessionid: sessionStorage.session_id,
+                seed: this.randomSeed,
+                log: "Game started",
+        };
+        if (playerID !== null) {
+            game_data.playerID = playerID;
+        }
+
         axios({
             method: 'post',
+            mode: 'same-origin',
             url: this.apiURLs.game,
-            data: {
-                playerID: "1",
-                final_score: '0',
-                seed: 0.8887665,
-                log: "asdf"
-            }
+            headers:{
+                'X-CSRFToken': sessionStorage.getItem('csrf_token')
+            },
+            data: game_data
         })
         .then(function (response) {
                 // handle success
                 console.log(response);
+                if (response && response.data){
+                    gameState.gameID = response.data.gameID;
+                    gameState.playerID = response.data.playerID;
+                }
+
             })
          .catch(function (error) {
                 // handle error

@@ -1,10 +1,10 @@
 import random
+
 from django.db import models
-from django.db.models.signals import post_save
 from django.dispatch import receiver
 from faker import Faker
 from faker.providers import person
-
+from django.db.models.signals import pre_save
 
 class FieldGame(models.Model):
     """One Instance of a Field game, including who played it and
@@ -14,6 +14,7 @@ class FieldGame(models.Model):
     gameID = models.BigIntegerField(default=0)
     final_score = models.IntegerField(default=0)
     seed = models.FloatField(default=0.0)
+    creator_sessionid = models.CharField(null=True, blank=True, max_length=256)
     created_at = models.DateTimeField(auto_now_add=True)
     log = models.TextField(null=True, blank=True)
 
@@ -21,6 +22,26 @@ class FieldGame(models.Model):
         verbose_name = "Field game record"
         verbose_name_plural = "Field game records"
         ordering = ["created_at"]
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        """ After a new game is pushed, generate an id
+        and a player id if one wasn't provided"""
+        # New player, generate name
+        if not self.playerID:
+            self.playerID = make_player_name()
+        # Create new game id
+        games = FieldGame.objects.filter().all().order_by('-gameID')
+        newGameID = 1
+        if games.count() > 0:
+            g = games[0]
+            newGameID = g.gameID + 1
+        self.gameID = newGameID
+        super().save(force_insert, force_update, using, update_fields)
+
+    def __str__(self):
+        return self.playerID+' : '+str(self.gameID)
+
 
 def make_player_name():
     """
@@ -30,29 +51,17 @@ def make_player_name():
     """
     fake = Faker()
     fake.add_provider(person)
-    newPlayerName = fake.first_name()+\
-                    fake.last_name()+str(random.randint(0, 100000))
+    newPlayerName = fake.first_name() + \
+                    fake.last_name() + str(random.randint(0, 100000))
     # double check they're not already in there, unlikely
     if FieldGame.objects.filter(playerID=newPlayerName).count() > 0:
         # Add a zero
-        newPlayerName = newPlayerName +'0';
+        newPlayerName = newPlayerName + '0';
     return newPlayerName
 
-@receiver(post_save, sender=FieldGame)
-def game_post_save(sender, instance, created, **kwargs):
-    """ After a new game is pushed, generate an id
-    and a player id if one wasn't provided"""
-    if created:
-        # New player, generate name
-        instance.playerID = make_player_name()
-        # Create new game id
-        games = FieldGame.objects.filter().all().order_by('-gameID')
-        newGameID = 1
-        if games.count() > 0:
-            g = games[0]
-            newGameID = g.gameID + 1
-        instance.gameId = newGameID
-        instance.save()
+
+
+# instance.save()
 
 
 class Farmer(models.Model):
@@ -72,7 +81,8 @@ class GameEvent(models.Model):
     gameID = models.BigIntegerField(default=0)
     turn = models.IntegerField(default=0)
     orderno = models.IntegerField(default=0)
-    event_type = models.ForeignKey("EventType", on_delete=models.SET_NULL, null=True)
+    event_type = models.ForeignKey("EventType", on_delete=models.SET_NULL,
+                                   null=True)
     farmerA = models.ForeignKey(
         "Farmer", null=True, on_delete=models.SET_NULL, related_name="farmer_A"
     )
@@ -81,6 +91,7 @@ class GameEvent(models.Model):
     )
     description = models.CharField(null=True, blank=True, max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
+    creator_sessionid = models.CharField(null=True, blank=True, max_length=256)
 
     class Meta:
         verbose_name = "Field game event"
