@@ -76,6 +76,7 @@ export default class GameScene extends FieldScene {
     /** Submit the game we've just created to the database via the api
      *
      */
+
     /*
     {
     "playerID": "1",
@@ -85,14 +86,14 @@ export default class GameScene extends FieldScene {
     "log": "asdf"
 }
      */
-    logNewGame(){
+    logNewGame() {
         let playerID = localStorage.getItem('playerID');
         let game_data = {
-                final_score: '0',
-                csrfmiddlewaretoken: sessionStorage.getItem('csrf_token'),
-                creator_sessionid: sessionStorage.session_id,
-                seed: this.randomSeed,
-                log: "Game started",
+            final_score: '0',
+            csrfmiddlewaretoken: sessionStorage.getItem('csrf_token'),
+            creator_sessionid: sessionStorage.session_id,
+            seed: this.randomSeed,
+            log: "Game started",
         };
         if (playerID !== null) {
             game_data.playerID = playerID;
@@ -102,22 +103,22 @@ export default class GameScene extends FieldScene {
             method: 'post',
             mode: 'same-origin',
             url: this.apiURLs.game,
-            headers:{
+            headers: {
                 'X-CSRFToken': sessionStorage.getItem('csrf_token')
             },
             data: game_data
         })
-        .then(function (response) {
+            .then(function (response) {
                 // handle success
                 console.log(response);
-                if (response && response.data){
+                if (response && response.data) {
                     gameState.gameID = response.data.gameID;
                     gameState.playerID = response.data.playerID;
                     localStorage.setItem('playerID', gameState.playerID);
                 }
 
             })
-         .catch(function (error) {
+            .catch(function (error) {
                 // handle error
                 console.log(error);
             });
@@ -141,25 +142,33 @@ export default class GameScene extends FieldScene {
      */
     logTransaction(messageProps) {
         // todo make this an api when we're ready
+        /*let data = {
+            'orderno': gameState.lastTransactionOrderNo,
+            'turn': gameState.currentTurn,
+            'csrfmiddlewaretoken': sessionStorage.getItem('csrf_token'),
+            'creator_sessionid': sessionStorage.session_id
+        };*/
+
         messageProps.orderno = gameState.lastTransactionOrderNo;
         messageProps.turn = gameState.currentTurn;
         messageProps.csrfmiddlewaretoken = sessionStorage.getItem('csrf_token');
         messageProps.creator_sessionid = sessionStorage.session_id;
+
         console.log(messageProps);
         gameState.lastTransactionOrderNo += 1;
         axios({
             method: 'post',
             mode: 'same-origin',
             url: this.apiURLs.event,
-            headers:{
+            headers: {
                 'X-CSRFToken': sessionStorage.getItem('csrf_token')
             },
             data: messageProps
         })
-        .then(function (response) {
+            .then(function (response) {
                 // handle success
                 console.log(response);
-                if (response && response.data){
+                if (response && response.data) {
                     gameState.gameID = response.data.gameID;
                     // todo remove if name entry kept
                     // otherwise restore autoname
@@ -167,7 +176,7 @@ export default class GameScene extends FieldScene {
                 }
 
             })
-         .catch(function (error) {
+            .catch(function (error) {
                 // handle error
                 console.log(error);
             });

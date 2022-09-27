@@ -40,12 +40,14 @@ class FarmerViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = API_PERMISSIONS
 
 
+
 class GameEventViewSet(viewsets.ModelViewSet):
     """ Serve a new instance of the Field boardgame with relevant settings"""
     queryset = GameEvent.objects.all()
     serializer_class = GameEventSerializer
     permission_classes = API_PERMISSIONS
 
+"""
     @method_decorator(csrf_protect)
     def create(self, request, *args, **kwargs):
         return super().create(self, request, *args, **kwargs)
@@ -56,7 +58,7 @@ class GameEventViewSet(viewsets.ModelViewSet):
 
     @method_decorator(csrf_protect)
     def destroy(self, request, *args, **kwargs):
-        return super().destroy(self, request, *args, **kwargs)
+        return super().destroy(self, request, *args, **kwargs)"""
 
 
 
