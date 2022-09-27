@@ -12,7 +12,7 @@ import BFreeScene from "./scenes/BFreeScene.js";
 import TradingScene from "./scenes/TradingScene.js";
 import DialogModalPlugin from "./plugins/field/DialogModalPlugin.js";
 import TurnEndScene from "./scenes/TurnEndScene.js";
-
+import HighScoreScene from "./scenes/HighScoreScene.js";
 
 /**
  *  Main game config
@@ -71,6 +71,7 @@ let config = {
 let game = new Phaser.Game(config);
 game.scene.add('BootScene', bootScene);
 game.scene.add('TitleScene', titleScene);
+game.scene.add(gameSettings.SCENENAMES.HIGHSCORESCENE, new HighScoreScene());
 game.scene.add(gameSettings.SCENENAMES.CHARACTERSELECTSCENE, new CharacterSelectScene());
 game.scene.add(gameSettings.SCENENAMES.GAMESCENENAME, gameScene);
 game.scene.add(gameSettings.SCENENAMES.UISCENENAME, new UIScene());

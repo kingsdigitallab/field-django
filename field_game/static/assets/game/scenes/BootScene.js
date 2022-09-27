@@ -124,7 +124,8 @@ export default class BootScene extends FieldScene {
         super.create();
         this.createAnimations();
         this.debug("BOOTING COMPLETE!");
-        this.scene.launch(gameSettings.SCENENAMES.UISCENENAME);
+
+
         this.scene.start(gameSettings.SCENENAMES.TITLESCENENAME);
 
 

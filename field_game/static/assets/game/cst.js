@@ -47,6 +47,7 @@ export const gameSettings = {
     },
     SCENENAMES: {
         TITLESCENENAME: 'TitleScene',
+        HIGHSCORESCENE:'NAMEINPUTSCENE',
         CHARACTERSELECTSCENE:'CharacterSelectScene',
         GAMESCENENAME: 'GameScene',
         UISCENENAME: 'UIScene',

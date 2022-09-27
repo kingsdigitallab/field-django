@@ -15,7 +15,11 @@ class IsCreatorOrReadOnly(permissions.BasePermission):
 
         # Write permissions are only allowed to the owner of the snippet.
         if request.user == settings.FIELD_GAME_USER:
-            obj.owner == request.user
+            if obj.creator_sessionid == request.POST.creator_sessionid:
+                return True
+            else:
+                return False
+
         else:
             # let ordinary authentication handle it
             return True

@@ -113,6 +113,7 @@ export default class GameScene extends FieldScene {
                 if (response && response.data){
                     gameState.gameID = response.data.gameID;
                     gameState.playerID = response.data.playerID;
+                    localStorage.setItem('playerID', gameState.playerID);
                 }
 
             })
@@ -142,14 +143,31 @@ export default class GameScene extends FieldScene {
         // todo make this an api when we're ready
         messageProps.orderno = gameState.lastTransactionOrderNo;
         messageProps.turn = gameState.currentTurn;
+        messageProps.csrfmiddlewaretoken = sessionStorage.getItem('csrf_token');
+        messageProps.creator_sessionid = sessionStorage.session_id;
         console.log(messageProps);
         gameState.lastTransactionOrderNo += 1;
-        axios.get('/game/api/events/')
-            .then(function (response) {
+        axios({
+            method: 'post',
+            mode: 'same-origin',
+            url: this.apiURLs.event,
+            headers:{
+                'X-CSRFToken': sessionStorage.getItem('csrf_token')
+            },
+            data: messageProps
+        })
+        .then(function (response) {
                 // handle success
                 console.log(response);
+                if (response && response.data){
+                    gameState.gameID = response.data.gameID;
+                    // todo remove if name entry kept
+                    // otherwise restore autoname
+                    //gameState.playerID = response.data.playerID;
+                }
+
             })
-            .catch(function (error) {
+         .catch(function (error) {
                 // handle error
                 console.log(error);
             });

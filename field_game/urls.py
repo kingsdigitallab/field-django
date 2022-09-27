@@ -1,7 +1,5 @@
 from django.urls import include, path
-from django.views.generic import TemplateView
 from rest_framework import routers
-from rest_framework.authtoken import views
 from .views import (
     FieldGameViewSet, FarmerViewSet, GameEventViewSet, GameView
 )
@@ -18,7 +16,6 @@ farmer_list = FarmerViewSet.as_view({
 
 urlpatterns = [
     path("api/", include(urlpatterns)),
-    path("api/api-token-auth/", views.obtain_auth_token),
     path("", GameView.as_view(), name="game"),
 
 ]

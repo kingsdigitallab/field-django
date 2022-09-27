@@ -13,12 +13,17 @@ from django.contrib.auth.models import User
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import requires_csrf_token
+from .permissions import IsCreatorOrReadOnly
 
 # to toggle between easy for debug and production
 if settings.DEBUG:
-    API_PERMISSIONS = [permissions.IsAuthenticatedOrReadOnly]
+    API_PERMISSIONS = [
+        permissions.IsAuthenticatedOrReadOnly, IsCreatorOrReadOnly
+    ]
 else:
-    API_PERMISSIONS = [permissions.IsAuthenticatedOrReadOnly]
+    API_PERMISSIONS = [
+        permissions.IsAuthenticatedOrReadOnly, IsCreatorOrReadOnly
+    ]
 
 
 class FieldGameViewSet(viewsets.ModelViewSet):
@@ -44,6 +49,16 @@ class GameEventViewSet(viewsets.ModelViewSet):
     @method_decorator(csrf_protect)
     def create(self, request, *args, **kwargs):
         return super().create(self, request, *args, **kwargs)
+
+    @method_decorator(csrf_protect)
+    def update(self, request, *args, **kwargs):
+        return super().update(self, request, *args, **kwargs)
+
+    @method_decorator(csrf_protect)
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(self, request, *args, **kwargs)
+
+
 
 class GameView(TemplateView):
     """ Serve our Phaser game, and log the user in as FieldGameGuest
