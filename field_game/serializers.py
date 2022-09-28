@@ -1,4 +1,6 @@
-from .models import FieldGame, Farmer, GameEvent
+from rest_framework.relations import PrimaryKeyRelatedField
+
+from .models import FieldGame, Farmer, GameEvent, EventType
 from rest_framework import serializers
 
 
@@ -24,6 +26,7 @@ class FarmerSerializer(serializers.ModelSerializer):
 
 
 class GameEventSerializer(serializers.ModelSerializer):
+    event_type = PrimaryKeyRelatedField(queryset=EventType.objects.all())
     class Meta:
         model = GameEvent
         fields = [
@@ -35,4 +38,6 @@ class GameEventSerializer(serializers.ModelSerializer):
             "farmerA",
             "farmerB",
             "description",
+            "created_at",
+            "creator_sessionid",
         ]

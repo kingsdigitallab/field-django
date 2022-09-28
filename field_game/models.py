@@ -1,10 +1,9 @@
 import random
 
 from django.db import models
-from django.dispatch import receiver
 from faker import Faker
 from faker.providers import person
-from django.db.models.signals import pre_save
+
 
 class FieldGame(models.Model):
     """One Instance of a Field game, including who played it and
@@ -40,7 +39,7 @@ class FieldGame(models.Model):
         super().save(force_insert, force_update, using, update_fields)
 
     def __str__(self):
-        return self.playerID+' : '+str(self.gameID)
+        return self.playerID + ' : ' + str(self.gameID)
 
 
 def make_player_name():
@@ -58,7 +57,6 @@ def make_player_name():
         # Add a zero
         newPlayerName = newPlayerName + '0';
     return newPlayerName
-
 
 
 # instance.save()
@@ -83,12 +81,8 @@ class GameEvent(models.Model):
     orderno = models.IntegerField(default=0)
     event_type = models.ForeignKey("EventType", on_delete=models.SET_NULL,
                                    null=True)
-    farmerA = models.ForeignKey(
-        "Farmer", null=True, on_delete=models.SET_NULL, related_name="farmer_A"
-    )
-    farmerB = models.ForeignKey(
-        "Farmer", null=True, on_delete=models.SET_NULL, related_name="farmer_B"
-    )
+    farmerA = models.CharField(null=True, blank=True, max_length=128)
+    farmerB = models.CharField(null=True, blank=True, max_length=128)
     description = models.CharField(null=True, blank=True, max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
     creator_sessionid = models.CharField(null=True, blank=True, max_length=256)
@@ -97,6 +91,12 @@ class GameEvent(models.Model):
         verbose_name = "Field game event"
         verbose_name_plural = "Field game events"
         ordering = ["created_at"]
+
+    def __str__(self):
+        return (
+            str(self.gameID) + '.' + str(self.turn) + ' : ' +
+            self.description
+        )
 
 
 class EventType(models.Model):
@@ -108,3 +108,6 @@ class EventType(models.Model):
         verbose_name = "Game event type"
         verbose_name_plural = "Game event types"
         ordering = ["event_type"]
+
+    def __str__(self):
+        return self.event_type

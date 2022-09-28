@@ -324,7 +324,7 @@ export default class BFreeScene extends Phaser.Scene {
             farmerA: farmerA.name,
             description: description
         };
-        messageProps.eventType = gameSettings.TRANSACTIONEVENTTYPES.JoinBFree;
+        messageProps.event_type = gameSettings.TRANSACTIONEVENTTYPES.JoinBFree;
         this.gameScene.logTransaction(messageProps);
     }
 

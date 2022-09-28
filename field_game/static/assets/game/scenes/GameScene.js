@@ -148,7 +148,8 @@ export default class GameScene extends FieldScene {
             'csrfmiddlewaretoken': sessionStorage.getItem('csrf_token'),
             'creator_sessionid': sessionStorage.session_id
         };*/
-
+        messageProps.gameID = gameState.gameID;
+        messageProps.playerID = gameState.playerID;
         messageProps.orderno = gameState.lastTransactionOrderNo;
         messageProps.turn = gameState.currentTurn;
         messageProps.csrfmiddlewaretoken = sessionStorage.getItem('csrf_token');
@@ -168,13 +169,6 @@ export default class GameScene extends FieldScene {
             .then(function (response) {
                 // handle success
                 console.log(response);
-                if (response && response.data) {
-                    gameState.gameID = response.data.gameID;
-                    // todo remove if name entry kept
-                    // otherwise restore autoname
-                    //gameState.playerID = response.data.playerID;
-                }
-
             })
             .catch(function (error) {
                 // handle error
