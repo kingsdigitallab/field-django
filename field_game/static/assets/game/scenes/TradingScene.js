@@ -34,12 +34,9 @@ export default class TradingScene extends Phaser.Scene {
     }
 
     create() {
-
         this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
         this.addListeners();
-
-
     }
 
     addListeners() {
@@ -143,7 +140,6 @@ export default class TradingScene extends Phaser.Scene {
      */
     async finishPhase() {
         gameState.currentState = States.TRADINGFINISH;
-
         // Short delay before next phase
         await new Promise(resolve => setTimeout(resolve, 1500));
         this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
@@ -192,7 +188,12 @@ export default class TradingScene extends Phaser.Scene {
         let boughtCow = null;
 
         if (buyer.balance >= gameSettings.gameRules.normalCowPrice) {
-            [summary, boughtCow] = this.transaction(buyer, buyer.calculatePurchaseChoice(sellers));
+            const pIndex = sellers.indexOf(buyer);
+            let potentialSellers = [...sellers];
+            potentialSellers.splice(pIndex,1);
+            [summary, boughtCow] = this.transaction(
+                buyer, buyer.calculatePurchaseChoice(potentialSellers)
+            );
         } else {
             summary = buyer.name + " can't afford to buy a cow";
         }
@@ -212,6 +213,11 @@ export default class TradingScene extends Phaser.Scene {
         let cowType = '';
         let price = 0;
         let boughtCow = null;
+        let transactionMessageProps = {
+            "farmerA": buyer.name,
+            "farmerB": seller.name,
+            "event_type": gameSettings.TRANSACTIONEVENTTYPES.Trade
+        };
         if (buyer && seller) {
             if (seller.isBFree()) {
                 // Bovi free, pay premium, no infection
@@ -232,6 +238,7 @@ export default class TradingScene extends Phaser.Scene {
                     buyer.infections += 1;
                     seller.infections -= 1;
                     cowType = "Infected";
+                    transactionMessageProps.infected_cow = true;
                 }
 
             }
@@ -277,7 +284,9 @@ export default class TradingScene extends Phaser.Scene {
             // Reset time since last sale for seller
             seller.timeSinceLastSale = -1;
             let summary = cowType + ' cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
+            transactionMessageProps.description = summary;
             this.gameScene.gameLog(summary);
+            this.gameScene.logTransaction(transactionMessageProps);
             return [summary, boughtCow];
 
         }

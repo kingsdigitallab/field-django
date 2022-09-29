@@ -8,7 +8,8 @@ from field_game.serializers import (
 from rest_framework.response import Response
 from rest_framework import status
 from django.middleware import csrf
-from rest_framework import viewsets, permissions
+
+from rest_framework import viewsets, permissions, filters
 from django.views.generic import TemplateView
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.models import User
@@ -30,9 +31,24 @@ else:
 
 class FieldGameViewSet(viewsets.ModelViewSet):
     """ Serve a new instance of the Field boardgame with relevant settings"""
-    queryset = FieldGame.objects.all()
+    #queryset = FieldGame.objects.all()
     serializer_class = FieldGameSerializer
     permission_classes = API_PERMISSIONS
+
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases
+        for the currently authenticated user.
+        """
+        queryset = FieldGame.objects.all()
+        if 'gameID' in self.request.query_params:
+            gameID = self.request.query_params.get('gameID')
+            queryset = queryset.filter(gameID=gameID)
+        if 'playerID' in self.request.query_params:
+            playerID = self.request.query_params.get('playerID')
+            queryset = queryset.filter(playerID=playerID)
+
+        return queryset.order_by('-gameID')
 
 
 class FarmerViewSet(viewsets.ReadOnlyModelViewSet):
@@ -45,27 +61,32 @@ class FarmerViewSet(viewsets.ReadOnlyModelViewSet):
 
 class GameEventViewSet(viewsets.ModelViewSet):
     """ Serve a new instance of the Field boardgame with relevant settings"""
-    queryset = GameEvent.objects.all()
+    #queryset = GameEvent.objects.all()
     serializer_class = GameEventSerializer
     permission_classes = API_PERMISSIONS
+    filter_backends = [filters.SearchFilter]
+    search_fields = [
+        'playerID', 'gameID', 'infected_cow'
+    ]
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+    def get_queryset(self):
+        """
+        This view should return a list of all the purchases
+        for the currently authenticated user.
+        """
+        queryset = GameEvent.objects.all()
+        if 'gameID' in self.request.query_params:
+            gameID = self.request.query_params.get('gameID')
+            queryset = queryset.filter(gameID=gameID)
+        if 'playerID' in self.request.query_params:
+            playerID = self.request.query_params.get('playerID')
+            queryset = queryset.filter(playerID=playerID)
 
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
+        return queryset.order_by('-gameID', 'turn', 'orderno')
 
-        page = self.paginate_queryset(queryset)
-        if page is not None:
-            serializer = self.get_serializer(page, many=True)
-            return self.get_paginated_response(serializer.data)
 
-        serializer = self.get_serializer(queryset, many=True)
-        return Response(serializer.data)
+
+
 
 
 

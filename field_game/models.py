@@ -83,6 +83,7 @@ class GameEvent(models.Model):
                                    null=True)
     farmerA = models.CharField(null=True, blank=True, max_length=128)
     farmerB = models.CharField(null=True, blank=True, max_length=128)
+    infected_cow = models.BooleanField(default=False)
     description = models.CharField(null=True, blank=True, max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
     creator_sessionid = models.CharField(null=True, blank=True, max_length=256)
