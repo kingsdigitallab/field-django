@@ -38,6 +38,7 @@ class GameEventSerializer(serializers.ModelSerializer):
             "farmerA",
             "farmerB",
             "description",
+            "infected_cow",
             "created_at",
             "creator_sessionid",
         ]
