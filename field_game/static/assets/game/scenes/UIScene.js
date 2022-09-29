@@ -171,6 +171,16 @@ export default class UIScene extends Phaser.Scene {
         }
     }
 
+    /** Stop dialog and clear the window
+     *
+     */
+    clearDialogWindow(){
+        this.dialogWindow.eventCounter = 0;
+        this.dialogWindow.dialog = '';
+        this.dialogWindow.timedEvent.remove();
+        this.dialogWindow.text.destroy();
+    }
+
     /**
      * Add text to the main dialog window queue.
      * Remember to call Advance to start!

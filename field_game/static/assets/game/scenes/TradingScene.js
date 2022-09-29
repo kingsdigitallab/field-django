@@ -158,7 +158,7 @@ export default class TradingScene extends Phaser.Scene {
     async playerPurchaseCow(seller) {
 
         if (gameState.currentState === States.TRADINGCHOOSE) {
-
+            this.uiScene.clearDialogWindow();
             if (seller && (seller.isBFree() === this.gameScene.player.isBFree())) {
                 let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
                 // Send cow to player pen
@@ -192,7 +192,7 @@ export default class TradingScene extends Phaser.Scene {
             let potentialSellers = [...sellers];
             potentialSellers.splice(pIndex,1);
             [summary, boughtCow] = this.transaction(
-                buyer, buyer.calculatePurchaseChoice(potentialSellers)
+                buyer, this.calculatePurchaseChoice(potentialSellers)
             );
         } else {
             summary = buyer.name + " can't afford to buy a cow";
@@ -283,14 +283,38 @@ export default class TradingScene extends Phaser.Scene {
 
             // Reset time since last sale for seller
             seller.timeSinceLastSale = -1;
-            let summary = cowType + ' cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
+            let transactionSummary = cowType + ' cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
+            let summary = 'Cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
             transactionMessageProps.description = summary;
-            this.gameScene.gameLog(summary);
+            this.gameScene.gameLog(transactionSummary);
             this.gameScene.logTransaction(transactionMessageProps);
             return [summary, boughtCow];
 
         }
         return ['', null];
+
+    }
+
+
+
+    /**
+     * Decide which farmer to purchase a cow from
+     *
+     * Choose one number n from {0,1,2,…8} farm } with probability
+     * proportional to (1 + Time_since_bfree[n])^(-preference shape)
+     * Return n
+     *
+     * @param farmers in the game
+     * @return farmer we're buying from
+     */
+    calculatePurchaseChoice(farmers) {
+        // One at random from available sellers
+        if (farmers && farmers.length > 0) {
+            let selected = false;
+            let choice = Math.ceil(this.gameScene.seededRandom() * farmers.length) - 1;
+            return farmers[choice];
+        }
+        return null;
 
     }
 

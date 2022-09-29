@@ -280,6 +280,7 @@ export default class BFreeScene extends Phaser.Scene {
         gameState.currentState = States.BOVIYES;
         console.log("Joining Bovi Free");
         this.toggleHighlightTweens();
+        this.uiScene.clearDialogWindow();
         this.joinBFree(this.gameScene.player);
         await this.innoculationAnimation(this.gameScene.player);
         await this.AIFarmersJoinBFree();
@@ -292,6 +293,7 @@ export default class BFreeScene extends Phaser.Scene {
         // Subtract the cost
         gameState.currentState = States.BOVINO;
         this.toggleHighlightTweens();
+        this.uiScene.clearDialogWindow();
         this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.no);
         this.gameScene.player.setBFree(false);
     }
@@ -352,6 +354,8 @@ export default class BFreeScene extends Phaser.Scene {
         console.log("Joining Bovi Free COMPLETE");
         this.scene.get(gameSettings.SCENENAMES.TRADINGSCENENAME).tradingPhase();
     }
+
+
 
 
 }
