@@ -122,9 +122,10 @@ class GameView(TemplateView):
             )
             if user is not None:
                 login(self.request, user)
+                context['session_id'] = self.request.session.session_key
         else:
             user = User.objects.get(username=self.request.user)
-        context['session_id'] = self.request.COOKIES['sessionid']
+            context['session_id'] = self.request.COOKIES['sessionid']
         return context
 
     @method_decorator(requires_csrf_token)
