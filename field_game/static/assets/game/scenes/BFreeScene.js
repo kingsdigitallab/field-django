@@ -288,7 +288,7 @@ export default class BFreeScene extends Phaser.Scene {
         return true;
     }
 
-    joinBFreeNo() {
+    async joinBFreeNo() {
         console.log("Not joining Bovi Free");
         // Subtract the cost
         gameState.currentState = States.BOVINO;
@@ -296,6 +296,8 @@ export default class BFreeScene extends Phaser.Scene {
         this.uiScene.clearDialogWindow();
         this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.no);
         this.gameScene.player.setBFree(false);
+        await this.AIFarmersJoinBFree();
+        return true;
     }
 
     async AIFarmersJoinBFree() {
