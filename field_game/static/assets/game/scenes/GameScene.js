@@ -110,7 +110,7 @@ export default class GameScene extends FieldScene {
         })
             .then(function (response) {
                 // handle success
-                console.log(response);
+
                 if (response && response.data) {
                     gameState.gameID = response.data.gameID;
                     gameState.playerID = response.data.playerID;
@@ -155,7 +155,7 @@ export default class GameScene extends FieldScene {
         messageProps.csrfmiddlewaretoken = sessionStorage.getItem('csrf_token');
         messageProps.creator_sessionid = sessionStorage.session_id;
 
-        console.log(messageProps);
+
         gameState.lastTransactionOrderNo += 1;
         axios({
             method: 'post',
@@ -273,7 +273,7 @@ export default class GameScene extends FieldScene {
         // Player farm
         const startX = this.gameboardInfo.player.start[0] * this.BOARD_TILE_SIZE;
         const startY = (this.gameboardInfo.player.start[1] + 1) * this.BOARD_TILE_SIZE;
-        console.log(gameState.playerSpriteKeyFrame);
+
         let playerSprite = this.physics.add.sprite(
             startX,
             startY,
@@ -290,7 +290,7 @@ export default class GameScene extends FieldScene {
                 if (gameState.currentState === States.BOVICHOOSE) {
                     // If board is touchable, record touch
                     eventsCenter.emit(gameSettings.EVENTS.PLAYERPENTOUCHED);
-                    // console.log('player');
+
                 }
             }, this);
         this.player.setPenZone(penZone);
@@ -311,7 +311,6 @@ export default class GameScene extends FieldScene {
     }
 
     createCow(owner, startX, startY) {
-        //console.log(startX+'::'+startY);
         let sprite = this.physics.add.sprite(startX + 16, startY + 16, 'cow_1');
         sprite.setCollideWorldBounds(true);
         return new Cow(owner, sprite);
@@ -417,9 +416,7 @@ export default class GameScene extends FieldScene {
                         // If board is touchable, record touch
                         console.log('touched');
                         eventsCenter.emit(gameSettings.EVENTS.AIFARMERPENTOUCHED, this);
-                        /*let zone = this.getPenZone();
-                        let rect = new Phaser.Geom.Rectangle(zone.x,zone.y,zone.width,zone.height);
-                        console.log(rect.getRandomPoint());*/
+
                     }
                 }, aiFarmer);
             aiFarmer.setPenZone(penZone);

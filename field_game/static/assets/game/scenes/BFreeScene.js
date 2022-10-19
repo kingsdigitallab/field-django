@@ -266,7 +266,7 @@ export default class BFreeScene extends Phaser.Scene {
             farmer,
             farmer.name + " joins BFree scheme  and pays " + totalCost
         );
-        console.log(farmer.getPenCentre());
+
         this.gameScene.coinAnimation(farmer.getPenCentre()[0], farmer.getPenCentre()[1],
             totalCost, false);
         eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
@@ -278,7 +278,7 @@ export default class BFreeScene extends Phaser.Scene {
 
         // Subtract the cost
         gameState.currentState = States.BOVIYES;
-        console.log("Joining Bovi Free");
+        //console.log("Joining Bovi Free");
         this.toggleHighlightTweens();
         this.uiScene.clearDialogWindow();
         this.joinBFree(this.gameScene.player);
@@ -289,7 +289,7 @@ export default class BFreeScene extends Phaser.Scene {
     }
 
     async joinBFreeNo() {
-        console.log("Not joining Bovi Free");
+        //console.log("Not joining Bovi Free");
         // Subtract the cost
         gameState.currentState = States.BOVINO;
         this.toggleHighlightTweens();
@@ -306,7 +306,7 @@ export default class BFreeScene extends Phaser.Scene {
         for (let f = 0; f < farmers.length; f++) {
             if (this.scheme_choice(farmers[f]) === true) {
                 if (gameSettings.DEBUG) {
-                    console.log(farmers[f].name + ' joined scheme');
+                    //console.log(farmers[f].name + ' joined scheme');
                 }
                 this.joinBFree(farmers[f]);
                 innoculationPromises.push(this.innoculationAnimation(farmers[f]));
@@ -353,7 +353,7 @@ export default class BFreeScene extends Phaser.Scene {
 
 
     endPhase() {
-        console.log("Joining Bovi Free COMPLETE");
+        //console.log("Joining Bovi Free COMPLETE");
         this.scene.get(gameSettings.SCENENAMES.TRADINGSCENENAME).tradingPhase();
     }
 

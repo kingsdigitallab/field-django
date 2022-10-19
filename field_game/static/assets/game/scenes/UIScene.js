@@ -13,8 +13,8 @@ export default class UIScene extends Phaser.Scene {
         this.COLOR_PRIMARY = 0x4e342e;
         this.COLOR_LIGHT = 0x7b5e57;
         this.COLOR_DARK = 0x260e04;
-        this.balanceText = "£ ";
-        this.herdText = "Cows: ";
+        this.balanceText = "";
+        this.herdText = "";
         this.texts = [];//Queue for dialog text
         this.defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '16px'};
         this.turnInfoTextStyle = {fontFamily: 'PressStart2P', fontSize: '18px'};
@@ -143,7 +143,7 @@ export default class UIScene extends Phaser.Scene {
     advanceDialogWindowSequence() {
         // Dialog in progress, dump buffer
         if (this.dialogWindow.eventCounter > 0) {
-            console.log('Text skip ->' + this.texts.length);
+            //console.log('Text skip ->' + this.texts.length);
             this.dialogWindow.timedEvent.remove();
 
             if (this.dialogWindow.text && this.dialogWindow.dialog) {
@@ -156,7 +156,7 @@ export default class UIScene extends Phaser.Scene {
         } else if (this.texts && this.texts.length > 0) {
             gameState.textScrolling = true;
             // Queued text is available
-            console.log('Text advance ->' + this.texts.length);
+            //console.log('Text advance ->' + this.texts.length);
             //Set the text
             this.dialogWindow.setText(this, this.texts[0], true);
             // Remove it from queue
@@ -164,7 +164,7 @@ export default class UIScene extends Phaser.Scene {
 
         } else if (this.texts.length === 0) {
             // Queue empty, hide window
-            console.log('Text finished');
+            //console.log('Text finished');
             eventsCenter.emit(gameSettings.EVENTS.DIALOGFINISHED);
             gameState.textScrolling = false;
 

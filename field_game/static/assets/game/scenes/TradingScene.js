@@ -56,12 +56,7 @@ export default class TradingScene extends Phaser.Scene {
         } else {
             this.uiScene.addTextAndStartDialog(this.dialogTexts.start);
         }
-        // Player trading phase
-        /*
-        eventsCenter.once(gameSettings.EVENTS.DIALOGFINISHED, function () {
-            console.log('finished');
-            this.playerTrade();
-        }, this);*/
+
         this.playerTrade();
     }
 
@@ -158,8 +153,9 @@ export default class TradingScene extends Phaser.Scene {
     async playerPurchaseCow(seller) {
 
         if (gameState.currentState === States.TRADINGCHOOSE) {
-            this.uiScene.clearDialogWindow();
+
             if (seller && (seller.isBFree() === this.gameScene.player.isBFree())) {
+                this.uiScene.clearDialogWindow();
                 let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
                 // Send cow to player pen
                 this.uiScene.addTextAndStartDialog([summary]);
@@ -169,6 +165,17 @@ export default class TradingScene extends Phaser.Scene {
                 }
                 await this.gameScene.player.sendCowToPen(boughtCow);
                 this.AITrade();
+            } else{
+
+                //this.uiScene.clearDialogWindow();
+                if (this.gameScene.player.isBFree()) {
+
+                    this.uiScene.addDialogText(['Choose a BFree farm']);
+                } else {
+
+                    this.uiScene.addDialogText(['Choose a non-BFree farm']);
+                }
+                this.uiScene.advanceDialogWindowSequence();
 
             }
         }
@@ -213,12 +220,13 @@ export default class TradingScene extends Phaser.Scene {
         let cowType = '';
         let price = 0;
         let boughtCow = null;
-        let transactionMessageProps = {
-            "farmerA": buyer.name,
-            "farmerB": seller.name,
-            "event_type": gameSettings.TRANSACTIONEVENTTYPES.Trade
-        };
         if (buyer && seller) {
+            let transactionMessageProps = {
+                "farmerA": buyer.name,
+                "farmerB": seller.name,
+                "event_type": gameSettings.TRANSACTIONEVENTTYPES.Trade
+            };
+
             if (seller.isBFree()) {
                 // Bovi free, pay premium, no infection
                 cowType = 'Premium';
@@ -271,14 +279,14 @@ export default class TradingScene extends Phaser.Scene {
                 }
             }
             if (boughtCow) {
-                console.log('REASSIGNED');
+
                 boughtCow.owner = buyer;
                 //let penTile = buyer.findRandomPenTile();
             }
 
             if (gameSettings.DEBUG) {
-                console.log("Buyer: " + buyer.name + " " + buyer.herdTotal);
-                console.log("Seller: " + seller.name + " " + seller.herdTotal);
+                //console.log("Buyer: " + buyer.name + " " + buyer.herdTotal);
+                //console.log("Seller: " + seller.name + " " + seller.herdTotal);
             }
 
             // Reset time since last sale for seller
@@ -288,8 +296,14 @@ export default class TradingScene extends Phaser.Scene {
             transactionMessageProps.description = summary;
             this.gameScene.gameLog(transactionSummary);
             this.gameScene.logTransaction(transactionMessageProps);
+            if (buyer === this.gameScene.player || seller === this.gameScene.player){
+                eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
+                eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
+            }
             return [summary, boughtCow];
 
+        } else{
+            console.log('Seller failed!');
         }
         return ['', null];
 

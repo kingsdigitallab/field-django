@@ -84,6 +84,11 @@ export default class TurnEndScene extends Phaser.Scene {
             this.uiScene.scoreboard.toggleScoreboard();
             this.uiScene.scoreboard.scoreboardPrompt.visible = false;
             this.resetBoard();
+
+            // Update player info balance
+            eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
+            eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
+
             // Back to turn start
             this.gameScene.startTurn();
             //this.scene.sleep();
