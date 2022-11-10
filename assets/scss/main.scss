@@ -197,8 +197,7 @@ h2 {
     position: relative;
     z-index: 0;
     float: left;
-    width: 25%;
-    max-width: 16em;
+    width: 20em;
 
     >a {
       color: $green;
@@ -212,9 +211,9 @@ h2 {
 
       h1 {
         text-align: left;
-        font-size: 0.7em;
+        font-size: 12px;
         padding: 0;
-        margin: 2.5em 0 0 0;
+        margin: 1.15em 0 0 0;
         line-height: 1;
         font-family: "aktiv-grotesk-extended", sans-serif;
         font-weight: 300;
