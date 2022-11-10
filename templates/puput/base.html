@@ -72,31 +72,31 @@
 
         {% if blog_page.display_last_entries %}
             <ul class="section">
-                <h4>{% trans 'Last Entries' %}</h4>
+                <h3>{% trans 'Last Entries' %}</h3>
                 {% recent_entries blog_page.num_last_entries %}
             </ul>
         {% endif %}
         {% if blog_page.display_popular_entries %}
             <ul class="section">
-                <h4>{% trans 'Popular Entries' %}</h4>
+                <h3>{% trans 'Popular Entries' %}</h3>
                 {% popular_entries blog_page.num_popular_entries %}
             </ul>
         {% endif %}
         {% if blog_page.display_categories %}
             <ul class="section">
-                <h4>{% trans 'Categories' %}</h4>
+                <h3>{% trans 'Categories' %}</h3>
                 {% categories_list %}
             </ul>
         {% endif %}
         {% if blog_page.display_tags %}
             <ul class="section">
-                <h4>{% trans 'Tags' %}</h4>
+                <h3>{% trans 'Tags' %}</h3>
                 {% tags_list %}
             </ul>
         {% endif %}
         {% if blog_page.display_archive %}
             <ul class="section">
-                <h4>{% trans 'Archive' %}</h4>
+                <h3>{% trans 'Archive' %}</h3>
                 {% archives_list %}
             </ul>
         {% endif %}

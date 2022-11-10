@@ -156,8 +156,8 @@ main {
   float: left;
 
   section {
-    width: 100%;
-    padding: 0;
+    width: 90%;
+    padding: 0 5%;
     margin-top: 5em;
     box-sizing: border-box;
   }
@@ -369,8 +369,9 @@ h2 {
   //background: lighten($lightgray,10%);
   padding: 0;
   width: 100%;
-  margin-top: 1rem;
-  border-top: 1px solid $lightgray;
+  margin-top: 2em;
+  float: left;
+  //border-top: 1px solid $lightgray;
 
   ul {
     margin: 1rem 0 0 -40px;
@@ -410,7 +411,8 @@ h2 {
 
 /* Home */
 .home {
-  width: 100%;
+  width: 125%;
+  margin-left: -7%;
 
   section {
     width: 100%;
@@ -834,7 +836,7 @@ h2 {
     ul.section {
       padding: 0;
 
-      h4 {
+      h3 {
         color: $cream;
         margin: 0.5rem 0 0.5rem 0;
         font-size: 1.2rem;
@@ -1360,12 +1362,11 @@ web page (vertical)
 
 
 
-@media screen and (max-width: 1100px) {
+@media screen and (max-width: 1170px) {
 
   /* Navigation  */
   #nav {
     .logo {
-      width: 70%;
 
       img {
         width: 3.7rem;
