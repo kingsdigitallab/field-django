@@ -155,7 +155,7 @@ main {
   width: 100%;
   float: left;
 
-  section {
+  >section {
     width: 90%;
     padding: 0 5%;
     margin-top: 5em;
@@ -739,6 +739,8 @@ h2 {
           color: $green;
           font-size: 0.9rem;
           padding: 0.4rem 1.3rem 0.4rem 1rem;
+          width:13em;
+          float: left;
 
           &:hover {
             background: $green;
@@ -833,7 +835,7 @@ h2 {
       }
     }
 
-    ul.section {
+    .section-sidebar {
       padding: 0;
 
       h3 {
@@ -852,7 +854,13 @@ h2 {
 
         article {
           margin-bottom: 0.7rem;
-
+          h4{
+            a{
+                text-decoration: none;
+            color: $cream;
+            font-weight: 300;
+             }//a
+          }//h4
           h5 {
             margin: 0;
             font-size: 1rem;
@@ -866,7 +874,7 @@ h2 {
                 opacity: 0.7;
               }
             }
-          }
+          }//h5
 
           >ul {
             margin-left: -40px;
@@ -878,14 +886,15 @@ h2 {
               display: inline-block;
               margin-right: 0.3rem;
               color: darken($lightgray, 20%);
-
+              color: $cream;
               svg {
                 color: darken($lightgray, 20%);
-              }
-            }
-          }
+              }//svg
+
+            }//li
+          }//ul
         }
-      }
+      }//li
 
       >ul {
         margin-left: calc(-40px + 1vw);
@@ -901,15 +910,34 @@ h2 {
             font-weight: 500;
             background: $yellow;
             padding: 0.5vw;
-            border-radius: 0.5em;
-
+            border-radius: 0.2em;
+            list-style: none;
             &:hover {
               opacity: 0.7;
-            }
-          }
+            }//hover
+          }//a
+      >ul {
+        margin-left: calc(-40px + 1vw);
 
-        }
-      }
+        >li {
+          list-style-type: none;
+          line-height: 2;
+
+          a {
+            color: $darkgreen;
+            background: white;
+            padding: 0.5vw;
+            list-style: none;
+            border-radius:0;
+            &:hover {
+              opacity: 0.7;
+            }//hover
+          }//a
+
+        }//li
+      }//ul
+        }//li
+      }//ul
 
       ul.meta {
         li {
