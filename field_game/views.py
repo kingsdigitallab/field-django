@@ -1,5 +1,6 @@
 from django.conf import settings
 from field_game.models import FieldGame, GameEvent, Farmer
+from django.views.generic import View
 from field_game.serializers import (
     FieldGameSerializer,
     GameEventSerializer,
@@ -34,3 +35,14 @@ class GameEventViewSet(viewsets.ModelViewSet):
     queryset = GameEvent.objects.all()
     serializer_class = GameEventSerializer
     permission_classes = API_PERMISSIONS
+
+
+class GameView(View):
+    template_name = "game/game_module.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        return context
+
+
