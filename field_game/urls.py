@@ -17,6 +17,7 @@ farmer_list = FarmerViewSet.as_view({
 
 urlpatterns = [
     path("api/", include(urlpatterns)),
-    path("", GameView.as_view(), name="game"),
-
+    path("phaser/", GameView.as_view(), name="game"),
+    path("", TemplateView.as_view(template_name="game/landing.html"),
+         name="game_landing"),
 ]

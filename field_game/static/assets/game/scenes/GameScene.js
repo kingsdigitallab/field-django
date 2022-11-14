@@ -88,6 +88,8 @@ export default class GameScene extends FieldScene {
      */
     logNewGame() {
         let playerID = localStorage.getItem('playerID');
+        // Control true by default
+        let control = true;
         let game_data = {
             final_score: '0',
             csrfmiddlewaretoken: sessionStorage.getItem('csrf_token'),
@@ -97,8 +99,14 @@ export default class GameScene extends FieldScene {
         };
         if (playerID !== null) {
             game_data.playerID = playerID;
+            // Randomly allocate to control group
+            if (Math.random() < 0.5){
+                // In treatment group
+                control = false;
+            }
         }
-
+        console.log(control);
+        game_data.control_group = control;
         axios({
             method: 'post',
             mode: 'same-origin',

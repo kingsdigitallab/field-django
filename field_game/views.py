@@ -36,10 +36,7 @@ class FieldGameViewSet(viewsets.ModelViewSet):
     permission_classes = API_PERMISSIONS
 
     def get_queryset(self):
-        """
-        This view should return a list of all the purchases
-        for the currently authenticated user.
-        """
+
         queryset = FieldGame.objects.all()
         if 'gameID' in self.request.query_params:
             gameID = self.request.query_params.get('gameID')

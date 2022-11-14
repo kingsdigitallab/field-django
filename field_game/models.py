@@ -16,7 +16,7 @@ class FieldGame(models.Model):
     creator_sessionid = models.CharField(null=True, blank=True, max_length=256)
     created_at = models.DateTimeField(auto_now_add=True)
     log = models.TextField(null=True, blank=True)
-    control_group = models.BooleanField(default=False)
+    control_group = models.BooleanField(default=True)
 
     class Meta:
         verbose_name = "Field game record"

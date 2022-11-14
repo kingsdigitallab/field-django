@@ -10,6 +10,7 @@ class FieldGameSerializer(serializers.ModelSerializer):
         fields = [
             "playerID",
             "gameID",
+            "control_group",
             "final_score",
             "seed",
             "log"
