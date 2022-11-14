@@ -292,12 +292,6 @@ export default class UIScene extends Phaser.Scene {
         this.playerInfoHerd = this.add.text(0, 22, this.herdText, this.defaultTextStyle);
         this.playerInfoHerd.setOrigin(0, 0);
         this.playerInfoBalance.setOrigin(0, 0);
-        /*this.playerPortrait = this.add.image(
-            0,
-            0,
-            gameSettings.CHARACTER_KEY,
-            gameState.playerSpriteKeyFrame
-        ).setScale(gameSettings.PORTRAITSCALE);*/
 
         this.coinIcon = this.add.image(
             0,
@@ -341,7 +335,7 @@ export default class UIScene extends Phaser.Scene {
         //this.playerInfoContainer.add(turnLabel);
         this.playerInfoContainer.add(this.turnDisplay);
 
-        //this.playerInfoContainer.add(this.infectionTitle);
+
 
         if (gameState.control_group){
             this.playerInfoContainer.add(this.infectionLevelBackground);
@@ -425,6 +419,12 @@ export default class UIScene extends Phaser.Scene {
 
         //this.playerInfoContainer.x = board_width/2;
         //this.playerInfoContainer.y = board_height /2;
+
+        if (gameState.control_group === false) {
+            this.sickCowIcon.visible = false;
+            this.infectionLevel.visible = false;
+            this.infectionLevelBackground.visible = false;
+        }
 
         this.togglePlayerWindow();
 
