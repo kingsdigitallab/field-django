@@ -1,6 +1,5 @@
 /*jshint esversion: 8 */
 
-
 /*
 Game constants like prices, starting players etc.
  */
@@ -77,9 +76,6 @@ export const gameSettings = {
         TURNSTART: "TURNBEGINS", // Start of turn
         TURNEND: "TURNENDS", // End of turn
         GAMEEND: "GAMEENDS", // End of game
-
-
-
     },
     DIALOGSPEEDS: {
         slow: 2,

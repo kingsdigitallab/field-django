@@ -11,6 +11,7 @@ class FieldGame(models.Model):
     seedPhrase = models.CharField(null=True, blank=True, max_length=128)
     created_at = models.DateTimeField(auto_now_add=True)
     log = models.TextField(null=True, blank=True)
+    control_group = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Field game record"
