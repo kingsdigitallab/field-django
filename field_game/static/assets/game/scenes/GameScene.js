@@ -105,7 +105,7 @@ export default class GameScene extends FieldScene {
                 control = false;
             }
         }
-        console.log(control);
+        gameState.control_group = control;
         game_data.control_group = control;
         axios({
             method: 'post',

@@ -341,15 +341,15 @@ export default class UIScene extends Phaser.Scene {
         //this.playerInfoContainer.add(turnLabel);
         this.playerInfoContainer.add(this.turnDisplay);
 
-
         //this.playerInfoContainer.add(this.infectionTitle);
-        this.playerInfoContainer.add(this.infectionLevelBackground);
-        this.playerInfoContainer.add(this.infectionLevel);
+
+        if (gameState.control_group){
+            this.playerInfoContainer.add(this.infectionLevelBackground);
+            this.playerInfoContainer.add(this.infectionLevel);
+        }
 
         eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
         eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
-
-
 
         Phaser.Display.Align.In.RightCenter(
             this.infectionLevelBackground,
