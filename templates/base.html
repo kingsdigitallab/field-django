@@ -1,6 +1,6 @@
 {% load staticfiles compress wagtailuserbar kdl_wagtail_core_tags %}
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -37,9 +37,13 @@
   {% include 'includes/navigation.html' %}
 
   <main>
+    <section> 
     {% block breacrumb %}{% include 'includes/breadcrumb.html' %}{% endblock %}
+    
     {% block main %}
+
     {% endblock %}
+    </section>
   </main>
 
   {% wagtailuserbar %}

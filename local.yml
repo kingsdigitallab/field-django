@@ -40,8 +40,8 @@ services:
   elasticsearch:
     image: elasticsearch:7.9.1
     container_name: field_elasticsearch
-    env_file:
-      - ./.envs/.local/.elasticsearch
+    environment:
+      - discovery.type=single-node
     ports:
       - '9200:9200'
       - '9300:9300'

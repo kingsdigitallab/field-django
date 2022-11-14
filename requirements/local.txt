@@ -83,6 +83,8 @@ django-compressor==2.4.1
     # via
     #   -r requirements/base.txt
     #   django-libsass
+django-contrib-comments==2.1.0
+    # via -r requirements/base.txt
 django-controlled-vocabulary==0.11
     # via
     #   -r requirements/base.txt
@@ -105,7 +107,7 @@ django-environ==0.4.5
     # via -r requirements/base.txt
 django-extensions==3.1.1
     # via -r requirements/local.in
-django-kdl-wagtail==0.9.1
+django-kdl-wagtail==0.10.2
     # via -r requirements/base.txt
 django-libsass==0.8
     # via -r requirements/base.txt
@@ -143,6 +145,7 @@ django==2.2.23
     #   django-allauth
     #   django-appconf
     #   django-colorful
+    #   django-contrib-comments
     #   django-controlled-vocabulary
     #   django-debug-toolbar
     #   django-dublincore-resource
