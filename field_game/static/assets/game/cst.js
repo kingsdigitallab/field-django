@@ -1,6 +1,5 @@
 /*jshint esversion: 8 */
 
-
 /*
 Game constants like prices, starting players etc.
  */

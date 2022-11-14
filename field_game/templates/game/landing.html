@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% load wagtailcore_tags %}
+
+{% block meta_title %}Field Game{% endblock %}
+
+{% block title %}
+  Field Game
+{% endblock %}
+
+{% block main %}
+  <div class="page-body richtextpage">
+    <h1>Field Game landing page</h1>
+    <a href="{% url 'game' %}">Play the game</a>
+    <h2>Introduction</h2>
+    <div>Lorem Ipsum</div>
+    <h2>How to play</h2>
+    <div>Some rules</div>
+
+  </div>
+
+{% endblock %}
+
+
