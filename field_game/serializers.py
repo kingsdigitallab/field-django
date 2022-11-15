@@ -13,7 +13,8 @@ class FieldGameSerializer(serializers.ModelSerializer):
             "control_group",
             "final_score",
             "seed",
-            "log"
+            "log",
+            "created_at"
         ]
 
 
