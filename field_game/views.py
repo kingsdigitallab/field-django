@@ -101,6 +101,21 @@ class GameEventViewSet(viewsets.ModelViewSet):
         return super().destroy(self, request, *args, **kwargs)"""
 
 
+class GameLandingView(TemplateView):
+    """ Game landing page"""
+
+    template_name = ("game/landing.html")
+
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        playerList = list()
+        for player  in FieldGame.objects.order_by('playerID').values(
+            'playerID').distinct():
+            playerList.append(player['playerID'])
+        context['player_ids'] = playerList
+        return context
+
 
 class GameView(TemplateView):
     """ Serve our Phaser game, and log the user in as FieldGameGuest

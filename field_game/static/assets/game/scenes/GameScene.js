@@ -88,6 +88,15 @@ export default class GameScene extends FieldScene {
      */
     logNewGame() {
         let playerID = localStorage.getItem('playerID');
+        if (gameSettings.playerIDParam !== null && gameSettings.playerIDParam.length > 0){
+            if (gameSettings.playerIDParam === 'new'){
+                playerID = null;
+            } else {
+                playerID = gameSettings.playerIDParam;
+            }
+
+        }
+
         // Control true by default
         let control = true;
         let game_data = {
@@ -105,7 +114,10 @@ export default class GameScene extends FieldScene {
                 control = false;
             }
         }
-        console.log(control);
+        if (gameSettings.controlGroupParam !== null && gameSettings.controlGroupParam.length > 0){
+            control = gameSettings.controlGroupParam;
+        }
+        console.log(playerID + ' :: '+ control);
         gameState.control_group = control;
         game_data.control_group = control;
         axios({
