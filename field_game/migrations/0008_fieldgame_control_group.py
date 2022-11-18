@@ -4,9 +4,8 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('field_game', '0002_event_type_defaults'),
+        ('field_game', '0007_gameevent_infected_cow'),
     ]
 
     operations = [

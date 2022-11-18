@@ -31,10 +31,10 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         this.borderAlpha = opts.borderAlpha || 1;
         this.windowAlpha = opts.windowAlpha || 0.8;
         this.windowColor = opts.windowColor || 0x303030;
-        this.windowHeight = opts.windowHeight || 150;
-        this.padding = opts.padding || 80;
+        this.windowHeight = opts.windowHeight || 5 * 16;
+        this.padding = opts.padding || 0;
         this.closeBtnColor = opts.closeBtnColor || 'darkgoldenrod';
-        this.dialogSpeed = opts.dialogSpeed || 2;
+        this.dialogSpeed = opts.dialogSpeed || 5;
         // used for animating the text
         this.eventCounter = 0;
         // Event emitter
@@ -78,7 +78,9 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
 
     // Creates the border rectangle of the dialog window
     _createOuterWindow(x, y, rectWidth, rectHeight) {
-        this.graphics.lineStyle(this.borderThickness, this.borderColor, this.borderAlpha);
+        this.graphics.lineStyle(this.borderThickness,
+            this.borderColor, this.borderAlpha
+        );
         this.graphics.strokeRect(x, y, rectWidth, rectHeight);
     }
 
@@ -112,7 +114,7 @@ export default class DialogModalPlugin extends Phaser.Plugins.BasePlugin {
         let gameWidth = scene.scale.width;
         let dimensions = this._calculateWindowDimensions(gameWidth, gameHeight);
         this.graphics = scene.add.graphics();
-        console.log(dimensions);
+
         this._createOuterWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
         this._createInnerWindow(dimensions.x, dimensions.y, dimensions.rectWidth, dimensions.rectHeight);
 

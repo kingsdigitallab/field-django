@@ -43,3 +43,7 @@ wagtailmenus
 
 django-dublincore-resource
 mailchimp3
+
+# Testing
+# -----------------------------
+faker

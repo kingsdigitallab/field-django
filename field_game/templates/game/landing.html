@@ -17,6 +17,30 @@
     <div>Some rules</div>
 
   </div>
+  <div>
+  <h2>Game Testing</h2>
+    <form method="get" action="{% url 'game' %}">
+    <h4>Play as</h4>
+    <ul id="player_list">
+    <li>
+        <input type="radio" checked="checked" id="player_new" name="playerID" value="new"/>
+          <label for="player_new">new player</label>
+        </li>
+      {% for playerid in player_ids %}
+        <li>
+        <input type="radio" id="player_{{ playerid }}" name="playerID" value="{{ playerid }}"/>
+          <label for="player_{{ playerid }}">{{ playerid }}</label>
+        </li>
+
+      {% endfor %}
+    </ul>
+    <h4>Control Group</h4>
+      <input type="radio" checked="checked" id="control_true" name="control_group" value="True"/><label for="control_true">True</label><br/>
+      <input type="radio" id="control_false" name="control_group" value="False"/><label for="control_false">False (Treatment group)</label>
+      <br/>
+      <button type="submit">Go</button>
+      </form>
+  </div>
 
 {% endblock %}
 

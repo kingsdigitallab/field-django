@@ -22,30 +22,31 @@ export const gameSettings = {
     },
     gameboardInfo: {
         herdSpawn: [19, 29],
-        playerHouse: [[17, 0], [4, 4]],
-        playerCowPen: [[15, 7], [9, 7]],
+        playerHouse: [[17, 4], [4, 4]],
+        playerCowPen: [[15, 11], [9, 7]],
         farmerCowPens: [
-            [[0, 7], [9, 7]],
-            [[0, 43], [9, 7]],
-            [[15, 43], [9, 7]],
-            [[31, 43], [9, 7]],
-            [[31, 7], [8, 7]],
+            [[0, 11], [9, 7]],
+            [[0, 47], [9, 7]],
+            [[15, 47], [9, 7]],
+            [[31, 47], [9, 7]],
+            [[31, 11], [8, 7]],
 
         ],
         player: {
-            start: [18, 3],
-            house: [[17, 0], 4, 4]
+            start: [18, 7],
+            house: [[17, 6], 4, 4]
         },
         farmerStarts: [
-            [3, 3], [3, 39], [19, 39], [35, 39], [35, 3]
+            [3, 7], [3, 43], [19, 43], [35, 43], [35, 7]
         ],
         hospital: {
-            extent: [[17, 18], [4, 3]],
-            door: [19, 24]
+            extent: [[17, 22], [4, 3]],
+            door: [19, 27]
         }
     },
     SCENENAMES: {
         TITLESCENENAME: 'TitleScene',
+        HIGHSCORESCENE:'NAMEINPUTSCENE',
         CHARACTERSELECTSCENE:'CharacterSelectScene',
         GAMESCENENAME: 'GameScene',
         UISCENENAME: 'UIScene',
@@ -54,6 +55,7 @@ export const gameSettings = {
         TURNENDSCENENAME: "RoundEndScene",
         GAMEENDSCENENAME: "GameEndScene"
     },
+
     EVENTS: {
         UICREATED:'UICREATED',
         ONCHARACTERSELECTED:'onCHARACTERSELECTED',
@@ -72,7 +74,10 @@ export const gameSettings = {
         // Player stats update events for UI
         PLAYERBALANCEUPDATED: "PLAYERBALANCEUPDATED",
         PLAYERHERDUPDATED: "PLAYERHERDUPDATED",
+        INFECTIONLEVELUPDATED: "INFECTIONLEVELUPDATED",
+        TURNUPDATED:"TURNUPDATED",
         BFREEUPDATED: "BFREEUPDATED",
+        SCOREBOARDFINISH: "SCOREBOARDFINISH",
         TURNSTART: "TURNBEGINS", // Start of turn
         TURNEND: "TURNENDS", // End of turn
         GAMEEND: "GAMEENDS", // End of game
@@ -127,12 +132,29 @@ export const gameSettings = {
         'pigeon_1': 240,
         'bear_1': 192,
     },
-    CHARACTERSPRITESCALE: 1.5 //Scale for farmer sprites
+    CHARACTERSPRITESCALE: 1.5, //Scale for farmer sprites
+    PORTRAITSCALE: 2, // Player portrait scale
 
 };
 
 /**
- * Custom event string names
+ * Different phases of the game
  *
+ * @type {{BOVINO: number, BOVISTART: number, TURNEND: number, TRADINGSTART: number, TRADINGCHOOSE: number, TRADINGFINISH: number, GAMEEND: number, CHARACTERSELECT: number, BOVICHOOSE: number, TURNSTART: number, BOVIYES: number}}
  */
+export const States = {
+    CHARACTERSELECT: 0,
+    TURNSTART: 1,
+    BOVISTART: 2,
+    BOVICHOOSE: 2,
+    BOVINO: 3,
+    BOVIYES: 4,
+    TRADINGSTART: 5,
+    TRADINGCHOOSE: 6,
+    TRADINGAI: 10,
+    TRADINGFINISH:7,
+    TURNEND: 8,
+    TURNENDFINISH: 9,
 
+    GAMEEND: 20,
+};

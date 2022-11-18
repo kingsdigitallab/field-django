@@ -1,9 +1,10 @@
 from django.urls import include, path
 from django.views.generic import TemplateView
 from rest_framework import routers
-from .views import GameView
-
-from .views import FieldGameViewSet, FarmerViewSet, GameEventViewSet
+from .views import (
+    FieldGameViewSet, FarmerViewSet,
+    GameEventViewSet, GameView, GameLandingView
+)
 
 router = routers.DefaultRouter()
 router.register(r'games', FieldGameViewSet, basename="game")
@@ -18,7 +19,6 @@ farmer_list = FarmerViewSet.as_view({
 urlpatterns = [
     path("api/", include(urlpatterns)),
     path("phaser/", GameView.as_view(), name="game"),
-    path("", TemplateView.as_view(template_name="game/landing.html"),
+    path("", GameLandingView.as_view(),
          name="game_landing"),
-
 ]

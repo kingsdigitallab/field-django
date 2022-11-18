@@ -1,11 +1,12 @@
 /*jshint esversion: 8 */
-import {gameSettings} from "../cst.js";
+import {gameSettings, States} from "../cst.js";
 
 import FieldScene from './FieldScene.js';
 import Cow from '../actors/Cow.js';
 import {AIFarmer, Player} from '../actors/Farmer.js';
 import eventsCenter from "./EventsCenter.js";
 import {gameState} from '../GameState.js';
+//import axios from "axios";
 
 
 export default class GameScene extends FieldScene {
@@ -22,12 +23,9 @@ export default class GameScene extends FieldScene {
         this.herd = [];
         this.layers = [];
 
-
         // Player/farmer starts, where the cow pens are etc.
-
         this.gameboardInfo = gameSettings.gameboardInfo;
         //Game rules and constants
-
 
         // Zones on the game board
         this.gameboardZones = {};
@@ -46,6 +44,15 @@ export default class GameScene extends FieldScene {
         //Herd of cows (Cow)
         this.herd = [];
 
+        // Random number and seed
+        this.randomSeed = Math.random();
+        this.currentRandom = this.randomSeed;
+
+        this.apiURLs = {
+            'game': '/game/api/games/',
+            'event': '/game/api/events/',
+        };
+
     }
 
 
@@ -56,6 +63,88 @@ export default class GameScene extends FieldScene {
     gameLog(message) {
         this.log += "\n" + message;
     }
+
+    /**
+     * Return a random between 0 and 1 based
+     * on seed
+     */
+    seededRandom() {
+        this.currentRandom = (this.currentRandom * 1000) % 89; //round(r/89)
+        return this.currentRandom / 89;
+    }
+
+    /** Submit the game we've just created to the database via the api
+     *
+     */
+
+    /*
+    {
+    "playerID": "1",
+    "gameID": 1,
+    "final_score": 0,
+    "seed": 0.8887665,
+    "log": "asdf"
+}
+     */
+    logNewGame() {
+        let playerID = localStorage.getItem('playerID');
+        if (gameSettings.playerIDParam !== null && gameSettings.playerIDParam.length > 0){
+            if (gameSettings.playerIDParam === 'new'){
+                playerID = null;
+            } else {
+                playerID = gameSettings.playerIDParam;
+            }
+
+        }
+
+        // Control true by default
+        let control = true;
+        let game_data = {
+            final_score: '0',
+            csrfmiddlewaretoken: sessionStorage.getItem('csrf_token'),
+            creator_sessionid: sessionStorage.session_id,
+            seed: this.randomSeed,
+            log: "Game started",
+        };
+        if (playerID !== null) {
+            game_data.playerID = playerID;
+            // Randomly allocate to control group
+            if (Math.random() < 0.5){
+                // In treatment group
+                control = false;
+            }
+        }
+        if (gameSettings.controlGroupParam !== null && gameSettings.controlGroupParam.length > 0){
+            control = gameSettings.controlGroupParam;
+        }
+        console.log(playerID + ' :: '+ control);
+        gameState.control_group = control;
+        game_data.control_group = control;
+        axios({
+            method: 'post',
+            mode: 'same-origin',
+            url: this.apiURLs.game,
+            headers: {
+                'X-CSRFToken': sessionStorage.getItem('csrf_token')
+            },
+            data: game_data
+        })
+            .then(function (response) {
+                // handle success
+
+                if (response && response.data) {
+                    gameState.gameID = response.data.gameID;
+                    gameState.playerID = response.data.playerID;
+                    localStorage.setItem('playerID', gameState.playerID);
+                }
+
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            });
+    }
+
 
     /**
      * playerID = models.CharField(null=True, blank=True, max_length=128)
@@ -74,10 +163,38 @@ export default class GameScene extends FieldScene {
      */
     logTransaction(messageProps) {
         // todo make this an api when we're ready
+        /*let data = {
+            'orderno': gameState.lastTransactionOrderNo,
+            'turn': gameState.currentTurn,
+            'csrfmiddlewaretoken': sessionStorage.getItem('csrf_token'),
+            'creator_sessionid': sessionStorage.session_id
+        };*/
+        messageProps.gameID = gameState.gameID;
+        messageProps.playerID = gameState.playerID;
         messageProps.orderno = gameState.lastTransactionOrderNo;
         messageProps.turn = gameState.currentTurn;
-        console.log(messageProps);
+        messageProps.csrfmiddlewaretoken = sessionStorage.getItem('csrf_token');
+        messageProps.creator_sessionid = sessionStorage.session_id;
+
+
         gameState.lastTransactionOrderNo += 1;
+        axios({
+            method: 'post',
+            mode: 'same-origin',
+            url: this.apiURLs.event,
+            headers: {
+                'X-CSRFToken': sessionStorage.getItem('csrf_token')
+            },
+            data: messageProps
+        })
+            .then(function (response) {
+                // handle success
+                console.log(response);
+            })
+            .catch(function (error) {
+                // handle error
+                console.log(error);
+            });
     }
 
 
@@ -154,7 +271,7 @@ export default class GameScene extends FieldScene {
         let hospitalExtent = this.gameboardInfo.hospital.extent;
 
         this.gameboardZones.hospitalZone = this.createZoneFromTiles(hospitalExtent).setOrigin(0, 0).setInteractive().on('pointerup', function (pointer, localX, localY) {
-            if (gameState.isGameBoardActive) {
+            if (gameState.currentState === States.BOVICHOOSE) {
                 // If board is touchable, record touch
                 eventsCenter.emit(gameSettings.EVENTS.HOSPITALTOUCHED);
                 // console.log('H');
@@ -177,7 +294,7 @@ export default class GameScene extends FieldScene {
         // Player farm
         const startX = this.gameboardInfo.player.start[0] * this.BOARD_TILE_SIZE;
         const startY = (this.gameboardInfo.player.start[1] + 1) * this.BOARD_TILE_SIZE;
-        console.log(gameState.playerSpriteKeyFrame);
+
         let playerSprite = this.physics.add.sprite(
             startX,
             startY,
@@ -191,10 +308,10 @@ export default class GameScene extends FieldScene {
         let penZone = this.createZoneFromTiles(this.gameboardInfo.playerCowPen)
             .setOrigin(0, 0)
             .setInteractive().on('pointerup', function (pointer, localX, localY) {
-                if (gameState.isGameBoardActive) {
+                if (gameState.currentState === States.BOVICHOOSE) {
                     // If board is touchable, record touch
                     eventsCenter.emit(gameSettings.EVENTS.PLAYERPENTOUCHED);
-                    // console.log('player');
+
                 }
             }, this);
         this.player.setPenZone(penZone);
@@ -202,7 +319,7 @@ export default class GameScene extends FieldScene {
         //this.updatePlayerBalance(this.player.balance);
         gameState.player = this.player;
 
-        eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
+
     }
 
     updatePlayerBalance(balance) {
@@ -215,7 +332,6 @@ export default class GameScene extends FieldScene {
     }
 
     createCow(owner, startX, startY) {
-        //console.log(startX+'::'+startY);
         let sprite = this.physics.add.sprite(startX + 16, startY + 16, 'cow_1');
         sprite.setCollideWorldBounds(true);
         return new Cow(owner, sprite);
@@ -263,7 +379,6 @@ export default class GameScene extends FieldScene {
 
         }
 
-        eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
         return true;
     }
 
@@ -318,13 +433,11 @@ export default class GameScene extends FieldScene {
                 .setOrigin(0, 0)
                 .setInteractive().on('pointerup', function (pointer, localX, localY) {
 
-                    if (gameState.isGameBoardActive) {
+                    if (gameState.currentState === States.TRADINGCHOOSE) {
                         // If board is touchable, record touch
                         console.log('touched');
                         eventsCenter.emit(gameSettings.EVENTS.AIFARMERPENTOUCHED, this);
-                        /*let zone = this.getPenZone();
-                        let rect = new Phaser.Geom.Rectangle(zone.x,zone.y,zone.width,zone.height);
-                        console.log(rect.getRandomPoint());*/
+
                     }
                 }, aiFarmer);
             aiFarmer.setPenZone(penZone);
@@ -344,23 +457,16 @@ export default class GameScene extends FieldScene {
         this.setupComplete = false;
         this.finder = new EasyStar.js();
         this.finder.enableCornerCutting(false);
-
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
-
-
         // Main game board
-
         this.createGameBoard();
-
 
         // Pieces
         this.createPlayer();
         this.createFarmers();
         this.createHerd();
 
-
         this.startGameWhenSetupComplete();
-
     }
 
     /**
@@ -382,6 +488,42 @@ export default class GameScene extends FieldScene {
         return true;
     }
 
+    /** Our spinning coin animation to show
+     * money being made and spent
+     *
+     * @param x sprite x
+     * @param y sprite y
+     * @param number how many coins we're showing
+     * @param reverse forward is up (spend) reverse is down (make)
+     */
+    coinAnimation(x, y, number, reverse) {
+        let deltaY = y - 176;
+        if (reverse) {
+            y -= 176;
+            deltaY = y + 176;
+        }
+        for (let c = 0; c < number; c++) {
+
+            let coinSprite = this.physics.add.sprite(
+                x, y, 'coin', 0
+            ).setScale(0.75);
+            coinSprite.play({key: 'coin_up'});
+
+            this.tweens.add(
+                {
+                    targets: coinSprite,
+                    ease: 'Power1',
+                    y: {value: deltaY, duration: 1000},
+                    onComplete: function () {
+                        this.targets[0].destroy();
+                    },
+                    delay: 200 * c
+                }
+            );
+
+        }
+    }
+
 
     /**
      * Let all the board stuff happen
@@ -392,9 +534,11 @@ export default class GameScene extends FieldScene {
         // Move pieces (currently just cows)
         //await this.sendAllHerdToPens();
         this.setupComplete = true;
+        this.logNewGame();
 
 
         this.uiScene.scoreboard.fillScoreBoard(this.getAllFarmers());
+
 
         // Launch phase scenes
 
@@ -405,6 +549,13 @@ export default class GameScene extends FieldScene {
         // UI Containers
         this.scene.bringToTop(gameSettings.SCENENAMES.UISCENENAME);
 
+        // Player display and infections
+        this.uiScene.createPlayerInfo();
+        //this.uiScene.createInfectionInfo();
+
+
+        // Create events
+        this.addEvents();
 
         // Start the game
         this.startGame();
@@ -417,37 +568,32 @@ export default class GameScene extends FieldScene {
      */
     startGame() {
         this.debug('Begin Game');
-        // Create events
-        this.addEvents();
-
-        // todo restore
         this.startTurn();
-
-
     }
 
     startTurn() {
         gameState.currentTurn += 1;
         this.uiScene.displayTurn();
-        eventsCenter.once(gameSettings.EVENTS.TURNSTART, function () {
-            this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
-            //this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
-        }, this);
+
     }
 
     /**
      * Add global click/touch events
      */
     addEvents() {
-        this.input.on('pointerdown', this.handlePointerDown, this);
-        //this.input.on('pointerup', this.handlePointerUp, this);
+        //this.input.on('pointerdown', this.handlePointerDown, this);
+        //
+        eventsCenter.on(gameSettings.EVENTS.TURNSTART, function () {
+            this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
+            //this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
+        }, this);
     }
 
     handlePointerDown() {
         // General advance used for dialogs
-        if (!gameState.isGameBoardActive) {
+        /*if (!gameState.isGameBoardActive) {
             eventsCenter.emit(gameSettings.EVENTS.ADVANCEDIALOG);
-        }
+        }*/
     }
 
     /** Wait until all the pieces are in place before
@@ -468,14 +614,6 @@ export default class GameScene extends FieldScene {
 
         // todo add farm idle animations
 
-    }
-
-    setIsGameBoardActive(isActive) {
-        gameState.isGameBoardActive = isActive;
-    }
-
-    getIsGameBoardActive() {
-        return gameState.isGameBoardActive;
     }
 
 

@@ -52,10 +52,16 @@ export default class BootScene extends FieldScene {
         );
 
 
-        //Animals
+        // Animals
         this.load.spritesheet('cow_1',
             '/static/assets/game/textures/cow_walk_64.png',
             {frameWidth: 64, frameHeight: 64}
+        );
+
+        // Coin
+        this.load.spritesheet('coin',
+            '/static/assets/game/sprites/coins.png',
+            {frameWidth: 40, frameHeight: 44}
         );
 
 
@@ -78,6 +84,14 @@ export default class BootScene extends FieldScene {
 
     createAnimations() {
 
+
+        this.anims.create({
+            key: 'coin_up',
+            frames: this.anims.generateFrameNumbers('coin', {frames: [0, 1, 2, 3]}),
+            frameRate: 8,
+            yoyo: true,
+            repeat:-1
+        });
 
         this.anims.create({
             key: 'cow_walk_up',
@@ -110,7 +124,8 @@ export default class BootScene extends FieldScene {
         super.create();
         this.createAnimations();
         this.debug("BOOTING COMPLETE!");
-        this.scene.launch(gameSettings.SCENENAMES.UISCENENAME);
+
+
         this.scene.start(gameSettings.SCENENAMES.TITLESCENENAME);
 
 

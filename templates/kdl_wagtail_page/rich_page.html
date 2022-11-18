@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% load wagtailcore_tags %}
+{% load wagtailcore_tags kdl_wagtail_core_tags %}
 
 {% block meta_title %}{{page.title}}{% endblock %}
 
@@ -10,5 +10,5 @@
 {% endblock %}
 
 {% block main %}
-    {{ page.body|richtext }}
+    {{ page.body|richtext|krackdown }}
 {% endblock %}

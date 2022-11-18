@@ -53,6 +53,12 @@ export class Farmer {
         return this.penZone;
     }
 
+    getPenCentre(){
+        if (this.penZone !== null){
+            return [this.penZone.x + this.penZone.width/2, this.penZone.y +  this.penZone.height/2];
+        }
+    }
+
     /** Player's cash plus the value of their herd (healthy cows times normal price)
      *  Cow value may need to be changed
      */
@@ -146,36 +152,7 @@ export class AIFarmer extends Farmer {
         this.threshold = threshold;
     }
 
-    /**
-     * Decide if farmer will join the scheme this turn
-     *
-     * with probability Time_since_last_sale[farm] ÷ bfree trigger
-     * return TRUE otherwise return FALSE
-     */
-    calculateSchemeChoice(bfreeTrigger) {
-        return Math.random() <= (this.timeSinceLastSale / bfreeTrigger);
-    }
 
-    /**
-     * Decide which farmer to purchase a cow from
-     *
-     * Choose one number n from {0,1,2,…8} farm } with probability
-     * proportional to (1 + Time_since_bfree[n])^(-preference shape)
-     * Return n
-     *
-     * @param farmers in the game
-     * @return farmer we're buying from
-     */
-    calculatePurchaseChoice(farmers) {
-        // One at random from available sellers
-        if (farmers && farmers.length > 0) {
-            let selected = false;
-            let choice = Math.ceil(Math.random() * farmers.length) - 1;
-            return farmers[choice];
-        }
-        return null;
-
-    }
 
 
 }
