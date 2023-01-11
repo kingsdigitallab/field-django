@@ -478,7 +478,7 @@ export default class UIScene extends Phaser.Scene {
     }
 
     getInfectionLevel() {
-        console.log(gameState.infectionTotal + '::' + gameSettings.gameRules.startHerdSize);
+        //console.log(gameState.infectionTotal + '::' + gameSettings.gameRules.startHerdSize);
         return gameState.infectionTotal / gameSettings.gameRules.startHerdSize;
     }
 

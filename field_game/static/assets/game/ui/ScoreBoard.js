@@ -30,7 +30,7 @@ export default class ScoreBoard {
         this.defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '14px'};
         this.defaultColumnTitleTextStyle = {fontFamily: 'PressStart2P', fontSize: '14px'};
         this.defaultTitleTextStyle = {fontFamily: 'PressStart2P', fontSize: '24px'};
-        this.defaultPromptTextStyle = {fontFamily: 'PressStart2P', fontSize: '16px'};
+        this.defaultPromptTextStyle = {fontFamily: 'PressStart2P', fontSize: '24px'};
 
         this.columns = 4;
         this.cellWidth = 80;
@@ -58,7 +58,6 @@ export default class ScoreBoard {
         this.scoreboardGroup.toggleVisible();
         if (this.visible === true) {
             this.scoreboardTitle.visible = false;
-            this.scoreboardPrompt.visible = false;
             this.scoreboardBackground.visible = false;
             this.scoreboardEdge.visible = false;
             // Check we're not mid update score
@@ -300,11 +299,11 @@ export default class ScoreBoard {
             scoreboard.arrangeScoreGrid();
             fadeIn = scene.tweens.createTimeline();
             fadeIn.setCallback('onComplete', function () {
+                scoreboard.setScoreboardPromptVisible(true);
                 if (gameState.currentState === States.TURNEND) {
                     console.log('complete');
                     eventsCenter.emit(gameSettings.EVENTS.SCOREBOARDFINISH);
                 }
-
             });
             rankedGroup.getChildren().forEach(function (child) {
                 fadeIn.add({
@@ -320,6 +319,18 @@ export default class ScoreBoard {
 
     updateScoreboardTitleText() {
         return "Turn " + gameState.currentTurn + " Scores";
+    }
+
+    setScoreboardPromptVisible(visibility){
+        if (visibility === true){
+            this.scoreboardPrompt.x = this.scoreboardTitle.x + this.scoreboardTitle.displayWidth / 2;
+            //this.scoreboardPrompt.y = this.scoreboardBackground.y + this.scoreboardBackground.displayHeight - (this.scoreboardPrompt.displayHeight /2);
+            this.scoreboardPrompt.visible = true;
+            this.promptBackground.visible = true;
+        } else{
+            this.scoreboardPrompt.visible = false;
+            this.promptBackground.visible = false;
+        }
     }
 
     /** Overall scoreboard for all players
@@ -356,11 +367,46 @@ export default class ScoreBoard {
             this.defaultTitleTextStyle
         );
         this.createGridTitles();
+
+        // Continue button
+        let promptWidth = 250;
+        let promptHeight = 90;
+        this.promptBackground = this.scene.add.graphics();
+
         this.scoreboardPrompt = this.scene.add.text(
-            this.rectCentreX, this.rectY + this.board_height - this.promptOffset, 'Touch to continue',
-            this.defaultPromptTextStyle
+                this.rectCentreX,
+                this.board_height,
+                'Continue', this.defaultPromptTextStyle
+            )
+            .setOrigin(0.5)
+            .setPadding(25)
+            .setStyle({ backgroundColor: '#111'});
+        this.scoreboardPrompt.y -= this.scoreboardPrompt.displayHeight /2;
+        this.scoreboardPrompt.setInteractive();
+        this.scoreboardPrompt.on('pointerup', function(){
+            //console.log('End clicked');
+            if (gameState.currentState === States.TURNENDFINISH){
+                eventsCenter.emit(gameSettings.EVENTS.TURNEND);
+
+            }
+            }, this);
+
+        this.promptBackground.strokeRect(
+            this.scoreboardPrompt.x - (this.scoreboardPrompt.displayWidth / 2) - 1,
+            this.scoreboardPrompt.y - (this.scoreboardPrompt.displayHeight / 2) - 1,
+            this.scoreboardPrompt.displayWidth + 2,
+            this.scoreboardPrompt.displayHeight + 1
+        )
+            .lineStyle(
+            this.borderThickness,
+            this.borderColor,
+            this.borderAlpha
+        )
+            .fillStyle(
+            this.windowColor, this.windowAlpha
         );
 
+        this.promptBackground.visible = false;
         this.scoreboardPrompt.visible = false;
         this.scoreboardBackground.visible = false;
         this.scoreboardTitle.visible = false;

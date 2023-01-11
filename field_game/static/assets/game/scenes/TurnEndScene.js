@@ -26,17 +26,18 @@ export default class TurnEndScene extends Phaser.Scene {
         eventsCenter.on(gameSettings.EVENTS.SCOREBOARDFINISH, function () {
             if (gameState.currentState === States.TURNEND) {
                 // Prompt for touch to continue
-                this.uiScene.scoreboard.scoreboardPrompt.visible = true;
+                this.uiScene.scoreboard.setScoreboardPromptVisible(true);
                 gameState.currentState = States.TURNENDFINISH;
             }
         }, this);
 
-        // Touch to continue prompt
-        this.input.on('pointerup', function(){
+        // Prompt touched, end
+        eventsCenter.on(gameSettings.EVENTS.TURNEND, function () {
             if (gameState.currentState === States.TURNENDFINISH){
                 this.endTurn();
             }
         }, this);
+
 
 
     }
@@ -45,7 +46,6 @@ export default class TurnEndScene extends Phaser.Scene {
      * End our turn, and start a new one or end the game
      */
     endTurn() {
-        // Await a touch anywhere
 
         // If last turn, go to game end
         //Otherwise start new turn
@@ -82,7 +82,7 @@ export default class TurnEndScene extends Phaser.Scene {
 
         } else {
             this.uiScene.scoreboard.toggleScoreboard();
-            this.uiScene.scoreboard.scoreboardPrompt.visible = false;
+            this.uiScene.scoreboard.setScoreboardPromptVisible(false);
             this.resetBoard();
 
             // Update player info balance
@@ -151,10 +151,6 @@ export default class TurnEndScene extends Phaser.Scene {
         await this.uiScene.sleep(1000);
         let currentPlayers = this.sortPlayersByAssets();
         this.uiScene.scoreboard.updateScoreBoardRanks(this, currentPlayers);
-
-
-
-
     }
 
     /**

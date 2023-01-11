@@ -117,7 +117,7 @@ export default class GameScene extends FieldScene {
         if (gameSettings.controlGroupParam !== null && gameSettings.controlGroupParam.length > 0){
             control = gameSettings.controlGroupParam;
         }
-        console.log(playerID + ' :: '+ control);
+        // console.log(playerID + ' :: '+ control);
         gameState.control_group = control;
         game_data.control_group = control;
         axios({
@@ -189,11 +189,11 @@ export default class GameScene extends FieldScene {
         })
             .then(function (response) {
                 // handle success
-                console.log(response);
+                //console.log(response);
             })
             .catch(function (error) {
                 // handle error
-                console.log(error);
+                //console.log(error);
             });
     }
 
@@ -307,13 +307,7 @@ export default class GameScene extends FieldScene {
         this.player.infections = gameSettings.gameRules.startingInfections;
         let penZone = this.createZoneFromTiles(this.gameboardInfo.playerCowPen)
             .setOrigin(0, 0)
-            .setInteractive().on('pointerup', function (pointer, localX, localY) {
-                if (gameState.currentState === States.BOVICHOOSE) {
-                    // If board is touchable, record touch
-                    eventsCenter.emit(gameSettings.EVENTS.PLAYERPENTOUCHED);
-
-                }
-            }, this);
+            .setInteractive();
         this.player.setPenZone(penZone);
         this.allFarmers.push(this.player);
         //this.updatePlayerBalance(this.player.balance);
@@ -431,15 +425,7 @@ export default class GameScene extends FieldScene {
             );
             let penZone = this.createZoneFromTiles(this.gameboardInfo.farmerCowPens[x])
                 .setOrigin(0, 0)
-                .setInteractive().on('pointerup', function (pointer, localX, localY) {
-
-                    if (gameState.currentState === States.TRADINGCHOOSE) {
-                        // If board is touchable, record touch
-                        console.log('touched');
-                        eventsCenter.emit(gameSettings.EVENTS.AIFARMERPENTOUCHED, this);
-
-                    }
-                }, aiFarmer);
+                .setInteractive();
             aiFarmer.setPenZone(penZone);
 
         }

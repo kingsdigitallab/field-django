@@ -9,13 +9,13 @@ export const gameSettings = {
         startHerdSize: 48,
         startFarmerBalance: 20,
         AIFarmerTotal: 5,
-        totalTurns: 8,
+        totalTurns: 4, //8
         // AI farmer will join scheme at least once per this many turns
         bfreeTrigger: 4,
-        bfreeJoinCost: 1, // Cost to join scheme
+        bfreeJoinCost: 5, // Cost to join scheme
         // Cow prices, buy and sell
-        bfreeCowPrice: 2,
-        normalCowPrice: 2,
+        bfreeCowPrice: 5,
+        normalCowPrice: 5,
         cowSpeed: 150,
         infectionBeta: 0.5,
         startingInfections: 1
@@ -149,8 +149,9 @@ export const States = {
     BOVICHOOSE: 2,
     BOVINO: 3,
     BOVIYES: 4,
-    TRADINGSTART: 5,
-    TRADINGCHOOSE: 6,
+    TRADINGSTART: 51,
+    TRADINGCHOOSE: 52,
+    TRADINGPARTNERCHOOSEN: 53,
     TRADINGAI: 10,
     TRADINGFINISH:7,
     TURNEND: 8,

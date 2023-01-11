@@ -36,19 +36,31 @@ export default class TradingScene extends Phaser.Scene {
     create() {
         this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
-        this.addListeners();
+
     }
 
     addListeners() {
-        // On pen touched
+        // Add listeners for On pen touched
+        for (let p = 0; p < this.gameScene.AIFarmers.length; p++) {
+            this.gameScene.AIFarmers[p].getPenZone().on('pointerup',
+                function (pointer, localX, localY) {
+                    if (gameState.currentState === States.TRADINGCHOOSE) {
+                        // If board is touchable, record touch
+                        console.log('touched');
+                        eventsCenter.emit(gameSettings.EVENTS.AIFARMERPENTOUCHED, this);
+
+                    }
+                }, this.gameScene.AIFarmers[p]);
+        }
+
         eventsCenter.on(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
     }
 
     tradingPhase() {
         if (gameSettings.DEBUG) {
             console.log("Trading Phase Start");
-
         }
+        this.addListeners();
         gameState.currentState = States.TRADINGSTART;
         //Start text
         if (gameState.isOnBoarding === true) {
@@ -135,13 +147,17 @@ export default class TradingScene extends Phaser.Scene {
      */
     async finishPhase() {
         gameState.currentState = States.TRADINGFINISH;
+        this.removeListeners();
         // Short delay before next phase
         await new Promise(resolve => setTimeout(resolve, 1500));
         this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();
     }
 
     removeListeners() {
-        eventsCenter.off(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
+        //eventsCenter.off(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow, this);
+        for (let p = 0; p < this.gameScene.AIFarmers.length; p++) {
+            this.gameScene.AIFarmers[p].getPenZone().off('pointerup');
+        }
     }
 
     resetCows() {
@@ -156,6 +172,7 @@ export default class TradingScene extends Phaser.Scene {
 
             if (seller && (seller.isBFree() === this.gameScene.player.isBFree())) {
                 this.uiScene.clearDialogWindow();
+                eventsCenter.off(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow);
                 let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
                 // Send cow to player pen
                 this.uiScene.addTextAndStartDialog([summary]);
@@ -165,11 +182,10 @@ export default class TradingScene extends Phaser.Scene {
                 }
                 await this.gameScene.player.sendCowToPen(boughtCow);
                 this.AITrade();
-            } else{
+            } else {
 
                 //this.uiScene.clearDialogWindow();
                 if (this.gameScene.player.isBFree()) {
-
                     this.uiScene.addDialogText(['Choose a BFree farm']);
                 } else {
 
@@ -197,7 +213,7 @@ export default class TradingScene extends Phaser.Scene {
         if (buyer.balance >= gameSettings.gameRules.normalCowPrice) {
             const pIndex = sellers.indexOf(buyer);
             let potentialSellers = [...sellers];
-            potentialSellers.splice(pIndex,1);
+            potentialSellers.splice(pIndex, 1);
             [summary, boughtCow] = this.transaction(
                 buyer, this.calculatePurchaseChoice(potentialSellers)
             );
@@ -296,19 +312,18 @@ export default class TradingScene extends Phaser.Scene {
             transactionMessageProps.description = summary;
             this.gameScene.gameLog(transactionSummary);
             this.gameScene.logTransaction(transactionMessageProps);
-            if (buyer === this.gameScene.player || seller === this.gameScene.player){
+            if (buyer === this.gameScene.player || seller === this.gameScene.player) {
                 eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
                 eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
             }
             return [summary, boughtCow];
 
-        } else{
+        } else {
             console.log('Seller failed!');
         }
         return ['', null];
 
     }
-
 
 
     /**
