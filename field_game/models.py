@@ -30,6 +30,9 @@ class FieldGame(models.Model):
         # New player, generate name
         if not self.playerID:
             self.playerID = make_player_name()
+            # Save player object
+            f = Farmer(playerID=self.playerID, name=self.playerID)
+            f.save()
         # Create new game id
         games = FieldGame.objects.filter().all().order_by('-gameID')
         newGameID = 1
@@ -67,8 +70,9 @@ class Farmer(models.Model):
     """A player in the game, for tracking AI farmers in logs
     will be used once AIs have behaviour profiles"""
 
-    farmerID = models.CharField(null=True, blank=True, max_length=128)
+    playerID = models.CharField(null=True, blank=True, max_length=128)
     name = models.CharField(null=True, blank=True, max_length=128)
+    gamesPlayed = models.IntegerField(default=0)
 
 
 class GameEvent(models.Model):

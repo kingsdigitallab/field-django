@@ -157,18 +157,18 @@ export default class BFreeScene extends Phaser.Scene {
         }, this);
 
         this.gameScene.player.getPenZone().on('pointerup', function (pointer, localX, localY) {
-                if (gameState.currentState === States.BOVICHOOSE) {
-                    // If board is touchable, record touch
-                    eventsCenter.emit(gameSettings.EVENTS.PLAYERPENTOUCHED);
-                }
-            }, this);
+            if (gameState.currentState === States.BOVICHOOSE) {
+                // If board is touchable, record touch
+                eventsCenter.emit(gameSettings.EVENTS.PLAYERPENTOUCHED);
+            }
+        }, this);
 
         this.playerHouseSprite.on('pointerup', function (pointer, localX, localY) {
-                console.log('HOUSE');
-                eventsCenter.emit(gameSettings.EVENTS.PLAYERHOUSETOUCHED);
-                // console.log('H');
+            console.log('HOUSE');
+            eventsCenter.emit(gameSettings.EVENTS.PLAYERHOUSETOUCHED);
+            // console.log('H');
 
-            });
+        });
 
         eventsCenter.on(gameSettings.EVENTS.BFREEPHASEEND, this.endPhase, this);
         eventsCenter.on(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
@@ -207,15 +207,19 @@ export default class BFreeScene extends Phaser.Scene {
         if (result) {
             // Sleep for startDelay, then begin moving
             await new Promise(resolve => setTimeout(resolve, startDelay));
+
             //Move the Cow
-            let backHome = cow.movePath.slice().reverse();
+            //let backHome = cow.movePath.slice().reverse();
+
+
             result = await cow.moveCowAlongPath(cowSpeed);
             if (result) {
                 // Power Up!
                 result = await cow.innoculationAnimation();
                 if (result) {
                     // Back to pen using reverse of calculated path
-                    cow.movePath = backHome;
+                    await cow.calculateMovePath(cow.homePenTileXY[0],
+                        cow.homePenTileXY[1]);
                     await cow.moveCowAlongPath(cowSpeed);
                     return true;
                 }
@@ -360,11 +364,11 @@ export default class BFreeScene extends Phaser.Scene {
     }
 
 
-    removeListeners(){
+    removeListeners() {
         this.gameScene.player.getPenZone().off('pointerup');
         this.playerHouseSprite.off('pointerup');
 
-         eventsCenter.off(gameSettings.EVENTS.BFREEPHASEEND, this.endPhase);
+        eventsCenter.off(gameSettings.EVENTS.BFREEPHASEEND, this.endPhase);
         eventsCenter.off(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes);
         eventsCenter.off(gameSettings.EVENTS.PLAYERHOUSETOUCHED, this.joinBFreeNo);
 
@@ -375,8 +379,6 @@ export default class BFreeScene extends Phaser.Scene {
         this.removeListeners();
         this.scene.get(gameSettings.SCENENAMES.TRADINGSCENENAME).tradingPhase();
     }
-
-
 
 
 }

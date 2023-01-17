@@ -209,7 +209,7 @@ export default class ScoreBoard {
                 AND (this was the annoying bit) it's the CENTER x,y of that first cell
                 we offset by half its width as well
                  */
-                x: this.rectCentreX - ((this.cellWidth * this.columns) / 2) + (this.cellWidth/2),
+                x: this.rectCentreX - ((this.cellWidth * this.columns) / 2) + (this.cellWidth / 2),
                 y: this.rectCentreY - ((this.cellHeight * 7) / 2)
             });
 
@@ -228,6 +228,7 @@ export default class ScoreBoard {
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+
     /**
      * Use a timer to progressively increase a number on the scoreboard
      */
@@ -278,8 +279,8 @@ export default class ScoreBoard {
      * fade in
      */
     updateScoreBoardRanks(scene, players) {
+
         //Fade
-        console.log(players);
         let scoreboard = this;
         let group = this.scoreboardGroup;
         let fadeOut = this.scoreFadeOut;
@@ -299,9 +300,7 @@ export default class ScoreBoard {
             scoreboard.arrangeScoreGrid();
             fadeIn = scene.tweens.createTimeline();
             fadeIn.setCallback('onComplete', function () {
-                scoreboard.setScoreboardPromptVisible(true);
                 if (gameState.currentState === States.TURNEND) {
-                    console.log('complete');
                     eventsCenter.emit(gameSettings.EVENTS.SCOREBOARDFINISH);
                 }
             });
@@ -321,16 +320,30 @@ export default class ScoreBoard {
         return "Turn " + gameState.currentTurn + " Scores";
     }
 
-    setScoreboardPromptVisible(visibility){
-        if (visibility === true){
+    setScoreboardPromptVisible(visibility) {
+        if (visibility === true) {
             this.scoreboardPrompt.x = this.scoreboardTitle.x + this.scoreboardTitle.displayWidth / 2;
             //this.scoreboardPrompt.y = this.scoreboardBackground.y + this.scoreboardBackground.displayHeight - (this.scoreboardPrompt.displayHeight /2);
             this.scoreboardPrompt.visible = true;
             this.promptBackground.visible = true;
-        } else{
+        } else {
             this.scoreboardPrompt.visible = false;
             this.promptBackground.visible = false;
         }
+    }
+
+    continueButtonEndTurn() {
+        //console.log('End clicked');
+        if (gameState.currentState === States.TURNENDFINISH) {
+            eventsCenter.emit(gameSettings.EVENTS.TURNEND);
+
+        }
+    }
+
+    continueButtonEndGame() {
+
+        // Start the end game sequence
+        this.scene.scene.start(gameSettings.SCENENAMES.GAMEENDSCENENAME);
     }
 
     /** Overall scoreboard for all players
@@ -374,22 +387,16 @@ export default class ScoreBoard {
         this.promptBackground = this.scene.add.graphics();
 
         this.scoreboardPrompt = this.scene.add.text(
-                this.rectCentreX,
-                this.board_height,
-                'Continue', this.defaultPromptTextStyle
-            )
+            this.rectCentreX,
+            this.board_height,
+            'Continue', this.defaultPromptTextStyle
+        )
             .setOrigin(0.5)
             .setPadding(25)
-            .setStyle({ backgroundColor: '#111'});
-        this.scoreboardPrompt.y -= this.scoreboardPrompt.displayHeight /2;
+            .setStyle({backgroundColor: '#111'});
+        this.scoreboardPrompt.y -= this.scoreboardPrompt.displayHeight / 2;
         this.scoreboardPrompt.setInteractive();
-        this.scoreboardPrompt.on('pointerup', function(){
-            //console.log('End clicked');
-            if (gameState.currentState === States.TURNENDFINISH){
-                eventsCenter.emit(gameSettings.EVENTS.TURNEND);
-
-            }
-            }, this);
+        this.scoreboardPrompt.on('pointerup', this.continueButtonEndTurn, this);
 
         this.promptBackground.strokeRect(
             this.scoreboardPrompt.x - (this.scoreboardPrompt.displayWidth / 2) - 1,
@@ -398,13 +405,13 @@ export default class ScoreBoard {
             this.scoreboardPrompt.displayHeight + 1
         )
             .lineStyle(
-            this.borderThickness,
-            this.borderColor,
-            this.borderAlpha
-        )
+                this.borderThickness,
+                this.borderColor,
+                this.borderAlpha
+            )
             .fillStyle(
-            this.windowColor, this.windowAlpha
-        );
+                this.windowColor, this.windowAlpha
+            );
 
         this.promptBackground.visible = false;
         this.scoreboardPrompt.visible = false;

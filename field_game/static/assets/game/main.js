@@ -8,6 +8,7 @@ import CharacterSelectScene from './scenes/CharacterSelectScene.js';
 import UIScene from './scenes/UIScene.js';
 import GameScene from './scenes/GameScene.js';
 import GameEndScene from './scenes/GameEndScene.js';
+import GameRestartScene from './scenes/GameRestart.js';
 import BFreeScene from "./scenes/BFreeScene.js";
 import TradingScene from "./scenes/TradingScene.js";
 import DialogModalPlugin from "./plugins/field/DialogModalPlugin.js";
@@ -84,8 +85,12 @@ function getUrlParameter(sParam) {
     }
     return false;
 }
+if (getUrlParameter("playerID")){
 
-gameSettings.playerIDParam = getUrlParameter("playerID");
+    gameSettings.playerIDParam = getUrlParameter("playerID");
+    localStorage.setItem('playerID', getUrlParameter("playerID"));
+}
+
 gameSettings.controlGroupParam = getUrlParameter("control_group");
 
 
@@ -101,4 +106,5 @@ game.scene.add(gameSettings.SCENENAMES.BFREESCENENAME, new BFreeScene());
 game.scene.add(gameSettings.SCENENAMES.TRADINGSCENENAME, new TradingScene());
 game.scene.add(gameSettings.SCENENAMES.TURNENDSCENENAME, new TurnEndScene());
 game.scene.add(gameSettings.SCENENAMES.GAMEENDSCENENAME, new GameEndScene());
+game.scene.add(gameSettings.SCENENAMES.GAMERESTARTSCENENAME, new GameRestartScene());
 game.scene.start('BootScene');

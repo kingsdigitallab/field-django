@@ -58,15 +58,19 @@ export default class BootScene extends FieldScene {
             {frameWidth: 64, frameHeight: 64}
         );
 
+        // New cow
+
+        this.load.image('cow_walk_0', '/static/assets/game/textures/cow_walk_0.png');
+        this.load.image('cow_walk_1', '/static/assets/game/textures/cow_walk_1.png');
+        this.load.image('cow_walk_2', '/static/assets/game/textures/cow_walk_2.png');
+        this.load.image('cow_walk_3', '/static/assets/game/textures/cow_walk_3.png');
+
+
         // Coin
         this.load.spritesheet('coin',
             '/static/assets/game/sprites/coins.png',
             {frameWidth: 40, frameHeight: 44}
         );
-
-
-
-
 
         // Decorations (Grass, buildings, trees, fences, etc.)
         this.load.image('grass', this.ASSET_URL + '/textures/grass_1.png');
@@ -93,12 +97,24 @@ export default class BootScene extends FieldScene {
             repeat:-1
         });
 
-        this.anims.create({
+        /*this.anims.create({
             key: 'cow_walk_up',
             frames: this.anims.generateFrameNumbers('cow_1', {frames: [0, 1, 2, 3]}),
             frameRate: 8,
             repeat: -1
+        });*/
+         this.anims.create({
+            key: 'cow_walk_up',
+            frames: [
+                { key: 'cow_walk_0' },
+                { key: 'cow_walk_1' },
+                { key: 'cow_walk_2' },
+                { key: 'cow_walk_3' },
+            ],
+            frameRate: 8,
+            repeat: -1
         });
+         /*
         this.anims.create({
             key: 'cow_walk_left',
             frames: this.anims.generateFrameNumbers('cow_1', {frames: [4, 5, 6, 7]}),
@@ -116,7 +132,7 @@ export default class BootScene extends FieldScene {
             frames: this.anims.generateFrameNumbers('cow_1', {frames: [12, 13, 14, 15]}),
             frameRate: 8,
             repeat: -1
-        });
+        });*/
 
     }
 

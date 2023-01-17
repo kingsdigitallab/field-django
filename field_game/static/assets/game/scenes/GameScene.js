@@ -48,10 +48,6 @@ export default class GameScene extends FieldScene {
         this.randomSeed = Math.random();
         this.currentRandom = this.randomSeed;
 
-        this.apiURLs = {
-            'game': '/game/api/games/',
-            'event': '/game/api/events/',
-        };
 
     }
 
@@ -88,11 +84,11 @@ export default class GameScene extends FieldScene {
      */
     logNewGame() {
         let playerID = localStorage.getItem('playerID');
-        if (gameSettings.playerIDParam !== null && gameSettings.playerIDParam.length > 0){
-            if (gameSettings.playerIDParam === 'new'){
+        if (playerID != null && gameSettings.playerIDParam !== null && gameSettings.playerIDParam.length > 0) {
+            if (playerID === 'new') {
                 playerID = null;
             } else {
-                playerID = gameSettings.playerIDParam;
+                gameSettings.playerIDParam = playerID;
             }
 
         }
@@ -108,22 +104,19 @@ export default class GameScene extends FieldScene {
         };
         if (playerID !== null) {
             game_data.playerID = playerID;
-            // Randomly allocate to control group
-            if (Math.random() < 0.5){
-                // In treatment group
-                control = false;
-            }
         }
-        if (gameSettings.controlGroupParam !== null && gameSettings.controlGroupParam.length > 0){
+
+        if (gameSettings.controlGroupParam !== null && gameSettings.controlGroupParam.length > 0) {
             control = gameSettings.controlGroupParam;
         }
-        // console.log(playerID + ' :: '+ control);
+
         gameState.control_group = control;
         game_data.control_group = control;
+
         axios({
             method: 'post',
             mode: 'same-origin',
-            url: this.apiURLs.game,
+            url: gameSettings.apiURLs.game,
             headers: {
                 'X-CSRFToken': sessionStorage.getItem('csrf_token')
             },
@@ -131,11 +124,38 @@ export default class GameScene extends FieldScene {
         })
             .then(function (response) {
                 // handle success
-
                 if (response && response.data) {
                     gameState.gameID = response.data.gameID;
                     gameState.playerID = response.data.playerID;
                     localStorage.setItem('playerID', gameState.playerID);
+                    //console.log(gameState.playerID);
+
+                    if (gameState.playerID !== null) {
+                        game_data.playerID = gameState.playerID;
+                        // Randomly allocate to control group
+                        if (Math.random() < 0.5) {
+                            // In treatment group
+                            control = false;
+                        }
+
+                        // Get this player
+                        axios.get(gameSettings.apiURLs.farmer, {
+                            mode: 'same-origin',
+                            headers: {
+                                'X-CSRFToken': sessionStorage.getItem('csrf_token')
+                            },
+                            params: {
+                                playerID: gameState.playerID,
+                            }
+                        }).then(function (response) {
+                            gameState.gamesPlayed = response.data[0].gamesPlayed;
+                            gameState.playerDatabaseID = response.data[0].id;
+
+
+                        });
+
+
+                    }
                 }
 
             })
@@ -143,6 +163,8 @@ export default class GameScene extends FieldScene {
                 // handle error
                 console.log(error);
             });
+
+
     }
 
 
@@ -181,7 +203,7 @@ export default class GameScene extends FieldScene {
         axios({
             method: 'post',
             mode: 'same-origin',
-            url: this.apiURLs.event,
+            url: gameSettings.apiURLs.event,
             headers: {
                 'X-CSRFToken': sessionStorage.getItem('csrf_token')
             },
@@ -326,7 +348,11 @@ export default class GameScene extends FieldScene {
     }
 
     createCow(owner, startX, startY) {
-        let sprite = this.physics.add.sprite(startX + 16, startY + 16, 'cow_1');
+        let sprite = this.physics.add.sprite(
+            startX,
+            startY, 'cow_walk_0'
+        );
+        sprite.setScale(gameSettings.gameRules.cowScale);
         sprite.setCollideWorldBounds(true);
         return new Cow(owner, sprite);
     }
@@ -355,13 +381,20 @@ export default class GameScene extends FieldScene {
                 // Assign pen to the farmer
                 owner.pen = pen;
             }
+            //let spawnOrigin = owner.getPenTile(0);
+            //+ (16 * gameSettings.gameRules.cowScale)
+            //let spawnPoint = spawnOrigin;
+            owner.makePenPoints(20, 4);
+
             for (let c = 0; c < cowsPerPlayer; c++) {
-                let spawnPoint = owner.getPenTile(c);
+                let spawnPoint = owner.cowPenPoints[c].tileXY;
                 let cow = this.createCow(
                     owner,
                     ((spawnPoint[0]) * this.BOARD_TILE_SIZE),
                     (spawnPoint[1] * this.BOARD_TILE_SIZE)
                 );
+                cow.homePenTileXY = spawnPoint;
+                owner.cowPenPoints[c].cow = cow;
                 // Pick
                 owner.herdTotal += 1;
                 this.herd.push(cow);

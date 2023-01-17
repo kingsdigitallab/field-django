@@ -5,8 +5,13 @@ Game constants like prices, starting players etc.
  */
 export const gameSettings = {
     DEBUG: true,
+    apiURLs: {
+            'game': '/game/api/games/',
+            'event': '/game/api/events/',
+            'farmer': '/game/api/farmers/',
+        },
     gameRules: {
-        startHerdSize: 48,
+        startHerdSize: 48, //48
         startFarmerBalance: 20,
         AIFarmerTotal: 5,
         totalTurns: 4, //8
@@ -17,19 +22,20 @@ export const gameSettings = {
         bfreeCowPrice: 5,
         normalCowPrice: 5,
         cowSpeed: 150,
+        cowScale: 0.75,
         infectionBeta: 0.5,
         startingInfections: 1
     },
     gameboardInfo: {
         herdSpawn: [19, 29],
         playerHouse: [[17, 4], [4, 4]],
-        playerCowPen: [[15, 11], [9, 7]],
+        playerCowPen: [[16, 11], [8, 7]],
         farmerCowPens: [
-            [[0, 11], [9, 7]],
-            [[0, 47], [9, 7]],
-            [[15, 47], [9, 7]],
-            [[31, 47], [9, 7]],
-            [[31, 11], [8, 7]],
+            [[1, 11], [9, 7]],
+            [[1, 47], [9, 7]],
+            [[16, 47], [9, 7]],
+            [[32, 47], [9, 7]],
+            [[32, 11], [8, 7]],
 
         ],
         player: {
@@ -53,14 +59,14 @@ export const gameSettings = {
         BFREESCENENAME: 'BFreeScene',
         TRADINGSCENENAME: 'TradingScene',
         TURNENDSCENENAME: "RoundEndScene",
-        GAMEENDSCENENAME: "GameEndScene"
+        GAMEENDSCENENAME: "GameEndScene",
+        GAMERESTARTSCENENAME: "GameRESTARTScene"
     },
 
     EVENTS: {
         UICREATED:'UICREATED',
         ONCHARACTERSELECTED:'onCHARACTERSELECTED',
         ONCHARACTERSELECTEDFINISHED:'characterSelectedFINISHED',
-
         BOARDTOUCHED: "boardTouched",
         HOSPITALTOUCHED: "hospitalTouched",
         PLAYERPENTOUCHED: "playerpenTouched",
@@ -85,7 +91,7 @@ export const gameSettings = {
     DIALOGSPEEDS: {
         slow: 2,
         normal: 30,
-        fast: 5
+        fast: 60
     },
     TRANSACTIONEVENTTYPES: {
         Trade: 1,

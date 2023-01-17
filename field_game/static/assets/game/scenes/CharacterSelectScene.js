@@ -75,6 +75,7 @@ export default class CharacterSelectScene extends FieldScene {
      */
     nextScene() {
         this.scene.start(gameSettings.SCENENAMES.GAMESCENENAME);
+        //this.scene.start(gameSettings.SCENENAMES.GAMERESTARTSCENENAME);
     }
 
     /** Display all our weird playable creatures and allow the player to select

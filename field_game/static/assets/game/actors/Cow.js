@@ -9,6 +9,7 @@ export default class Cow {
         this.isMoving = false;
         this.sinceLastMove = 0;
         this.movePath = [];
+        this.homePenTile = [];
         this.cowSpeed = 50;
         this.timeline = this.sprite.scene.tweens.createTimeline();
         this.isTrading = false; //Part of a trade this turn?
@@ -99,7 +100,9 @@ export default class Cow {
 
     async calculateMovePath(endX, endY) {
         return new Promise((resolve, reject) => {
-            let startTile = this.sprite.scene.map.getTileAtWorldXY(this.sprite.x, this.sprite.y, this.sprite.scene.layers['pathLayer']);
+            let startTile = this.sprite.scene.map.getTileAtWorldXY(
+                this.sprite.x, this.sprite.y, this.sprite.scene.layers['pathLayer']
+            );
             let cow = this;
             this.sprite.scene.finder.findPath(
                 startTile.x, startTile.y, endX, endY, function (path) {

@@ -26,7 +26,12 @@ export default class TurnEndScene extends Phaser.Scene {
         eventsCenter.on(gameSettings.EVENTS.SCOREBOARDFINISH, function () {
             if (gameState.currentState === States.TURNEND) {
                 // Prompt for touch to continue
-                this.uiScene.scoreboard.setScoreboardPromptVisible(true);
+                // Move to final scores if last turn
+                if (gameState.currentTurn < gameSettings.gameRules.totalTurns){
+                    this.uiScene.scoreboard.setScoreboardPromptVisible(true);
+                } else {
+                    this.endTurn();
+                }
                 gameState.currentState = States.TURNENDFINISH;
             }
         }, this);
@@ -39,7 +44,6 @@ export default class TurnEndScene extends Phaser.Scene {
         }, this);
 
 
-
     }
 
     /**
@@ -50,13 +54,18 @@ export default class TurnEndScene extends Phaser.Scene {
         // If last turn, go to game end
         //Otherwise start new turn
         if (gameState.currentTurn >= gameSettings.gameRules.totalTurns) {
+
+            // Game over man
+            //this.scene.get(gameSettings.SCENENAMES.GAMEENDSCENENAME).start();
+
             // Final scores
+
             // Set the winner
             let currentPlayers = this.sortPlayersByAssets();
 
             gameState.winnerSpriteKeyFrame = currentPlayers[0].sprite.frame.name;
             gameState.winner = currentPlayers[0];
-            console.log(gameState.winnerSpriteKeyFrame = currentPlayers[0].sprite.frame.name);
+
             let scene = this.scene;
             this.add.tween({
                 targets: this.uiScene.scoreboard.scoreboardTitle,
@@ -71,10 +80,22 @@ export default class TurnEndScene extends Phaser.Scene {
                         alpha: 1,
                         duration: 1000,
                         onComplete: () => {
-                            eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
-                                // Game over man
-                                scene.start(gameSettings.SCENENAMES.GAMEENDSCENENAME);
-                            });
+                            console.log("Game end");
+                            // Change continue button event and display
+                            this.uiScene.scoreboard.scoreboardPrompt.off(
+                                'pointerup',
+                                this.uiScene.scoreboard.continueButton
+                            );
+                            this.uiScene.scoreboard.scoreboardPrompt.off(
+                                'pointerup',
+                                this.uiScene.scoreboard.continueButtonEndTurn
+                            );
+                            this.uiScene.scoreboard.scoreboardPrompt.on(
+                                'pointerup',
+                                this.uiScene.scoreboard.continueButtonEndGame
+                            );
+                            this.uiScene.scoreboard.setScoreboardPromptVisible(true);
+
                         }
                     }, this);
                 }

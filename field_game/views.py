@@ -17,6 +17,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import requires_csrf_token
 from .permissions import IsCreatorOrReadOnly
+from django_filters.rest_framework import DjangoFilterBackend
 
 # to toggle between easy for debug and production
 if settings.DEBUG:
@@ -44,16 +45,34 @@ class FieldGameViewSet(viewsets.ModelViewSet):
         if 'playerID' in self.request.query_params:
             playerID = self.request.query_params.get('playerID')
             queryset = queryset.filter(playerID=playerID)
-
         return queryset.order_by('-gameID')
 
 
-class FarmerViewSet(viewsets.ReadOnlyModelViewSet):
+
+class FarmerViewSet(viewsets.ModelViewSet):
     """ Serve a new instance of the Field boardgame with relevant settings"""
-    queryset = Farmer.objects.all()
+    #queryset = Farmer.objects.all()
     serializer_class = FarmerSerializer
     permission_classes = API_PERMISSIONS
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['playerID']
 
+    search_fields = [
+        'id', 'playerID'
+    ]
+
+    filter_fields = {
+        "pk": "pk",
+        "playerID": "playerID"
+    }
+
+    def get_queryset(self):
+        queryset = Farmer.objects.all()
+        return queryset.order_by('playerID')
+
+    # @method_decorator(csrf_protect)
+    # def update(self, request, *args, **kwargs):
+    #     return super().update(request, *args, **kwargs)
 
 
 class GameEventViewSet(viewsets.ModelViewSet):
@@ -67,10 +86,7 @@ class GameEventViewSet(viewsets.ModelViewSet):
     ]
 
     def get_queryset(self):
-        """
-        This view should return a list of all the purchases
-        for the currently authenticated user.
-        """
+
         queryset = GameEvent.objects.all()
         if 'gameID' in self.request.query_params:
             gameID = self.request.query_params.get('gameID')
@@ -122,7 +138,6 @@ class GameView(TemplateView):
     user if not logged in"""
 
     template_name = ("game/game_module.html")
-
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

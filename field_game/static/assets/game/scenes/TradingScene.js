@@ -295,8 +295,17 @@ export default class TradingScene extends Phaser.Scene {
                 }
             }
             if (boughtCow) {
+                seller.removeCowFromPen(boughtCow);
+                let penIndex = buyer.findFreePenPoint();
+                if (penIndex >= 0){
+                    boughtCow.owner = buyer;
+                    buyer.cowPenPoints[penIndex].cow = boughtCow;
+                    boughtCow.homePenTileXY = buyer.cowPenPoints[penIndex].tileXY;
+                } else{
+                    console.log("Error! pen index not found!");
+                    console.log(buyer);
+                }
 
-                boughtCow.owner = buyer;
                 //let penTile = buyer.findRandomPenTile();
             }
 

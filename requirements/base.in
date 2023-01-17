@@ -9,7 +9,7 @@ whitenoise  # https://github.com/evansd/whitenoise
 # Django
 # ------------------------------------------------------------------------------
 # django==3.1.7  # pyup: < 3.2  # https://www.djangoproject.com/
-django<3
+Django<3.1
 django-environ  # https://github.com/joke2k/django-environ
 django-model-utils  # https://github.com/jazzband/django-model-utils
 django-allauth  # https://github.com/pennersr/django-allauth
@@ -19,7 +19,7 @@ django-libsass # for scss
 django-redis  # https://github.com/jazzband/django-redis
 djangorestframework==3.12.4
 #markdown
-#django-filter
+django-filter
 
 # KDL
 # ------------------------------------------------------------------------------
