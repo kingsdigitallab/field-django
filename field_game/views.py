@@ -54,7 +54,7 @@ class FarmerViewSet(viewsets.ModelViewSet):
     #queryset = Farmer.objects.all()
     serializer_class = FarmerSerializer
     permission_classes = API_PERMISSIONS
-    filter_backends = [DjangoFilterBackend]
+
     filterset_fields = ['playerID']
 
     search_fields = [
@@ -68,6 +68,9 @@ class FarmerViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = Farmer.objects.all()
+        if 'playerID' in self.request.query_params:
+            playerID = self.request.query_params.get('playerID')
+            queryset = queryset.filter(playerID=playerID)
         return queryset.order_by('playerID')
 
     # @method_decorator(csrf_protect)
