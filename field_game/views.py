@@ -17,7 +17,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import requires_csrf_token
 from .permissions import IsCreatorOrReadOnly
-from django_filters.rest_framework import DjangoFilterBackend
+
 
 # to toggle between easy for debug and production
 if settings.DEBUG:
