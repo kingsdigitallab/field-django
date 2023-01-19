@@ -1,5 +1,7 @@
 /*jshint esversion: 8 */
 
+import {gameSettings} from "../cst.js";
+
 export default class Cow {
 
 
@@ -9,7 +11,7 @@ export default class Cow {
         this.isMoving = false;
         this.sinceLastMove = 0;
         this.movePath = [];
-        this.homePenTile = [];
+        this.homePen = null;
         this.cowSpeed = 50;
         this.timeline = this.sprite.scene.tweens.createTimeline();
         this.isTrading = false; //Part of a trade this turn?
@@ -108,7 +110,7 @@ export default class Cow {
                 startTile.x, startTile.y, endX, endY, function (path) {
                     if (path === null) {
                         console.log(
-                            "Path between "+startTile.x+","+startTile.y+"-"+endX+","+endY+" was not found.");
+                            "Path between " + startTile.x + "," + startTile.y + "-" + endX + "," + endY + " was not found.");
                         reject(false);
                     } else {
                         cow.isMoving = true;
@@ -139,7 +141,7 @@ export default class Cow {
                 cow.isMoving = false;
                 // Reset movepath
                 cow.movePath = [];
-                 //Face up for now
+                //Face up for now
                 cow.sprite.angle = 0;
                 resolve(-1);
             });
@@ -259,6 +261,29 @@ export default class Cow {
         // No moves!
         return null;
 
+    }
+
+    /** Remove this cow from owners pen and zero pen to make free
+     *
+     * @param cow
+     */
+    removeCowFromPen(){
+        this.homePen.occupied = false;
+        this.homePen.cow = null;
+        this.homePen = null;
+    }
+
+    /**
+     * Calculate a path to the cow's current home pen and
+     * send it one its way
+     *
+     * @return {Promise<boolean>} when movement finished
+     */
+    async sendCowToHomePen() {
+        await this.calculateMovePath(this.homePen.tileXY[0],
+            this.homePen.tileXY[1]);
+        await this.moveCowAlongPath(gameSettings.gameRules.cowSpeed);
+        return true;
     }
 
 

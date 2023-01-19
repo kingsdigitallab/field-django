@@ -393,8 +393,9 @@ export default class GameScene extends FieldScene {
                     ((spawnPoint[0]) * this.BOARD_TILE_SIZE),
                     (spawnPoint[1] * this.BOARD_TILE_SIZE)
                 );
-                cow.homePenTileXY = spawnPoint;
-                owner.cowPenPoints[c].cow = cow;
+                cow.homePen = owner.cowPenPoints[c];
+                cow.homePen.cow = cow;
+                cow.homePen.occupied = true;
                 // Pick
                 owner.herdTotal += 1;
                 this.herd.push(cow);
@@ -492,14 +493,21 @@ export default class GameScene extends FieldScene {
      * Move entire herd to their cow pens, if they're not there already
      */
     async sendAllHerdToPens() {
-        return this.sendHerdToPens(this.herd);
+        return this.sendHerdToHomePen(this.herd);
     }
 
-    async sendHerdToPens(cows) {
+    /** Move a herd (array) of cows to their home pens
+     * Used to move traded cows to their new homes
+     *
+     * @param cows
+     * @return {Promise<boolean>}
+     */
+    async sendHerdToHomePen(cows) {
         let promiseArray = [];
-
+        // cows[c].owner.sendCowToPen(cows[c])
         for (let c = 0; c < cows.length; c++) {
-            promiseArray.push(cows[c].owner.sendCowToPen(cows[c]));
+            promiseArray.push(cows[c].sendCowToHomePen()
+            );
         }
         let done = await Promise.all(promiseArray);
 

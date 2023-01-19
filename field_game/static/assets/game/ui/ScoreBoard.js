@@ -81,10 +81,12 @@ export default class ScoreBoard {
      *
      */
     createScoreLine(farmer, rank, x, y, alpha) {
+        let lineTextStyle = this.defaultTextStyle;
 
+        //if (farmer === this.)
         let rankCell = this.scene.add.text(
             x, y,
-            rank, this.defaultTextStyle
+            rank, lineTextStyle
         ).setAlpha(alpha);
         //console.log(rankCell.displayWidth);
         let nameCell = this.scene.physics.add.sprite(
@@ -96,23 +98,24 @@ export default class ScoreBoard {
         /*
         let nameCell = this.scene.add.text(
             x, y,
-            farmer.name, this.defaultTextStyle
+            farmer.name, lineTextStyle
         ).setAlpha(alpha);*/
 
         let balanceCell = this.scene.add.text(
             x, y,
             farmer.balance,
-            this.defaultTextStyle
+            lineTextStyle
         ).setAlpha(alpha);
+
         let cowCell = this.scene.add.text(
             x, y,
             farmer.herdTotal,
-            this.defaultTextStyle
+            lineTextStyle
         ).setAlpha(alpha);
         /*let infectedCell = this.scene.add.text(
             x, y,
             farmer.infections,
-            this.defaultTextStyle
+            lineTextStyle
         ).setAlpha(alpha);*/
 
         this.scoreboardLines[farmer.slug] = {
@@ -272,6 +275,28 @@ export default class ScoreBoard {
 
     }
 
+    addPlayerHighlightBox() {
+        let playerLine = this.scoreboardLines.Player;
+        console.log(playerLine.rankCell.x);
+        console.log(this.rectCentreX - ((this.cellWidth * this.columns) / 2) + (this.cellWidth / 2));
+        let playerHighlight = this.scene.add.rectangle(
+            this.rectCentreX,
+            playerLine.rankCell.y + this.cellHeight / 4,
+            this.columns * this.cellWidth,
+            this.cellHeight
+        );
+        playerHighlight.setStrokeStyle(2, 0xefc53f);
+        this.playerHighlightTween = this.scene.tweens.add({
+            targets: playerHighlight,
+            alpha: 0.2,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+
+
+    }
+
     /**
      * sort on passed cell
      * Play tween animations to fade out
@@ -301,6 +326,7 @@ export default class ScoreBoard {
             fadeIn = scene.tweens.createTimeline();
             fadeIn.setCallback('onComplete', function () {
                 if (gameState.currentState === States.TURNEND) {
+                    scoreboard.addPlayerHighlightBox();
                     eventsCenter.emit(gameSettings.EVENTS.SCOREBOARDFINISH);
                 }
             });
@@ -335,14 +361,14 @@ export default class ScoreBoard {
     continueButtonEndTurn() {
         //console.log('End clicked');
         if (gameState.currentState === States.TURNENDFINISH) {
+            this.playerHighlightTween.stop();
             eventsCenter.emit(gameSettings.EVENTS.TURNEND);
-
         }
     }
 
     continueButtonEndGame() {
-
         // Start the end game sequence
+        this.playerHighlightTween.stop();
         this.scene.scene.start(gameSettings.SCENENAMES.GAMEENDSCENENAME);
     }
 

@@ -60,10 +60,10 @@ export default class BootScene extends FieldScene {
 
         // New cow
 
-        this.load.image('cow_walk_0', '/static/assets/game/textures/cow_walk_0.png');
-        this.load.image('cow_walk_1', '/static/assets/game/textures/cow_walk_1.png');
-        this.load.image('cow_walk_2', '/static/assets/game/textures/cow_walk_2.png');
-        this.load.image('cow_walk_3', '/static/assets/game/textures/cow_walk_3.png');
+        this.load.image('cow_walk_0', '/static/assets/game/sprites/cow_walk_0.png');
+        this.load.image('cow_walk_1', '/static/assets/game/sprites/cow_walk_1.png');
+        this.load.image('cow_walk_2', '/static/assets/game/sprites/cow_walk_2.png');
+        this.load.image('cow_walk_3', '/static/assets/game/sprites/cow_walk_3.png');
 
 
         // Coin

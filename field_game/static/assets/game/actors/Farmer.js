@@ -26,6 +26,7 @@ export class Farmer {
         // All of the pen spawn and resting points to put cows
         this.cowPenPoints = [];
         this.maxHerdSize = 25;
+        this.isPlayer = false;
     }
 
     /** Make all of the points in the player's pen that a cow can rest
@@ -53,6 +54,7 @@ export class Farmer {
 
             this.cowPenPoints.push({
                 cow: null,
+                occupied: false,
                 tileXY: this.getPenTile(c)
             });
         }
@@ -65,8 +67,7 @@ export class Farmer {
      */
     findFreePenPoint(){
         for (let p=0;p<this.maxHerdSize;p++) {
-            if (this.cowPenPoints[p].cow === null){
-                // console.log(this.cowPenPoints[p].cow === null);
+            if (this.cowPenPoints[p].occupied === false){
                 return p;
             }
         }
@@ -74,18 +75,7 @@ export class Farmer {
         return -1;
     }
 
-    /** Remove this cow from owners pen and zero pen to make free
-     *
-     * @param cow
-     */
-    removeCowFromPen(cow){
-        for (let p=0;p<this.maxHerdSize;p++) {
-            if (this.cowPenPoints[p].cow === cow) {
-                this.cowPenPoints[p].cow = null;
-                break;
-            }
-        }
-    }
+
 
     /**
      * Set if farmer is part of scheme
@@ -211,6 +201,7 @@ export class AIFarmer extends Farmer {
     constructor(id, name, balance, sprite, farmerStart, threshold) {
         super(id, name, balance, sprite, farmerStart);
         this.threshold = threshold;
+        this.isPlayer = false;
     }
 
 
@@ -222,5 +213,7 @@ export class AIFarmer extends Farmer {
 export class Player extends Farmer {
     constructor(id, name, balance, sprite, farmerStart) {
         super(id, name, balance, sprite, farmerStart);
+        this.isPlayer = true;
+        this.farmerSlug = gameSettings.gameRules.playerSlug;
     }
 }

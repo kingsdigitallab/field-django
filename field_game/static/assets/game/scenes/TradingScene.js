@@ -136,7 +136,7 @@ export default class TradingScene extends Phaser.Scene {
 
 
         // Unleash the cows!
-        await this.gameScene.sendHerdToPens(boughtHerd);
+        await this.gameScene.sendHerdToHomePen(boughtHerd);
         this.resetCows();
         this.finishPhase();
 
@@ -180,7 +180,8 @@ export default class TradingScene extends Phaser.Scene {
                     eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
                     eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
                 }
-                await this.gameScene.player.sendCowToPen(boughtCow);
+                //await this.gameScene.player.sendCowToPen(boughtCow);
+                await boughtCow.sendCowToHomePen();
                 this.AITrade();
             } else {
 
@@ -295,12 +296,17 @@ export default class TradingScene extends Phaser.Scene {
                 }
             }
             if (boughtCow) {
-                seller.removeCowFromPen(boughtCow);
+                // Remove cow from seller's pen
+                boughtCow.removeCowFromPen();
                 let penIndex = buyer.findFreePenPoint();
                 if (penIndex >= 0){
+                    // console.log(penIndex);
                     boughtCow.owner = buyer;
-                    buyer.cowPenPoints[penIndex].cow = boughtCow;
-                    boughtCow.homePenTileXY = buyer.cowPenPoints[penIndex].tileXY;
+                    // Add cow to its new home
+                    boughtCow.homePen = buyer.cowPenPoints[penIndex];
+                    boughtCow.homePen.cow = boughtCow;
+                    boughtCow.homePen.occupied = true;
+                    // console.log(boughtCow.homePen);
                 } else{
                     console.log("Error! pen index not found!");
                     console.log(buyer);

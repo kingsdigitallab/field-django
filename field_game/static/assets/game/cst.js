@@ -21,10 +21,11 @@ export const gameSettings = {
         // Cow prices, buy and sell
         bfreeCowPrice: 5,
         normalCowPrice: 5,
-        cowSpeed: 150,
+        cowSpeed: 50,
         cowScale: 0.75,
         infectionBeta: 0.5,
-        startingInfections: 1
+        startingInfections: 1,
+        playerSlug: "Player1"
     },
     gameboardInfo: {
         herdSpawn: [19, 29],
@@ -33,9 +34,9 @@ export const gameSettings = {
         farmerCowPens: [
             [[1, 11], [9, 7]],
             [[1, 47], [9, 7]],
-            [[16, 47], [9, 7]],
-            [[32, 47], [9, 7]],
-            [[32, 11], [8, 7]],
+            [[16, 47], [7, 7]],
+            [[32, 47], [7, 7]],
+            [[32, 11], [7, 7]],
 
         ],
         player: {

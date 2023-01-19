@@ -135,6 +135,8 @@ export default class BFreeScene extends Phaser.Scene {
         this.uiScene.togglePlayerWindow();
 
         this.toggleHighlightTweens();
+
+
         if (gameState.isOnBoarding) {
             this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.onboards);
 
@@ -218,9 +220,10 @@ export default class BFreeScene extends Phaser.Scene {
                 result = await cow.innoculationAnimation();
                 if (result) {
                     // Back to pen using reverse of calculated path
-                    await cow.calculateMovePath(cow.homePenTileXY[0],
-                        cow.homePenTileXY[1]);
-                    await cow.moveCowAlongPath(cowSpeed);
+                    /*await cow.calculateMovePath(cow.homePen.tileXY[0],
+                        cow.homePen.tileXY[1]);
+                    await cow.moveCowAlongPath(cowSpeed);*/
+                    await cow.sendCowToHomePen();
                     return true;
                 }
             }
