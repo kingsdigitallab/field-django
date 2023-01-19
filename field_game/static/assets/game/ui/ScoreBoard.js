@@ -279,15 +279,15 @@ export default class ScoreBoard {
         let playerLine = this.scoreboardLines.Player;
         console.log(playerLine.rankCell.x);
         console.log(this.rectCentreX - ((this.cellWidth * this.columns) / 2) + (this.cellWidth / 2));
-        let playerHighlight = this.scene.add.rectangle(
+        this.playerHighlight = this.scene.add.rectangle(
             this.rectCentreX,
             playerLine.rankCell.y + this.cellHeight / 4,
             this.columns * this.cellWidth,
             this.cellHeight
         );
-        playerHighlight.setStrokeStyle(2, 0xefc53f);
+        this.playerHighlight.setStrokeStyle(2, 0xefc53f);
         this.playerHighlightTween = this.scene.tweens.add({
-            targets: playerHighlight,
+            targets: this.playerHighlight,
             alpha: 0.2,
             yoyo: true,
             repeat: -1,
@@ -361,6 +361,7 @@ export default class ScoreBoard {
     continueButtonEndTurn() {
         //console.log('End clicked');
         if (gameState.currentState === States.TURNENDFINISH) {
+            this.playerHighlight.visible = false;
             this.playerHighlightTween.stop();
             eventsCenter.emit(gameSettings.EVENTS.TURNEND);
         }
@@ -368,6 +369,7 @@ export default class ScoreBoard {
 
     continueButtonEndGame() {
         // Start the end game sequence
+        this.playerHighlight.visible = false;
         this.playerHighlightTween.stop();
         this.scene.scene.start(gameSettings.SCENENAMES.GAMEENDSCENENAME);
     }
