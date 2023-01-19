@@ -370,7 +370,6 @@ export default class ScoreBoard {
     continueButtonEndGame() {
         // Start the end game sequence
         this.playerHighlight.visible = false;
-        this.playerHighlightTween.stop();
         this.scene.scene.start(gameSettings.SCENENAMES.GAMEENDSCENENAME);
     }
 
