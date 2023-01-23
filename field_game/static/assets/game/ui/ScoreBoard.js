@@ -319,7 +319,6 @@ export default class ScoreBoard {
             });
         });
         fadeOut.setCallback('onComplete', function () {
-
             group.destroy(true);
             let rankedGroup = scoreboard.generateScoreGrid(players, 0);
             scoreboard.arrangeScoreGrid();
