@@ -114,7 +114,9 @@ export class Farmer {
      *  Cow value may need to be changed
      */
     getAssets() {
-        return ((this.herdTotal - this.infections) * gameSettings.gameRules.normalCowPrice) + this.balance;
+        // Simplified
+        // ((this.herdTotal - this.infections) * gameSettings.gameRules.normalCowPrice) + this.balance;
+        return this.balance;
     }
 
 

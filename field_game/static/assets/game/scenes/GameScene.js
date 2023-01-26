@@ -94,7 +94,7 @@ export default class GameScene extends FieldScene {
         }
 
         // Control true by default
-        let control = true;
+        let control = 1;
         let game_data = {
             final_score: '0',
             csrfmiddlewaretoken: sessionStorage.getItem('csrf_token'),
@@ -106,8 +106,14 @@ export default class GameScene extends FieldScene {
             game_data.playerID = playerID;
         }
 
+        // Control Gorup
         if (gameSettings.controlGroupParam !== null && gameSettings.controlGroupParam.length > 0) {
-            control = gameSettings.controlGroupParam;
+            if (gameSettings.controlGroupParam === 'True'){
+                control = 1;
+            }else {
+                control = 0;
+            }
+            //control = gameSettings.controlGroupParam;
         }
 
         gameState.control_group = control;

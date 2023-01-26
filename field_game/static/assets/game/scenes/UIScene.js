@@ -419,8 +419,8 @@ export default class UIScene extends Phaser.Scene {
 
         //this.playerInfoContainer.x = board_width/2;
         //this.playerInfoContainer.y = board_height /2;
-
-        if (gameState.control_group === false) {
+        console.log("Control: "+gameState.control_group);
+        if (gameState.control_group == 0) {
             this.sickCowIcon.visible = false;
             this.infectionLevel.visible = false;
             this.infectionLevelBackground.visible = false;

@@ -9,6 +9,7 @@ export let gameState = {
     isOnBoarding: true, //Display help messages
     currentState: null,
     textScrolling: false,
+    control_group: 1,
     lastTransactionOrderNo: 0,
     playerID: "TESTER",
     gameID: 0,
