@@ -107,7 +107,8 @@ export default class GameScene extends FieldScene {
         }
 
         // Control Gorup
-        if (gameSettings.controlGroupParam !== null && gameSettings.controlGroupParam.length > 0) {
+        if (gameSettings.controlGroupParam !== null &&
+            gameSettings.controlGroupParam.length > 0) {
             if (gameSettings.controlGroupParam === 'True'){
                 control = 1;
             }else {
