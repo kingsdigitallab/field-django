@@ -68,8 +68,27 @@ export default class TradingScene extends Phaser.Scene {
         } else {
             this.uiScene.addTextAndStartDialog(this.dialogTexts.start);
         }
-
+        this.highlightTradingChoices(this);
         this.playerTrade();
+    }
+
+    /** Highlight available farms that the player can purchase from.
+     *
+     */
+    highlightTradingChoices(scene) {
+        for (let x = 0; x < this.gameScene.AIFarmers.length; x++) {
+            if (this.gameScene.player.isBFree() == this.gameScene.AIFarmers[x].isBFree()) {
+                // this.penZone.x + this.penZone.width / 2, this.penZone.y + this.penZone.height / 2
+                this.gameScene.AIFarmers[x].highlightPenZone(scene);
+            }
+        }
+    }
+
+    unhighlightTradingChoices(scene) {
+        for (let x = 0; x < this.gameScene.AIFarmers.length; x++) {
+            this.gameScene.AIFarmers[x].penZoneHighlightTween.stop();
+            this.gameScene.AIFarmers[x].penZoneHighlightTween = null;
+        }
     }
 
 
@@ -169,7 +188,6 @@ export default class TradingScene extends Phaser.Scene {
     async playerPurchaseCow(seller) {
 
         if (gameState.currentState === States.TRADINGCHOOSE) {
-
             if (seller && (seller.isBFree() === this.gameScene.player.isBFree())) {
                 this.uiScene.clearDialogWindow();
                 eventsCenter.off(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow);
@@ -299,7 +317,7 @@ export default class TradingScene extends Phaser.Scene {
                 // Remove cow from seller's pen
                 boughtCow.removeCowFromPen();
                 let penIndex = buyer.findFreePenPoint();
-                if (penIndex >= 0){
+                if (penIndex >= 0) {
                     // console.log(penIndex);
                     boughtCow.owner = buyer;
                     // Add cow to its new home
@@ -307,7 +325,7 @@ export default class TradingScene extends Phaser.Scene {
                     boughtCow.homePen.cow = boughtCow;
                     boughtCow.homePen.occupied = true;
                     // console.log(boughtCow.homePen);
-                } else{
+                } else {
                     console.log("Error! pen index not found!");
                     console.log(buyer);
                 }

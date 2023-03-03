@@ -84,7 +84,7 @@ export default class GameScene extends FieldScene {
      */
     logNewGame() {
         let playerID = localStorage.getItem('playerID');
-        if (playerID != null && gameSettings.playerIDParam !== null && gameSettings.playerIDParam.length > 0) {
+        if (playerID != null && gameSettings.playerIDParam != null && gameSettings.playerIDParam.length > 0) {
             if (playerID === 'new') {
                 playerID = null;
             } else {
@@ -310,12 +310,19 @@ export default class GameScene extends FieldScene {
     }
 
     createZoneFromTiles(tileExtent) {
+        let extent = this.createExtentFromTiles(tileExtent);
         return this.add.zone(
+            extent[0], extent[1], extent[2], extent[3]
+        );
+    }
+
+    createExtentFromTiles(tileExtent){
+        return [
             tileExtent[0][0] * this.BOARD_TILE_SIZE,
             tileExtent[0][1] * this.BOARD_TILE_SIZE,
             (tileExtent[1][0] + 1) * this.BOARD_TILE_SIZE,
             (tileExtent[1][1] + 1) * this.BOARD_TILE_SIZE,
-        );
+        ];
     }
 
 
@@ -464,10 +471,13 @@ export default class GameScene extends FieldScene {
                 this.gameboardInfo.farmerStarts[x], gameSettings.INFECTIONTHRESHOLDS[x],
                 'creature_farmers', gameSettings.CHARACTER_FRAMES[spriteKeys[x]]
             );
+
             let penZone = this.createZoneFromTiles(this.gameboardInfo.farmerCowPens[x])
                 .setOrigin(0, 0)
                 .setInteractive();
             aiFarmer.setPenZone(penZone);
+            let highlightExtent = this.createExtentFromTiles(this.gameboardInfo.farmerCowPenHighlights[x]);
+            aiFarmer.makePenZoneHighlight(this, highlightExtent);
 
         }
     }

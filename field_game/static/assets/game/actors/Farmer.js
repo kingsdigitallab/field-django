@@ -27,6 +27,8 @@ export class Farmer {
         this.cowPenPoints = [];
         this.maxHerdSize = 25;
         this.isPlayer = false;
+        this.penZoneHighlight = null;
+        this.penZoneHighlightTween = null;
     }
 
     /** Make all of the points in the player's pen that a cow can rest
@@ -65,16 +67,15 @@ export class Farmer {
      * Find an unoccupied pen point
      * @return {number} index in pen free
      */
-    findFreePenPoint(){
-        for (let p=0;p<this.maxHerdSize;p++) {
-            if (this.cowPenPoints[p].occupied === false){
+    findFreePenPoint() {
+        for (let p = 0; p < this.maxHerdSize; p++) {
+            if (this.cowPenPoints[p].occupied === false) {
                 return p;
             }
         }
         // uh oh
         return -1;
     }
-
 
 
     /**
@@ -107,6 +108,32 @@ export class Farmer {
     getPenCentre() {
         if (this.penZone !== null) {
             return [this.penZone.x + this.penZone.width / 2, this.penZone.y + this.penZone.height / 2];
+        }
+    }
+
+    makePenZoneHighlight(scene, zoneExtent) {
+        if (this.penZone !== null) {
+            console.log(zoneExtent);
+            this.penZoneHighlight = scene.add.rectangle(
+                zoneExtent[0], zoneExtent[1], zoneExtent[2], zoneExtent[3]
+            ).setOrigin(0, 0);
+            //this.penZoneHighlight = scene.add.rectangle(0, 176, 128, 96);
+            //console.log(this.penZoneHighlight.getBounds());
+            this.penZoneHighlight.setStrokeStyle(2, 0xefc53f);
+        }
+
+
+    }
+
+    highlightPenZone(scene) {
+        if (this.penZoneHighlight) {
+            this.penZoneHighlightTween = scene.tweens.add({
+                targets: this.penZoneHighlight,
+                alpha: 0.8,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
         }
     }
 
