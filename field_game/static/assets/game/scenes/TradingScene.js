@@ -80,6 +80,8 @@ export default class TradingScene extends Phaser.Scene {
             if (this.gameScene.player.isBFree() == this.gameScene.AIFarmers[x].isBFree()) {
                 // this.penZone.x + this.penZone.width / 2, this.penZone.y + this.penZone.height / 2
                 this.gameScene.AIFarmers[x].penZoneHighlightTween.resume();
+                this.gameScene.AIFarmers[x].penZoneHighlightTween.restart();
+
             }
         }
     }
