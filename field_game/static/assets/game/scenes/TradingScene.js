@@ -79,23 +79,27 @@ export default class TradingScene extends Phaser.Scene {
         for (let x = 0; x < this.gameScene.AIFarmers.length; x++) {
             if (this.gameScene.player.isBFree() == this.gameScene.AIFarmers[x].isBFree()) {
                 // this.penZone.x + this.penZone.width / 2, this.penZone.y + this.penZone.height / 2
-                this.gameScene.AIFarmers[x].highlightPenZone(scene);
+                this.gameScene.AIFarmers[x].penZoneHighlightTween.resume();
             }
         }
     }
 
     unhighlightTradingChoices(scene) {
         for (let x = 0; x < this.gameScene.AIFarmers.length; x++) {
-            this.gameScene.AIFarmers[x].penZoneHighlightTween.stop();
-            this.gameScene.AIFarmers[x].penZoneHighlightTween = null;
+            if (
+                this.gameScene.AIFarmers[x].penZoneHighlightTween &&
+                this.gameScene.AIFarmers[x].penZoneHighlightTween.isPlaying()
+            ){
+                this.gameScene.AIFarmers[x].penZoneHighlight.setAlpha(0);
+                this.gameScene.AIFarmers[x].penZoneHighlightTween.pause();
+            }
+
         }
     }
 
 
     async playerTrade() {
         gameState.currentState = States.TRADINGCHOOSE;
-
-
     }
 
     /**
@@ -195,6 +199,7 @@ export default class TradingScene extends Phaser.Scene {
                 // Send cow to player pen
                 this.uiScene.addTextAndStartDialog([summary]);
                 if (boughtCow) {
+                    this.unhighlightTradingChoices();
                     eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
                     eventsCenter.emit(gameSettings.EVENTS.PLAYERHERDUPDATED);
                 }

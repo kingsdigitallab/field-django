@@ -37,7 +37,7 @@ export default class ScoreBoard {
         this.cellHeight = 64;
 
         // ms delay for scoreboard increases
-        this.tickDelay = 100;
+        this.tickDelay = 20;
         this.cellKeys = {
             rankCell: 'rankCell',
             nameCell: 'nameCell',
@@ -215,10 +215,7 @@ export default class ScoreBoard {
                 x: this.rectCentreX - ((this.cellWidth * this.columns) / 2) + (this.cellWidth / 2),
                 y: this.rectCentreY - ((this.cellHeight * 7) / 2)
             });
-
-
         }
-
     }
 
 
@@ -332,7 +329,7 @@ export default class ScoreBoard {
             rankedGroup.getChildren().forEach(function (child) {
                 fadeIn.add({
                     targets: child,
-                    alpha: {value: 1, duration: 100, ease: 'Power1'},
+                    alpha: {value: 1, duration: 50, ease: 'Power1'},
                 });
             });
             fadeIn.play();

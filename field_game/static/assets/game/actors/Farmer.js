@@ -116,10 +116,11 @@ export class Farmer {
             console.log(zoneExtent);
             this.penZoneHighlight = scene.add.rectangle(
                 zoneExtent[0], zoneExtent[1], zoneExtent[2], zoneExtent[3]
-            ).setOrigin(0, 0);
+            ).setOrigin(0, 0).setFillStyle(0xefc53f).setAlpha(0);
             //this.penZoneHighlight = scene.add.rectangle(0, 176, 128, 96);
             //console.log(this.penZoneHighlight.getBounds());
-            this.penZoneHighlight.setStrokeStyle(2, 0xefc53f);
+            //this.penZoneHighlight
+            //.setStrokeStyle(2, 0xefc53f);
         }
 
 
@@ -132,7 +133,8 @@ export class Farmer {
                 alpha: 0.8,
                 yoyo: true,
                 repeat: -1,
-                ease: 'Sine.easeInOut'
+                ease: 'Sine.easeInOut',
+                paused: true
             });
         }
     }

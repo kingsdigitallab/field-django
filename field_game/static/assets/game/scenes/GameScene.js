@@ -478,6 +478,7 @@ export default class GameScene extends FieldScene {
             aiFarmer.setPenZone(penZone);
             let highlightExtent = this.createExtentFromTiles(this.gameboardInfo.farmerCowPenHighlights[x]);
             aiFarmer.makePenZoneHighlight(this, highlightExtent);
+            aiFarmer.highlightPenZone(this);
 
         }
     }
