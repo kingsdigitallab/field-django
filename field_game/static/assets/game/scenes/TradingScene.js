@@ -21,8 +21,9 @@ export default class TradingScene extends Phaser.Scene {
         this.dialogTexts = {
             onboards: [
                 "Trading phase\n" +
-                "Buy a cow from a player by touching their pen. Cows cost £" + gameSettings.gameRules.normalCowPrice +
-                "\nYou may only buy from farmers with the same certification"
+                "Buy a cow from a player by tapping their pen. Cows cost £"+ gameSettings.gameRules.normalCowPrice +". ",
+                "You can only buy cows that have been treated",
+                "You can only buy cows that have not been treated"
             ],
             start: ["Trading phase"],
 
@@ -64,7 +65,17 @@ export default class TradingScene extends Phaser.Scene {
         gameState.currentState = States.TRADINGSTART;
         //Start text
         if (gameState.isOnBoarding === true) {
-            this.uiScene.addTextAndStartDialog(this.dialogTexts.onboards);
+            if (this.gameScene.player.isBFree()){
+                this.uiScene.addTextAndStartDialog(
+                    [this.dialogTexts.onboards[0]+" "+this.dialogTexts.onboards[1]]
+                );
+
+            } else{
+                this.uiScene.addTextAndStartDialog(
+                    [this.dialogTexts.onboards[0]+" "+this.dialogTexts.onboards[2]]
+                );
+            }
+
         } else {
             this.uiScene.addTextAndStartDialog(this.dialogTexts.start);
         }
@@ -91,7 +102,7 @@ export default class TradingScene extends Phaser.Scene {
             if (
                 this.gameScene.AIFarmers[x].penZoneHighlightTween &&
                 this.gameScene.AIFarmers[x].penZoneHighlightTween.isPlaying()
-            ){
+            ) {
                 this.gameScene.AIFarmers[x].penZoneHighlight.setAlpha(0);
                 this.gameScene.AIFarmers[x].penZoneHighlightTween.pause();
             }
@@ -347,8 +358,10 @@ export default class TradingScene extends Phaser.Scene {
 
             // Reset time since last sale for seller
             seller.timeSinceLastSale = -1;
-            let transactionSummary = cowType + ' cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
-            let summary = 'Cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
+            //let transactionSummary = 'Cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
+            //let summary = 'Cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
+            let transactionSummary = seller.name + ' sold a cow for £' + price;
+            let summary = seller.name + ' sold a cow for £' + price;
             transactionMessageProps.description = summary;
             this.gameScene.gameLog(transactionSummary);
             this.gameScene.logTransaction(transactionMessageProps);
@@ -370,16 +383,31 @@ export default class TradingScene extends Phaser.Scene {
      * Decide which farmer to purchase a cow from
      *
      * Choose one number n from {0,1,2,…8} farm } with probability
-     * proportional to (1 + Time_since_bfree[n])^(-preference shape)
+     * from seeded random
      * Return n
      *
      * @param farmers in the game
      * @return farmer we're buying from
      */
     calculatePurchaseChoice(farmers) {
-        // One at random from available sellers
-        if (farmers && farmers.length > 0) {
-            let selected = false;
+        if (farmers.length == 1) {
+            return farmers[0];
+        }
+        let largeHerdPool = [];
+        // If a farmer has 8 or more cows, put them in a preferred pool
+        for (let f = 0; f < farmers.length; f++) {
+            if (farmers[f].herdTotal >= 8) {
+                largeHerdPool.push(farmers[f]);
+            }
+        }
+        if (largeHerdPool.length >= 1) {
+            if (largeHerdPool.length == 1) {
+                return largeHerdPool[0];
+            }
+            let choice = Math.round(this.gameScene.seededRandom() * largeHerdPool.length) - 1;
+            return farmers[choice];
+        } else if (farmers && farmers.length > 0) {
+            // Otherwise, choose one at random from available sellers
             let choice = Math.ceil(this.gameScene.seededRandom() * farmers.length) - 1;
             return farmers[choice];
         }

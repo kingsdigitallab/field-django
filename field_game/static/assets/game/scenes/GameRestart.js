@@ -80,7 +80,7 @@ export default class GameRestartScene extends Phaser.Scene {
 
         this.playerScoreText = this.add.text(
             this.rectCentreX, this.rectCentreY + 100,
-            "Your Score \n\n£"+gameState.winner.balance,
+            "Your Score \n\n£"+gameState.player.balance,
             {
                 fontFamily: '"PressStart2P"',
                 fontSize: '300%',

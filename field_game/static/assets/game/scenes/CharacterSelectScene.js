@@ -46,10 +46,12 @@ export default class CharacterSelectScene extends FieldScene {
      *
      * @param characterSprite
      */
-    characterSelected(characterSprite) {
+    characterSelected(characterSprite, portrait) {
         // Assign the sprite to player
         gameState.playerSpriteKeyFrame = characterSprite.frame.name;
         this.playerSprite = characterSprite;
+        gameState.playerPortrait = portrait;
+
         for (let s = 0; s < this.characterSprites.length; s++) {
             // Remove others (animate fade)
 
@@ -104,7 +106,7 @@ export default class CharacterSelectScene extends FieldScene {
             // set interactive
             characterSprite.setInteractive().once('pointerup', function (pointer, localX, localY) {
                 // select the sprite
-                this.characterSelected(characterSprite);
+                this.characterSelected(characterSprite,spriteKeys[s]);
             }, this);
             // Animations
             let startFrame = gameSettings.CHARACTER_FRAMES[spriteKeys[s]];

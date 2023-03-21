@@ -88,19 +88,17 @@ export default class ScoreBoard {
             x, y,
             rank, lineTextStyle
         ).setAlpha(alpha);
-        //console.log(rankCell.displayWidth);
-        let nameCell = this.scene.physics.add.sprite(
+
+        /*let nameCell = this.scene.physics.add.sprite(
             x,
             y,
             gameSettings.CHARACTER_KEY,
             farmer.sprite.frame.name
-        ).setScale(2).setAlpha(alpha);
-        /*
-        let nameCell = this.scene.add.text(
-            x, y,
-            farmer.name, lineTextStyle
-        ).setAlpha(alpha);*/
-
+        ).setScale(2).setAlpha(alpha);*/
+        let nameCell = this.scene.add.image(x, y, farmer.portrait);
+        nameCell.setScale(2);
+        nameCell.setAlpha(alpha);
+        //console.log(farmer.portrait);
         let balanceCell = this.scene.add.text(
             x, y,
             farmer.balance,
@@ -274,23 +272,44 @@ export default class ScoreBoard {
 
     addPlayerHighlightBox() {
         let playerLine = this.scoreboardLines.Player;
+
         console.log(playerLine.rankCell.x);
-        console.log(this.rectCentreX - ((this.cellWidth * this.columns) / 2) + (this.cellWidth / 2));
-        this.playerHighlight = this.scene.add.rectangle(
+        console.log(this.cellWidth);
+        //console.log(this.rectCentreX - ((this.cellWidth * this.columns) / 2) + (this.cellWidth / 2));
+        this.playerHighlightTween = this.scene.tweens.add({
+            targets: playerLine.nameCell,
+            scale: 2.5,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+        /*this.playerHighlight = this.scene.add.rectangle(
             this.rectCentreX,
             playerLine.rankCell.y + this.cellHeight / 4,
             this.columns * this.cellWidth,
             this.cellHeight
         );
-        this.playerHighlight.setStrokeStyle(2, 0xefc53f);
-        this.playerHighlightTween = this.scene.tweens.add({
+        this.playerHighlight = this.scene.add.rectangle(
+            playerLine.rankCell.x - (this.cellWidth/2),
+            playerLine.rankCell.y - this.cellHeight/2,
+            this.columns * this.cellWidth,
+            this.cellHeight
+        );
+        this.playerHighlight.setOrigin(0,0);
+        this.playerHighlight.setStrokeStyle(2, 0xefc53f);*/
+
+        /*this.playerHighlightTween = this.scene.tweens.add({
             targets: this.playerHighlight,
             alpha: 0.2,
             yoyo: true,
             repeat: -1,
             ease: 'Sine.easeInOut'
-        });
+        });*/
 
+         /*'rankCell': rankCell,
+            'nameCell': nameCell,
+            'balanceCell': balanceCell,
+            'cowCell': cowCell,*/
 
     }
 
@@ -357,7 +376,7 @@ export default class ScoreBoard {
     continueButtonEndTurn() {
         //console.log('End clicked');
         if (gameState.currentState === States.TURNENDFINISH) {
-            this.playerHighlight.visible = false;
+            //this.playerHighlight.visible = false;
             this.playerHighlightTween.stop();
             eventsCenter.emit(gameSettings.EVENTS.TURNEND);
         }

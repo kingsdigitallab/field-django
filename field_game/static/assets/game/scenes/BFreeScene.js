@@ -13,7 +13,7 @@ export default class BFreeScene extends Phaser.Scene {
             no: 'Bovifree not joined!',
         };
         this.bFreeDialogTexts = {
-            onboards: ["Click on the hospital to join BoviFree (Lasts one turn) Or touch your house to skip.\n\n"],
+            onboards: ["Tap the hospital to heal your sick cows (costs £5) or tap your house to skip\n\n"],
             start: ["BFree phase"],
             yes: ["Cows have been cured. Your herd is disease free"],
             no: ["Your herd may still have disease"]

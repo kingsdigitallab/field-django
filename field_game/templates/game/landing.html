@@ -1,38 +1,76 @@
 {% extends "base.html" %}
-{% load wagtailcore_tags %}
-
+{% load wagtailcore_tags staticfiles compress %}
 {% block meta_title %}Field Game{% endblock %}
 
 {% block title %}
   Field Game
 {% endblock %}
 
+ {% block css %}
+   <style type="text/css">
+   @media screen and (min-width: 1171px) {
+    img.game-image{
+      max-width:30%;
+      height: auto;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+  @media screen and (max-width: 1170px) {
+    img.game-image{
+      max-width:80%;
+      height: auto;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+  @media screen and (max-width: 450px) {
+    div img.game-image{
+      width:100%;
+      height: auto;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  }
+
+  </style>
+
+{% endblock %}
+
 {% block main %}
+
   <div class="page-body richtextpage">
   <h1>Cow disease trading game</h1>
-  <h2>Introduction</h2>
-  <div>
-    <p>In the FIELD project we are interested in how farmers make decisions when it comes to preventing
-      their cows from getting disease. We have built a game to test this decision making process and we are
-      asking you to play it.</p>
-    <p>
-      We will record your decisions as you play the game and use this in our analysis. We will not collect
-      any personal information.</p>
-  </div>
-  <h2>Background</h2>
-  <div>
-    <p>Beef and dairy products go through a complex supply chain before they reach the supermarket shelf.
-      To maintain a steady income, farmers are under pressure to get the most out of their land and their
-      livestock. This often means buying in new younger cattle from other farms and selling off the older ones for the
-      right price. The average beef cow in the UK will move location two to three times during its life.
-    </p>
-    <p>
-      With this movement comes a substantial risk of spreading diseases. Many of the diseases affecting
-      cattle are endemic. These diseases are not deadly, but they are unpleasant for cows. They cause difficulties
-      for farmers as well because affected cows will produce less milk. To combat endemic diseases farmers can
-      test, treat, and vaccinate their animals.</p>
-  </div>
-
+  <section>
+    <h2>Introduction</h2>
+    <div>
+      <p>In the FIELD project we are interested in how farmers make decisions when it comes to preventing
+        their cows from getting disease. We have built a game to test this decision making process and we are
+        asking you to play it.</p>
+      <p>
+        We will record your decisions as you play the game and use this in our analysis. We will not collect
+        any personal information.</p>
+    </div>
+  </section>
+  <section>
+    <h2>Background</h2>
+    <div>
+      <p>Beef and dairy products go through a complex supply chain before they reach the supermarket shelf.
+        To maintain a steady income, farmers are under pressure to get the most out of their land and their
+        livestock. This often means buying in new younger cattle from other farms and selling off the older ones for
+        the
+        right price. The average beef cow in the UK will move location two to three times during its life.
+      </p>
+      <p>
+        With this movement comes a substantial risk of spreading diseases. Many of the diseases affecting
+        cattle are endemic. These diseases are not deadly, but they are unpleasant for cows. They cause difficulties
+        for farmers as well because affected cows will produce less milk. To combat endemic diseases farmers can
+        test, treat, and vaccinate their animals.</p>
+    </div>
+  </section>
   <h2>What we want you to do</h2>
   <div>
     We want you to play, and try to win, a game based around the struggles of being a cattle farmer. You
@@ -40,81 +78,101 @@
     disease, and if it goes untreated it will spread to other cows in your herd and stop them from producing milk.
   </div>
   <h2>How to play</h2>
-  <div>
-    <p>
-      You will be asked to choose a character. When you enter the game,
-      you will see your character standing at your farm. You will also see 5
-      other characters standing next to their farms they are your
-      opponents.</p>
-    <p>
-      Each player starts with 20 coins and a pen containing 8 cows. Cows do three things: </p>
-    <ol>
-      <li>Make money for the farm by producing milk</li>
-      <li>Are bought and sold to other farms</li>
-      <li>Can carry an infection which prevents them from producing milk.</li>
-    </ol>
-
-    <p>The game proceeds over 8 rounds. Each round consists of two
-      decisions. All players, you and your artificially intelligent opponents
-      make these decisions simultaneously.</p>
-
-    <strong>Decision 1: to treat or not treat your cows for infection</strong>
-    <p>
-      Tap on the hospital in the middle of the screen to choose to 'treat'
-      your cows this will cost 5 coins and it will make any infected cows
-      healthy cows returning from the hospital are blue to show that they
-      have been treated. Tap on your farm to choose to 'not treat' your
-      cows this costs nothing, but any infected cows on the farm will
-      remain infected.
-    </p>
-    <strong>Decision 2: who to buy from</strong>
-    <p>
-      Tap on the pen of another farm to bring a cow from that farm onto
-      your own farm. 5 of your coins will go to the owner of the farm you
-      chose.</p>
-    <p>If your cows are treated, you can only choose other farms that have
-      treated cows. If your cows are untreated, you can only choose farms
-      that have untreated cows.</p>
-
-    <p>
-      <em>Top tip:</em> When you buy from another farm there is a risk
-      that it might be infected.
-      Keep an eye on the infection risk level indicator in the top right of
-      the screen and try to choose farms that you think are most likely to
-      sell you a healthy cow.</p>
-    <p>
-      <strong>End of the round</strong>
-      At the end of the round two things happen:</p>
-    <ol>
-      <li>
-        Infection spreads: the number of infected cows on the farm will double (until there are no more
-        cows to become infected).
-      </li>
-
-      <li>Cows are milked: each farmer receives <strong>one coin</strong> for every healthy cow on their farm</li>
-    </ol>
-    <h2>How infection works</h2>
-    <p>If the farmer does not treat their infected cows, it will spread to
-      other cows in the pen.</p>
-    <p>
-      At the top right of the screen is an infection risk level indicator. This
-      indicates how many cows have disease in the game.</p>
-    <h2>Winning the game</h2>
-    <p>
-      The game ends after the 8th round
-      <br/>
-      The winner of the game is the player who has the most money in the bank.
-    </p>
-    <br/><br/>
+  <section>
     <div>
-      <h2 style="text-align: center"><a href="{% url 'game' %}">Play the game</a></h2>
-      <p>By clicking the link below to take part in the game, you agree to our privacy policy.</p>
+  <img class="game-image" alt="character select"  src="{% static 'assets/game/images/game_characterselect.png' %}">
+    </div>
+    <div>
+      <p>
+        You will be asked to choose a character. When you enter the game,
+        you will see your character standing at your farm. You will also see 5
+        other characters standing next to their farms they are your
+        opponents.</p>
+      <p>
+        Each player starts with 20 coins and a pen containing 8 cows. Cows do three things: </p>
+      <ol>
+        <li>Make money for the farm by producing milk</li>
+        <li>Are bought and sold to other farms</li>
+        <li>Can carry an infection which prevents them from producing milk.</li>
+      </ol>
+
+      <p>The game proceeds over 8 rounds. Each round consists of two
+        decisions. All players, you and your artificially intelligent opponents
+        make these decisions simultaneously.</p>
+
+      <strong>Decision 1: to treat or not treat your cows for infection</strong>
+      <div>
+      <img class="game-image" alt="Innoculation phase"  src="{% static 'assets/game/images/game_bfree.png' %}">
+      </div>
+      <p>
+        Tap on the hospital in the middle of the screen to choose to 'treat'
+        your cows this will cost 5 coins and it will make any infected cows
+        healthy cows returning from the hospital are blue to show that they
+        have been treated. Tap on your farm to choose to 'not treat' your
+        cows this costs nothing, but any infected cows on the farm will
+        remain infected.
+      </p>
+      <strong>Decision 2: who to buy from</strong>
+      <div>
+      <img class="game-image" alt="Trading phase"  src="{% static 'assets/game/images/game_trading.png' %}">
+      </div>
+      <p>
+        Tap on the pen of another farm to bring a cow from that farm onto
+        your own farm. 5 of your coins will go to the owner of the farm you
+        chose.</p>
+      <p>If your cows are treated, you can only choose other farms that have
+        treated cows. If your cows are untreated, you can only choose farms
+        that have untreated cows.</p>
+
+      <p>
+        <em>Top tip:</em> When you buy from another farm there is a risk
+        that it might be infected.
+        Keep an eye on the infection risk level indicator in the top right of
+        the screen and try to choose farms that you think are most likely to
+        sell you a healthy cow.</p>
+      <p>
+        <strong>End of the round</strong>
+        <div>
+        <img class="game-image" alt="End of round"  src="{% static 'assets/game/images/game_roundend.png' %}">
+        </div>
+        At the end of the round two things happen:</p>
+      <ol>
+        <li>
+          Infection spreads: the number of infected cows on the farm will double (until there are no more
+          cows to become infected).
+        </li>
+
+        <li>Cows are milked: each farmer receives <strong>one coin</strong> for every healthy cow on their farm</li>
+      </ol>
+      <h2>How infection works</h2>
+      <div>
+        <img class="game-image" alt="Infection bar"  src="{% static 'assets/game/images/game_infection.png' %}">
+        </div>
+      <p>If the farmer does not treat their infected cows, it will spread to
+        other cows in the pen.</p>
+      <p>
+        At the top right of the screen is an infection risk level indicator. This
+        indicates how many cows have disease in the game.</p>
+      <h2>Winning the game</h2>
+      <div>
+        <img class="game-image" alt="End of game"  src="{% static 'assets/game/images/game_end.png' %}">
+        </div>
+      <p>
+        The game ends after the 8th round
+        <br/>
+        The winner of the game is the player who has the most money in the bank.
+      </p>
+      <br/><br/>
+      <div>
+        <h2 style="text-align: center"><a href="{% url 'game' %}">Play the game</a></h2>
+        <p>By clicking the link below to take part in the game, you agree to our privacy policy.</p>
+      </div>
+
     </div>
 
-  </div>
-
-
+  </section>
   <div>
+
     <h2>Game Testing</h2>
     <form method="get" action="{% url 'game' %}">
       <h4>Play as</h4>

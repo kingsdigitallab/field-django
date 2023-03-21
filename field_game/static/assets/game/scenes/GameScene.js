@@ -95,30 +95,25 @@ export default class GameScene extends FieldScene {
 
         // Control true by default
         let control = 1;
+        // Randomly allocate to control group
+        if (Math.random() < 0.5) {
+            // In treatment group
+            control = 0;
+        }
+        gameState.control_group = control;
         let game_data = {
             final_score: '0',
             csrfmiddlewaretoken: sessionStorage.getItem('csrf_token'),
             creator_sessionid: sessionStorage.session_id,
             seed: this.randomSeed,
+            control: control,
             log: "Game started",
         };
         if (playerID !== null) {
             game_data.playerID = playerID;
         }
 
-        // Control Gorup
-        if (gameSettings.controlGroupParam !== null &&
-            gameSettings.controlGroupParam.length > 0) {
-            if (gameSettings.controlGroupParam === 'True'){
-                control = 1;
-            }else {
-                control = 0;
-            }
-            //control = gameSettings.controlGroupParam;
-        }
 
-        gameState.control_group = control;
-        game_data.control_group = control;
 
         axios({
             method: 'post',
@@ -135,16 +130,15 @@ export default class GameScene extends FieldScene {
                     gameState.gameID = response.data.gameID;
                     gameState.playerID = response.data.playerID;
                     localStorage.setItem('playerID', gameState.playerID);
-                    //console.log(gameState.playerID);
-
+                    console.log(response.data.seed);
+                    if (response.data.seed && response.data.seed > 0) {
+                        this.randomSeed = response.data.seed;
+                    }
+                    if (response.data.control_group) {
+                        gameState.control_group = response.data.control_group;
+                    }
                     if (gameState.playerID !== null) {
                         game_data.playerID = gameState.playerID;
-                        // Randomly allocate to control group
-                        if (Math.random() < 0.5) {
-                            // In treatment group
-                            control = false;
-                        }
-
                         // Get this player
                         axios.get(gameSettings.apiURLs.farmer, {
                             mode: 'same-origin',
@@ -316,7 +310,7 @@ export default class GameScene extends FieldScene {
         );
     }
 
-    createExtentFromTiles(tileExtent){
+    createExtentFromTiles(tileExtent) {
         return [
             tileExtent[0][0] * this.BOARD_TILE_SIZE,
             tileExtent[0][1] * this.BOARD_TILE_SIZE,
@@ -330,7 +324,7 @@ export default class GameScene extends FieldScene {
         // Player farm
         const startX = this.gameboardInfo.player.start[0] * this.BOARD_TILE_SIZE;
         const startY = (this.gameboardInfo.player.start[1] + 1) * this.BOARD_TILE_SIZE;
-
+        console.log("PLAYER: "+gameState.playerPortrait);
         let playerSprite = this.physics.add.sprite(
             startX,
             startY,
@@ -340,6 +334,7 @@ export default class GameScene extends FieldScene {
 
         playerSprite.setCollideWorldBounds(true);
         this.player = new Player(1, 'Player', gameSettings.gameRules.startFarmerBalance, playerSprite, this.gameboardInfo.player.start);
+        this.player.portrait = gameState.playerPortrait;
         this.player.infections = gameSettings.gameRules.startingInfections;
         let penZone = this.createZoneFromTiles(this.gameboardInfo.playerCowPen)
             .setOrigin(0, 0)
@@ -424,7 +419,7 @@ export default class GameScene extends FieldScene {
         return true;
     }
 
-    createAIFarmer(id, name, balance, farmerStart, threshold, spriteKey, spriteFrame) {
+    createAIFarmer(id, name, balance, farmerStart, threshold, spriteKey, spriteFrame, portraitKey) {
 
         let AISprite = this.physics.add.sprite(
             farmerStart[0] * this.BOARD_TILE_SIZE, (farmerStart[1] + 1) * this.BOARD_TILE_SIZE, spriteKey, spriteFrame
@@ -434,6 +429,8 @@ export default class GameScene extends FieldScene {
         let aiFarmer = new AIFarmer(
             id, name, balance, AISprite, farmerStart, threshold
         );
+        aiFarmer.portrait = portraitKey;
+        console.log(spriteKey);
         aiFarmer.infections = gameSettings.gameRules.startingInfections;
         this.AIFarmers.push(aiFarmer);
         this.allFarmers.push(aiFarmer);
@@ -469,7 +466,8 @@ export default class GameScene extends FieldScene {
             let aiFarmer = this.createAIFarmer(
                 x, 'AI ' + (x + 1), gameSettings.gameRules.startFarmerBalance,
                 this.gameboardInfo.farmerStarts[x], gameSettings.INFECTIONTHRESHOLDS[x],
-                'creature_farmers', gameSettings.CHARACTER_FRAMES[spriteKeys[x]]
+                'creature_farmers', gameSettings.CHARACTER_FRAMES[spriteKeys[x]],
+                spriteKeys[x]
             );
 
             let penZone = this.createZoneFromTiles(this.gameboardInfo.farmerCowPens[x])

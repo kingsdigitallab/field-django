@@ -65,6 +65,17 @@ export default class BootScene extends FieldScene {
         this.load.image('cow_walk_2', '/static/assets/game/sprites/cow_walk_2.png');
         this.load.image('cow_walk_3', '/static/assets/game/sprites/cow_walk_3.png');
 
+        this.load.image('farmer_ghost', '/static/assets/game/sprites/ghost_portrait.png');
+        this.load.image('farmer_robot', '/static/assets/game/sprites/robot_portrait.png');
+        this.load.image('farmer_snail', '/static/assets/game/sprites/snail_portrait.png');
+        this.load.image('farmer_robot2', '/static/assets/game/sprites/robot2_portrait.png');
+        this.load.image('farmer_balloon', '/static/assets/game/sprites/balloon_portrait.png');
+        this.load.image('farmer_roach', '/static/assets/game/sprites/roach_portrait.png');
+        this.load.image('farmer_alien', '/static/assets/game/sprites/alien_portrait.png');
+        this.load.image('farmer_owl', '/static/assets/game/sprites/owl_portrait.png');
+        this.load.image('farmer_frog', '/static/assets/game/sprites/frog_portrait.png');
+
+
 
         // Coin
         this.load.spritesheet('coin',

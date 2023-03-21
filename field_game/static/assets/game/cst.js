@@ -136,9 +136,10 @@ export const gameSettings = {
         'farmer_balloon': 26,
         'farmer_robot': 34,
         'farmer_frog': 42,
-        'farmer_roach': 50,
-        'farmer_robot2': 58,
-        'farmer_ghost': 66,
+        'farmer_owl': 50,
+        'farmer_roach': 58,
+        'farmer_robot2': 66,
+        'farmer_ghost': 74,
     },
     ANNIMAL_FRAMES: {
         'snake_1': 0,

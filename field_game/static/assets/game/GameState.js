@@ -18,6 +18,7 @@ export let gameState = {
     gamesPlayed: 0,
     infectionTotal: 0,
     playerSpriteKeyFrame:null,
+    playerPortrait:null,
     player:null,
     winner:null, // Filled in at the end of the last turn
     winnerSpriteKeyFrame:null // Needed b/c sprite will be destroyed

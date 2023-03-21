@@ -93,8 +93,6 @@ export default class GameEndScene extends Phaser.Scene {
     gameEndScreen() {
         const w = this.scale.width;
         const h = this.scale.height;
-
-
         let winTitle = "";
         // If player is winner
         if (gameState.winnerSpriteKeyFrame === gameState.playerSpriteKeyFrame) {
@@ -147,11 +145,7 @@ export default class GameEndScene extends Phaser.Scene {
         Phaser.Display.Align.To.BottomCenter(
             this.playerScoreText, winnerSprite, 0, winnerSprite.displayHeight
         );
-
-
         this.addContinueButton();
-
-
     }
 
 }

@@ -14,6 +14,7 @@ export class Farmer {
         this.name = name;
         this.balance = balance; // Current cash
         this.sprite = sprite;
+        this.portrait = null;
         this.farmerStart = farmerStart;
         this.bfree = false; // Are they part of Bovifree this turn?
         // todo set at 1 or 0?

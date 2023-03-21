@@ -337,7 +337,7 @@ export default class UIScene extends Phaser.Scene {
 
 
 
-        if (gameState.control_group){
+        if (gameState.control_group == 1){
             this.playerInfoContainer.add(this.infectionLevelBackground);
             this.playerInfoContainer.add(this.infectionLevel);
         }
