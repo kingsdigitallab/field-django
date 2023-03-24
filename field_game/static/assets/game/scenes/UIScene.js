@@ -336,8 +336,8 @@ export default class UIScene extends Phaser.Scene {
         this.playerInfoContainer.add(this.turnDisplay);
 
 
-
-        if (gameState.control_group == 1){
+        console.log(gameState.control_group);
+        if (gameState.control_group == 1 || (gameState.control_group == 0) && gameState.gamesPlayed > 0){
             this.playerInfoContainer.add(this.infectionLevelBackground);
             this.playerInfoContainer.add(this.infectionLevel);
         }
