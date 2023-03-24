@@ -131,7 +131,7 @@ export default class GameScene extends FieldScene {
                     gameState.gameID = response.data.gameID;
                     gameState.playerID = response.data.playerID;
                     localStorage.setItem('playerID', gameState.playerID);
-                    console.log(response.data.seed);
+                    
                     if (response.data.seed && response.data.seed > 0) {
                         // Temporarily fixed (see note above)
                         //this.randomSeed = response.data.seed;
@@ -153,8 +153,6 @@ export default class GameScene extends FieldScene {
                         }).then(function (response) {
                             gameState.gamesPlayed = response.data[0].gamesPlayed;
                             gameState.playerDatabaseID = response.data[0].id;
-
-
                         });
 
 
