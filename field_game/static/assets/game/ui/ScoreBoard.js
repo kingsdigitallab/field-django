@@ -378,6 +378,9 @@ export default class ScoreBoard {
         if (gameState.currentState === States.TURNENDFINISH) {
             //this.playerHighlight.visible = false;
             this.playerHighlightTween.stop();
+            if (this.scoreboardLines.Player && this.scoreboardLines.Player.nameCell){
+                this.scoreboardLines.Player.nameCell.setScale(2);
+            }
             eventsCenter.emit(gameSettings.EVENTS.TURNEND);
         }
     }

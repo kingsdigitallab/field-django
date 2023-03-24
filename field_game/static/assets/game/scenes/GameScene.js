@@ -131,7 +131,7 @@ export default class GameScene extends FieldScene {
                     gameState.gameID = response.data.gameID;
                     gameState.playerID = response.data.playerID;
                     localStorage.setItem('playerID', gameState.playerID);
-                    
+
                     if (response.data.seed && response.data.seed > 0) {
                         // Temporarily fixed (see note above)
                         //this.randomSeed = response.data.seed;
