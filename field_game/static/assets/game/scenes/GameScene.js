@@ -45,7 +45,8 @@ export default class GameScene extends FieldScene {
         this.herd = [];
 
         // Random number and seed
-        this.randomSeed = Math.random();
+        // Now fixed for consistent play.
+        this.randomSeed = 0.8384816872011894; //Math.random();
         this.currentRandom = this.randomSeed;
 
 
@@ -96,7 +97,7 @@ export default class GameScene extends FieldScene {
         // Control true by default
         let control = 1;
         // Randomly allocate to control group
-        if (Math.random() < 0.5) {
+        if (Math.random() <= 0.5) {
             // In treatment group
             control = 0;
         }
@@ -132,7 +133,8 @@ export default class GameScene extends FieldScene {
                     localStorage.setItem('playerID', gameState.playerID);
                     console.log(response.data.seed);
                     if (response.data.seed && response.data.seed > 0) {
-                        this.randomSeed = response.data.seed;
+                        // Temporarily fixed (see note above)
+                        //this.randomSeed = response.data.seed;
                     }
                     if (response.data.control_group) {
                         gameState.control_group = response.data.control_group;
