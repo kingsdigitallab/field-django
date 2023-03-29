@@ -353,15 +353,10 @@ export default class TradingScene extends Phaser.Scene {
                 //let penTile = buyer.findRandomPenTile();
             }
 
-            if (gameSettings.DEBUG) {
-                //console.log("Buyer: " + buyer.name + " " + buyer.herdTotal);
-                //console.log("Seller: " + seller.name + " " + seller.herdTotal);
-            }
 
             // Reset time since last sale for seller
             seller.timeSinceLastSale = -1;
-            //let transactionSummary = 'Cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
-            //let summary = 'Cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
+
             let transactionSummary = buyer.name + ' bought a cow from '+seller.name+' for £' + price;
             let summary = buyer.name + ' bought a cow from '+seller.name+' for £' + price;
             transactionMessageProps.description = summary;

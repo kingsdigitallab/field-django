@@ -85,6 +85,10 @@ function getUrlParameter(sParam) {
     }
     return false;
 }
+if (getUrlParameter("playedBefore")){
+    // Player has played before (but we may not have cookies)
+    localStorage.setItem('playedBefore', getUrlParameter("playedBefore"));
+}
 if (getUrlParameter("playerID")){
 
     gameSettings.playerIDParam = getUrlParameter("playerID");
