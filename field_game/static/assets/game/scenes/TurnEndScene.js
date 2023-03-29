@@ -61,7 +61,7 @@ export default class TurnEndScene extends Phaser.Scene {
             // Final scores
 
             // Set the winner
-            let currentPlayers = this.sortPlayersByAssets();
+            let currentPlayers = this.sortAllPlayersByAssets();
 
             gameState.winnerSpriteKeyFrame = currentPlayers[0].sprite.frame.name;
             gameState.winner = currentPlayers[0];
@@ -170,7 +170,7 @@ export default class TurnEndScene extends Phaser.Scene {
 
         //Give user a chance to read it
         await this.uiScene.sleep(1000);
-        let currentPlayers = this.sortPlayersByAssets();
+        let currentPlayers = this.sortAllPlayersByAssets();
         this.uiScene.scoreboard.updateScoreBoardRanks(this, currentPlayers);
     }
 
@@ -188,30 +188,17 @@ export default class TurnEndScene extends Phaser.Scene {
 
     }
 
-    /**
-     * Sorting just by their current cash balance
-     * @return sorted players
-     */
-    sortPlayersByBalance() {
-        let players = this.gameScene.getAllFarmers();
-        players.sort(function (a, b) {
-            if (a.balance > b.balance) {
-                return -1;
-            } else if (b.balance < a.balance) {
-                return 1;
-            } else {
-                return 0;
-            }
-        });
-        return players;
-    }
+
 
     /**
      * Sorting by cash plus assets e.g. cows
      * @return sorted players
      */
-    sortPlayersByAssets() {
-        let players = this.gameScene.getAllFarmers();
+    sortAllPlayersByAssets() {
+        return this.sortPlayersByAssets(this.gameScene.getAllFarmers());
+    }
+
+    sortPlayersByAssets(players){
         players.sort(function (a, b) {
             if (a.getAssets() > b.getAssets()) {
                 return -1;

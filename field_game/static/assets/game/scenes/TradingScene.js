@@ -168,7 +168,8 @@ export default class TradingScene extends Phaser.Scene {
             }
         }
         this.uiScene.setDialogSpeed(gameSettings.DIALOGSPEEDS.fast);
-        this.uiScene.addTextAndStartDialog([tradingSummary]);
+        // Simplified so there's less text
+        //this.uiScene.addTextAndStartDialog([tradingSummary]);
 
 
         // Unleash the cows!
@@ -210,6 +211,7 @@ export default class TradingScene extends Phaser.Scene {
                 eventsCenter.off(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow);
                 let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
                 // Send cow to player pen
+                console.log(summary);
                 this.uiScene.addTextAndStartDialog([summary]);
                 if (boughtCow) {
                     this.unhighlightTradingChoices();
@@ -360,8 +362,8 @@ export default class TradingScene extends Phaser.Scene {
             seller.timeSinceLastSale = -1;
             //let transactionSummary = 'Cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
             //let summary = 'Cow bought by ' + buyer.name + ' from ' + seller.name + ' for £' + price;
-            let transactionSummary = seller.name + ' sold a cow for £' + price;
-            let summary = seller.name + ' sold a cow for £' + price;
+            let transactionSummary = buyer.name + ' bought a cow from '+seller.name+' for £' + price;
+            let summary = buyer.name + ' bought a cow from '+seller.name+' for £' + price;
             transactionMessageProps.description = summary;
             this.gameScene.gameLog(transactionSummary);
             this.gameScene.logTransaction(transactionMessageProps);
@@ -376,6 +378,23 @@ export default class TradingScene extends Phaser.Scene {
         }
         return ['', null];
 
+    }
+
+       /**
+     * Sorting just by their current cash balance
+     * @return sorted players
+     */
+    sortPlayersByBalance(players) {
+        players.sort(function (a, b) {
+            if (a.balance > b.balance) {
+                return -1;
+            } else if (b.balance < a.balance) {
+                return 1;
+            } else {
+                return 0;
+            }
+        });
+        return players;
     }
 
 
@@ -394,6 +413,13 @@ export default class TradingScene extends Phaser.Scene {
             return farmers[0];
         }
         let largeHerdPool = [];
+        // Exclude richest player
+        farmers = this.sortPlayersByBalance(farmers).reverse();
+        if (farmers.length == 2) {
+            return farmers[0];
+        }
+        farmers.pop();
+
         // If a farmer has 8 or more cows, put them in a preferred pool
         for (let f = 0; f < farmers.length; f++) {
             if (farmers[f].herdTotal >= 8) {
