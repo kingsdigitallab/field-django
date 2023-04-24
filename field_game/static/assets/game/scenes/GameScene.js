@@ -94,11 +94,7 @@ export default class GameScene extends FieldScene {
 
         }
 
-        if (localStorage.getItem("playedBefore")){
-            // Set the floor to 1 as they've checked it on the form
-            gameState.gamesPlayed +=1;
-            console.log('BEFORE '+gameState.gamesPlayed);
-        }
+
 
         // Control true by default
         let control = 1;
@@ -116,6 +112,12 @@ export default class GameScene extends FieldScene {
             control: control,
             log: "Game started",
         };
+
+        if (localStorage.getItem("playedBefore")){
+            // Set the floor to 1 as they've checked it on the form
+            game_data.played_before = localStorage.getItem("playedBefore");
+
+        }
         if (playerID !== null) {
             game_data.playerID = playerID;
         }

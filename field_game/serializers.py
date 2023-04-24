@@ -15,7 +15,8 @@ class FieldGameSerializer(serializers.ModelSerializer):
             "final_score",
             "seed",
             "log",
-            "created_at"
+            "created_at",
+            "played_before"
         ]
 
     def get_gamesPlayed(self):
