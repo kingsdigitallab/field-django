@@ -336,8 +336,9 @@ export default class UIScene extends Phaser.Scene {
         this.playerInfoContainer.add(this.turnDisplay);
 
 
-        console.log(gameState.control_group);
-        if (gameState.control_group == 1 || (gameState.control_group == 0) && gameState.gamesPlayed > 0){
+        console.log('Control: '+gameState.control_group + ' :: '+gameState.gamesPlayed + ' ' +(gameState.control_group == 0 && gameState.gamesPlayed == 0));
+        if ((gameState.control_group == 1) || (gameState.control_group == 0 && gameState.gamesPlayed == 0)){
+            console.log('show');
             this.playerInfoContainer.add(this.infectionLevelBackground);
             this.playerInfoContainer.add(this.infectionLevel);
         }
@@ -438,35 +439,13 @@ export default class UIScene extends Phaser.Scene {
         this.infectionTitle = this.add.text(0, 1, 'Total Infection', this.defaultTextStyle);
         this.infectionLevelBackground = this.add.rectangle(0, 0, 100, 16, 0xffffff, 1);
         this.infectionLevel = this.add.rectangle(0, 0, this.infectionBarWidth * this.getInfectionLevel(), 16, 0xff0000, 1);
-        /*this.infectionIcon = this.add.image(
-            0,
-            0,
-            'cow_1',
-            12
-        ).setScale(2);*/
+
         this.infectionInfoContainer.add(this.infectionInfoBackground);
         this.infectionInfoContainer.add(this.infectionTitle);
         //this.infectionInfoContainer.add(this.infectionIcon);
         this.infectionInfoContainer.add(this.infectionLevelBackground);
         this.infectionInfoContainer.add(this.infectionLevel);
 
-
-
-        /*
-        Phaser.Display.Align.In.TopCenter(
-            this.infectionTitle, this.infectionInfoBackground, 0, -10
-        );
-
-        Phaser.Display.Align.To.BottomCenter(
-            this.infectionIcon, this.infectionTitle, 0, 0
-        );
-
-        Phaser.Display.Align.To.BottomCenter(
-            this.infectionLevelBackground, this.infectionIcon, 0, 20
-        );
-        Phaser.Display.Align.In.LeftCenter(
-            this.infectionLevel, this.infectionLevelBackground, 0, 0
-        );*/
 
     }
 

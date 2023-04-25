@@ -13,7 +13,7 @@ export default class GameRestartScene extends Phaser.Scene {
         super(gameSettings.SCENENAMES.GAMERESTARTSCENENAME);
         this.defaultTextStyle = {
             fontFamily: 'PressStart2P', fontSize: '14px',
-            align:'center',
+            align: 'center',
             wordWrap: {width: 500}
         };
 
@@ -37,8 +37,7 @@ export default class GameRestartScene extends Phaser.Scene {
         ).setOrigin(0.5);
 
 
-        let explanationText = 'For our experiment, we would like you to play the game another time.' +
-                '\n\n\nSee if you can beat your previous score.';
+        let explanationText = 'Now that you’ve played the game, we’d like you to try again to beat your high score.  To make it more of a challenge, we may remove the infection bar, so you won’t know how many cows are infected.';
 
         if (gameState.gamesPlayed > 0) {
             explanationText = 'The experiment is finished.\n\nBut you can still play again!';
@@ -80,7 +79,7 @@ export default class GameRestartScene extends Phaser.Scene {
 
         this.playerScoreText = this.add.text(
             this.rectCentreX, this.rectCentreY + 100,
-            "Your Score \n\n£"+gameState.player.balance,
+            "Your Score \n\n£" + gameState.player.balance,
             {
                 fontFamily: '"PressStart2P"',
                 fontSize: '300%',
@@ -96,7 +95,6 @@ export default class GameRestartScene extends Phaser.Scene {
         );
 
         this.addContinueButton(explanation);
-
 
 
     }

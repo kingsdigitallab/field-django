@@ -45,39 +45,39 @@
 {% block main %}
 
   <div class="page-body richtextpage">
-    <h1>Cow disease trading game</h1>
+
+    <h1>How well can you protect a farm against infectious disease?</h1>
     <section>
       <h2>Introduction</h2>
       <div>
-        <p>In the FIELD project we are interested in how farmers make decisions when it comes to preventing
-          their cows from getting disease. We have built a game to test this decision making process and we are
-          asking you to play it.</p>
+        <p>In the FIELD project we are interested in how farmers make decisions when it comes to preventing their cows
+          from getting disease. We have built a game to test this decision making process and are asking you to play
+          it.</p>
         <p>
-          We will record your decisions as you play the game and use this in our analysis. We will not collect
-          any personal information.</p>
+          We will record your decisions as you play the game and use this in our analysis. We will not collect any
+          personal information.</p>
       </div>
     </section>
     <section>
       <h2>Background</h2>
       <div>
-        <p>Beef and dairy products go through a complex supply chain before they reach the supermarket shelf.
-          To maintain a steady income, farmers are under pressure to get the most out of their land and their
-          livestock. This often means buying in new younger cattle from other farms and selling off the older ones for
-          the
-          right price. The average beef cow in the UK will move location two to three times during its life.
+        <p>Beef and dairy products go through a complex supply chain before they reach the supermarket shelf. To
+          maintain a steady income, farmers are under pressure to get the most out of their land and their livestock.
+          This often means buying in new younger cows from other farms and selling off the older ones for the right
+          price.
         </p>
         <p>
-          With this movement comes a substantial risk of spreading diseases. Many of the diseases affecting
-          cattle are endemic. These diseases are not deadly, but they are unpleasant for cows. They cause difficulties
-          for farmers as well because affected cows will produce less milk. To combat endemic diseases farmers can
-          test, treat, and vaccinate their animals.</p>
+          With this movement comes a substantial risk of spreading diseases. Many of the diseases affecting cows are
+          endemic. These diseases are not deadly, but they are unpleasant for cows. They cause difficulties for farmers
+          too because affected cows produce less milk. To combat endemic diseases farmers can test, treat, and vaccinate
+          their animals.</p>
       </div>
     </section>
     <h2>What we want you to do</h2>
     <div>
-      We want you to play, and try to win, a game based around the struggles of being a cattle farmer. You
-      will try to make money for your farm by selling milk and trading cows with other farmers. Cows are infected with a
-      disease, and if it goes untreated it will spread to other cows in your herd and stop them from producing milk.
+      We want you to play a game based around the struggles of being a cattle farmer. Your goal is to make money for
+      your farm by producing milk and trading cows with other farmers. Some cows are infected with a disease. If they go
+      untreated it will spread to other cows in the herd and stop them from producing milk.
     </div>
     <h2>How to play</h2>
     <section>
@@ -86,20 +86,17 @@
       </div>
       <div>
         <p>
-          You will be asked to choose a character. When you enter the game,
-          you will see your character standing at your farm. You will also see 5
-          other characters standing next to their farms they are your
-          opponents.</p>
+          You will be asked to choose a character. When you enter the game, you will see your character standing at your
+          farm. You will also see 5 other characters standing next to their farms. They are your opponents.</p>
         <p>
-          Each player starts with 20 coins and a pen containing 8 cows. Cows do three things: </p>
+          Each player starts with <b>20</b> coins and a pen containing <b>8</b> cows. Cows can do three things: </p>
         <ol>
           <li>Make money for the farm by producing milk</li>
-          <li>Are bought and sold to other farms</li>
-          <li>Can carry an infection which prevents them from producing milk.</li>
+          <li>Be bought and sold to other farms</li>
+          <li>Carry an infection which prevents them from producing milk</li>
         </ol>
 
-        <p>The game proceeds over <strong>6</strong> rounds. Each round consists of <strong>two
-          decisions</strong>.</p>
+        <p>The game proceeds over <b>6</b> rounds. Each round consists of <b>two</b> decisions.</p>
       </div>
     </section>
     <section>
@@ -108,35 +105,34 @@
         <div>
           <img class="game-image" alt="Innoculation phase" src="{% static 'assets/game/images/game_bfree.png' %}">
         </div>
-        <p>
-          Tap on the hospital in the middle of the screen to choose to 'treat'
-          your cows this will cost 5 coins and it will make any infected cows
-          healthy cows returning from the hospital are blue to show that they
-          have been treated. Tap on your farm to choose to 'not treat' your
-          cows this costs nothing, but any infected cows on the farm will
-          remain infected.
+        <p>Tap on the hospital in the middle of the screen to 'treat' your cows. This will cost <b>5</b> coins and it
+          will make any infected cows healthy. Cows returning from the hospital are blue to show that they have been
+          treated. Tap on your farm to choose to 'not treat' your cows this costs nothing, but any infected cows on the
+          farm will remain infected.
         </p>
       </div>
     </section>
     <section>
       <strong>Decision 2: who to buy from</strong>
       <div>
-        <img class="game-image" alt="Trading phase" src="{% static 'assets/game/images/game_trading.png' %}">
+        <img class="game-image" alt="Trading phase" src="{% static 'assets/game/images/decision_2_screenshot.png' %}">
       </div>
       <p>
-        Tap on the pen of another farm to bring a cow from that farm onto
-        your own farm. 5 of your coins will go to the owner of the farm you
-        chose.</p>
-      <p>If your cows are treated, you can only choose other farms that have
-        treated cows. If your cows are untreated, you can only choose farms
-        that have untreated cows.</p>
+        Tap on the pen of another farm to bring one of their cows onto your own farm. <b>5</b> of your coins will go to
+        the owner of the farm you chose.</p>
+      <p>There is one restriction regarding who you can buy from: if your cows are treated, you can only choose farms
+        that have treated cows. If your cows are untreated, you can only choose farms that have untreated cows.</p>
 
       <p>
-        <em>Top tip:</em> When you buy from another farm there is a risk
-        that it might be infected.
-        Keep an eye on the infection risk level indicator in the top right of
-        the screen and try to choose farms that you think are most likely to
-        sell you a healthy cow.</p>
+        <em>Tip: When you buy from another farm there is a risk that it might be infected. Keep an eye on the infection
+          risk level indicator in the top right of the screen and try to choose farms that you think are most likely to
+          sell you a healthy cow.</em></p>
+      <div>
+        <img class="game-image" alt="Infection bar" src="{% static 'assets/game/images/game_infection.png' %}">
+      </div>
+      <p>
+        At the top right of the screen is an infection risk level indicator. This
+        indicates how many cows have disease in the game.</p>
       <p>
     </section>
     <section>
@@ -147,21 +143,17 @@
       At the end of the round two things happen:</p>
       <ol>
         <li>
-          Infection spreads: the number of infected cows on the farm will double (until there are no more
-          cows to become infected).
+          Infection spreads: the number of infected cows on a farm will <b>double</b> (until there are no more cows to
+          become infected).
         </li>
 
-        <li>Cows are milked: each farmer receives <strong>one coin</strong> for every healthy cow on their farm</li>
+        <li>Cows are milked: each farmer receives <b>one coin</b> for every healthy cow on their farm</li>
       </ol>
       <h2>How infection works</h2>
-      <div>
-        <img class="game-image" alt="Infection bar" src="{% static 'assets/game/images/game_infection.png' %}">
-      </div>
+
       <p>If the farmer does not treat their infected cows, it will spread to
         other cows in the pen.</p>
-      <p>
-        At the top right of the screen is an infection risk level indicator. This
-        indicates how many cows have disease in the game.</p>
+
     </section>
     <section>
       <h2>Winning the game</h2>
@@ -169,14 +161,17 @@
         <img class="game-image" alt="End of game" src="{% static 'assets/game/images/game_end.png' %}">
       </div>
       <p>
-        The game ends after the 8th round
+        The game ends after the <b>6th</b> round
         <br/>
         The winner of the game is the player who has the most money in the bank.
       </p>
     </section>
-
     <section>
       <h2>Play the game</h2>
+      <p>We are using this game to collect data for an experiment. For our experiment we want each participant to play
+        the game twice. We would like to see how much you improve between the first play and the second. No personal
+        data will be collected.</p>
+
       <div>
         <form id="gameForm" method="get" action="{% url 'game' %}">
           <input id="playedBefore" type="checkbox" name="playedBefore" value="1">
@@ -185,14 +180,17 @@
           <input id="privacyConsent" type="checkbox">
           <label for="privacyConsent">I agree to the FIELD project's <a href="https://www.kcl.ac.uk/terms/privacy">privacy
             policy</a>.</label>
-          <br/><br/><br/>
+          <br/><br/>
           <button type="submit">Play the game</button>
         </form>
       </div>
     </section>
+    <br/>
+    <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+    <script src="{% static 'assets/js/game_landing.js' %}"></script>
   </div>
-  <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
-  <script src="{% static 'assets/js/game_landing.js' %}"></script>
+
+
 
 
 {% endblock %}

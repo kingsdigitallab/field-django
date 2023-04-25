@@ -153,7 +153,7 @@ export default class ScoreBoard {
             ).setVisible(false),
             this.scene.add.text(
                 0, 0,
-                'Cows',
+                'Milk £',
                 this.defaultColumnTitleTextStyle
             ).setVisible(false),
             /*this.scene.add.text(
@@ -272,9 +272,6 @@ export default class ScoreBoard {
 
     addPlayerHighlightBox() {
         let playerLine = this.scoreboardLines.Player;
-
-        console.log(playerLine.rankCell.x);
-        console.log(this.cellWidth);
         //console.log(this.rectCentreX - ((this.cellWidth * this.columns) / 2) + (this.cellWidth / 2));
         this.playerHighlightTween = this.scene.tweens.add({
             targets: playerLine.nameCell,

@@ -145,7 +145,7 @@ export default class GameScene extends FieldScene {
                         //this.randomSeed = response.data.seed;
                     }
                     if (response.data.control_group) {
-                        gameState.control_group = response.data.control_group;
+                        gameState.control_group = parseInt(response.data.control_group);
                     }
                     if (gameState.playerID !== null) {
                         game_data.playerID = gameState.playerID;
