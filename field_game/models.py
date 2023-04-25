@@ -17,6 +17,7 @@ class FieldGame(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     log = models.TextField(null=True, blank=True)
     control_group = models.BooleanField(default=True)
+    infection_visible = models.BooleanField(default=True)
     played_before = models.BooleanField(default=False)
 
     class Meta:

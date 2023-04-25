@@ -337,13 +337,11 @@ export default class UIScene extends Phaser.Scene {
 
 
         //console.log('Control: '+gameState.control_group + ' :: '+gameState.gamesPlayed + ' ' +(gameState.control_group == 0 && gameState.gamesPlayed == 0));
-        if ((gameState.control_group == 1) || (gameState.control_group == 0 && gameState.gamesPlayed == 0)){
+        if (gameState.infection_visible == 1){
             //console.log('show');
-            gameState.infection_visible = 1;
+
             this.playerInfoContainer.add(this.infectionLevelBackground);
             this.playerInfoContainer.add(this.infectionLevel);
-        } else{
-            gameState.infection_visible = 0;
         }
 
         eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);

@@ -110,8 +110,16 @@ export default class GameScene extends FieldScene {
             creator_sessionid: sessionStorage.session_id,
             seed: this.randomSeed,
             control: control,
+            infection_visible: 1,
             log: "Game started",
         };
+
+        if ((gameState.control_group == 1) || (gameState.control_group == 0 && gameState.gamesPlayed == 0)){
+            gameState.infection_visible = 1;
+        } else{
+            gameState.infection_visible = 0;
+            game_data.infection_visible = 0;
+        }
 
         if (localStorage.getItem("playedBefore")){
             // Set the floor to 1 as they've checked it on the form

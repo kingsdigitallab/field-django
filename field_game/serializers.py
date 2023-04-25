@@ -16,6 +16,7 @@ class FieldGameSerializer(serializers.ModelSerializer):
             "seed",
             "log",
             "created_at",
+            "infection_visible",
             "played_before"
         ]
 
