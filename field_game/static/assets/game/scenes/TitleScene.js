@@ -44,7 +44,7 @@ export default class TitleScene extends FieldScene {
         this.titleBackground = this.add.rectangle(0, 0, w, h, 0x000000, 0.5);
         this.titleBackground.setInteractive();
         //this.titleBackground.once('pointerdown', () => this.advance());
-        this.titleText = this.add.text(w / 2, (h / 4), 'BoviFree Game', {
+        this.titleText = this.add.text(w / 2, (h / 4), 'FIELD trading game', {
             fontFamily: '"PressStart2P"',
             fontSize: '300%',
         });

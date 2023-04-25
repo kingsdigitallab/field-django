@@ -336,11 +336,14 @@ export default class UIScene extends Phaser.Scene {
         this.playerInfoContainer.add(this.turnDisplay);
 
 
-        console.log('Control: '+gameState.control_group + ' :: '+gameState.gamesPlayed + ' ' +(gameState.control_group == 0 && gameState.gamesPlayed == 0));
+        //console.log('Control: '+gameState.control_group + ' :: '+gameState.gamesPlayed + ' ' +(gameState.control_group == 0 && gameState.gamesPlayed == 0));
         if ((gameState.control_group == 1) || (gameState.control_group == 0 && gameState.gamesPlayed == 0)){
-            console.log('show');
+            //console.log('show');
+            gameState.infection_visible = 1;
             this.playerInfoContainer.add(this.infectionLevelBackground);
             this.playerInfoContainer.add(this.infectionLevel);
+        } else{
+            gameState.infection_visible = 0;
         }
 
         eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
@@ -421,7 +424,7 @@ export default class UIScene extends Phaser.Scene {
         //this.playerInfoContainer.x = board_width/2;
         //this.playerInfoContainer.y = board_height /2;
 
-        if (gameState.control_group == 0) {
+        if (gameState.infection_visible == 0) {
             this.sickCowIcon.visible = false;
             this.infectionLevel.visible = false;
             this.infectionLevelBackground.visible = false;
