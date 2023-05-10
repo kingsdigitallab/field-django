@@ -106,7 +106,7 @@ export default class GameScene extends FieldScene {
             csrfmiddlewaretoken: sessionStorage.getItem('csrf_token'),
             creator_sessionid: sessionStorage.session_id,
             seed: this.randomSeed,
-            control: control,
+            control_group: control,
             infection_visible: 1,
             log: "Game started",
         };
@@ -144,7 +144,7 @@ export default class GameScene extends FieldScene {
                 if (response.data[0].control_group == false) {
                     gameState.control_group = 0;
                 }
-                game_data.control = gameState.control_group;
+                game_data.control_group = gameState.control_group;
                 gameState.playerDatabaseID = response.data[0].id;
                 if ((gameState.control_group == 1) || (gameState.control_group == 0 && gameState.gamesPlayed == 0)) {
                     gameState.infection_visible = 1;
