@@ -121,7 +121,7 @@ export default class GameScene extends FieldScene {
         /*
         Get or create player
          */
-        if (gameState.playerID !== null) {
+        if (playerID !== null) {
 
             // Get this player
             axios.get(gameSettings.apiURLs.farmer, {
@@ -136,6 +136,7 @@ export default class GameScene extends FieldScene {
                 gameState.gamesPlayed = response.data[0].gamesPlayed;
                 gameState.playerID = response.data[0].playerID;
                 game_data.playerID = gameState.playerID;
+                localStorage.setItem('playerID', gameState.playerID);
                 console.log(response.data[0].control_group);
                 if (response.data[0].control_group == false) {
                     gameState.control_group = 0;
@@ -165,7 +166,7 @@ export default class GameScene extends FieldScene {
                         if (response && response.data) {
                             gameState.gameID = response.data.gameID;
                             gameState.playerID = response.data.playerID;
-                            localStorage.setItem('playerID', gameState.playerID);
+
 
                             if (response.data.seed && response.data.seed > 0) {
                                 // Temporarily fixed (see note above)
