@@ -87,11 +87,14 @@ export default class GameScene extends FieldScene {
         let playerID = localStorage.getItem('playerID');
         if (playerID != null && gameSettings.playerIDParam != null && gameSettings.playerIDParam.length > 0) {
             if (playerID === 'new') {
-                playerID = null;
+                playerID = 'TESTER';
             } else {
                 gameSettings.playerIDParam = playerID;
             }
 
+        }
+        if (playerID == null){
+            playerID = 'TESTER';
         }
 
 
@@ -130,7 +133,7 @@ export default class GameScene extends FieldScene {
                     'X-CSRFToken': sessionStorage.getItem('csrf_token')
                 },
                 params: {
-                    playerID: gameState.playerID,
+                    playerID: playerID,
                 }
             }).then(function (response) {
                 gameState.gamesPlayed = response.data[0].gamesPlayed;
