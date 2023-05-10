@@ -5,6 +5,7 @@ from faker import Faker
 from faker.providers import person
 from django.utils.timezone import now
 
+
 class FieldGame(models.Model):
     """One Instance of a Field game, including who played it and
     a descriptive log"""

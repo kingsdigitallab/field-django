@@ -117,7 +117,7 @@ export class Farmer {
             this.penZoneHighlight = scene.add.rectangle(
                 zoneExtent[0], zoneExtent[1], zoneExtent[2], zoneExtent[3]
             ).setOrigin(0, 0).setFillStyle(0xefc53f).setAlpha(0);
-            
+
         }
 
 

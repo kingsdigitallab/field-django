@@ -1,5 +1,5 @@
 from django.conf import settings
-from field_game.models import FieldGame, GameEvent, Farmer
+from field_game.models import FieldGame, GameEvent, Farmer, make_player_name
 from field_game.serializers import (
     FieldGameSerializer,
     GameEventSerializer,
@@ -65,26 +65,12 @@ class FarmerViewSet(viewsets.ModelViewSet):
         "control_group": "control_group"
     }
 
-    # def create(self, request, *args, **kwargs):
-    #     serializer = self.get_serializer(data=request.data)
-    #     serializer.is_valid(raise_exception=True)
-    #     # Check if our new user should be part of the control group
-    #     farmers = Farmer.objects.all()
-    #     if (farmers.count > 0):
-    #         f= farmers[0]
-    #         if f.control_group:
-    #             serializer.control_group = False
-    #     self.perform_create(serializer)
-    #     headers = self.get_success_headers(serializer.data)
-    #     return Response(serializer.data, status=status.HTTP_201_CREATED,
-    #                     headers=headers)
-
     def get_queryset(self):
         queryset = Farmer.objects.all()
         if 'playerID' in self.request.query_params:
             playerID = self.request.query_params.get('playerID')
             queryset = queryset.filter(playerID=playerID)
-            if (queryset.count() == 0):
+            if queryset.count() == 0:
                 # create new player
                 control_group = True
                 farmers = Farmer.objects.all()
@@ -92,6 +78,8 @@ class FarmerViewSet(viewsets.ModelViewSet):
                     f = farmers[0]
                     if f.control_group:
                         control_group = False
+                if playerID == "TESTER":
+                    playerID = make_player_name();
                 newFarmer = Farmer(playerID=playerID, name=playerID,
                        control_group=control_group)
                 newFarmer.save()

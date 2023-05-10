@@ -134,6 +134,7 @@ export default class GameScene extends FieldScene {
                 }
             }).then(function (response) {
                 gameState.gamesPlayed = response.data[0].gamesPlayed;
+                gameState.playerID = response.data[0].playerID;
                 console.log(response.data[0].control_group);
                 if (response.data[0].control_group == false) {
                     gameState.control_group = 0;
@@ -146,8 +147,6 @@ export default class GameScene extends FieldScene {
                     gameState.infection_visible = 0;
                     game_data.infection_visible = 0;
                 }
-
-
 
                 // Create new game record
 
