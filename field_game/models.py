@@ -74,6 +74,7 @@ class Farmer(models.Model):
 
     playerID = models.CharField(null=True, blank=True, max_length=128)
     name = models.CharField(null=True, blank=True, max_length=128)
+    control_group = models.BooleanField(default=True)
     gamesPlayed = models.IntegerField(default=0)
 
 
