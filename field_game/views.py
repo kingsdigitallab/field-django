@@ -63,8 +63,23 @@ class FarmerViewSet(viewsets.ModelViewSet):
 
     filter_fields = {
         "pk": "pk",
-        "playerID": "playerID"
+        "playerID": "playerID",
+        "control_group": "control_group"
     }
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        # Check if our new user should be part of the control group
+        farmers = Farmer.objects.all()
+        if (farmers.count > 0):
+            f= farmers[0]
+            if f.control_group:
+                serializer.control_group = False
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED,
+                        headers=headers)
 
     def get_queryset(self):
         queryset = Farmer.objects.all()
@@ -101,23 +116,6 @@ class GameEventViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-gameID', 'turn', 'orderno')
 
 
-
-
-
-
-
-"""
-    @method_decorator(csrf_protect)
-    def create(self, request, *args, **kwargs):
-        return super().create(self, request, *args, **kwargs)
-
-    @method_decorator(csrf_protect)
-    def update(self, request, *args, **kwargs):
-        return super().update(self, request, *args, **kwargs)
-
-    @method_decorator(csrf_protect)
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(self, request, *args, **kwargs)"""
 
 
 class GameLandingView(TemplateView):

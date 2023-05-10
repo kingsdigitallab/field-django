@@ -33,6 +33,7 @@ class FarmerSerializer(serializers.ModelSerializer):
             "id",
             "playerID",
             "name",
+            "control_group",
             "gamesPlayed"
         ]
 

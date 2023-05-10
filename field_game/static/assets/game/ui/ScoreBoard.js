@@ -153,7 +153,7 @@ export default class ScoreBoard {
             ).setVisible(false),
             this.scene.add.text(
                 0, 0,
-                'Milk £',
+                'Cows',
                 this.defaultColumnTitleTextStyle
             ).setVisible(false),
             /*this.scene.add.text(

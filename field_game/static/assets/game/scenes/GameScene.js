@@ -170,11 +170,8 @@ export default class GameScene extends FieldScene {
                             gameState.gamesPlayed = response.data[0].gamesPlayed;
                             gameState.playerDatabaseID = response.data[0].id;
                         });
-
-
                     }
                 }
-
             })
             .catch(function (error) {
                 // handle error

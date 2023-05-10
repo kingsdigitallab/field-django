@@ -76,6 +76,12 @@ class Farmer(models.Model):
     name = models.CharField(null=True, blank=True, max_length=128)
     control_group = models.BooleanField(default=True)
     gamesPlayed = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Field game player"
+        verbose_name_plural = "Field game players"
+        ordering = ["created_at"]
 
 
 class GameEvent(models.Model):
