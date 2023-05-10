@@ -3,7 +3,7 @@ import random
 from django.db import models
 from faker import Faker
 from faker.providers import person
-
+from django.utils.timezone import now
 
 class FieldGame(models.Model):
     """One Instance of a Field game, including who played it and
@@ -81,7 +81,12 @@ class Farmer(models.Model):
     class Meta:
         verbose_name = "Field game player"
         verbose_name_plural = "Field game players"
-        ordering = ["created_at"]
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return (
+            self.playerID
+        )
 
 
 class GameEvent(models.Model):

@@ -95,14 +95,8 @@ export default class GameScene extends FieldScene {
         }
 
 
-
         // Control true by default
         let control = 1;
-        // Randomly allocate to control group
-        if (Math.random() <= 0.5) {
-            // In treatment group
-            control = 0;
-        }
         gameState.control_group = control;
         let game_data = {
             final_score: '0',
@@ -114,14 +108,8 @@ export default class GameScene extends FieldScene {
             log: "Game started",
         };
 
-        if ((gameState.control_group == 1) || (gameState.control_group == 0 && gameState.gamesPlayed == 0)){
-            gameState.infection_visible = 1;
-        } else{
-            gameState.infection_visible = 0;
-            game_data.infection_visible = 0;
-        }
 
-        if (localStorage.getItem("playedBefore")){
+        if (localStorage.getItem("playedBefore")) {
             // Set the floor to 1 as they've checked it on the form
             game_data.played_before = localStorage.getItem("playedBefore");
 
@@ -130,53 +118,70 @@ export default class GameScene extends FieldScene {
             game_data.playerID = playerID;
         }
 
-
-
-        axios({
-            method: 'post',
-            mode: 'same-origin',
-            url: gameSettings.apiURLs.game,
-            headers: {
-                'X-CSRFToken': sessionStorage.getItem('csrf_token')
-            },
-            data: game_data
-        })
-            .then(function (response) {
-                // handle success
-                if (response && response.data) {
-                    gameState.gameID = response.data.gameID;
-                    gameState.playerID = response.data.playerID;
-                    localStorage.setItem('playerID', gameState.playerID);
-
-                    if (response.data.seed && response.data.seed > 0) {
-                        // Temporarily fixed (see note above)
-                        //this.randomSeed = response.data.seed;
-                    }
-                    if (response.data.control_group) {
-                        gameState.control_group = parseInt(response.data.control_group);
-                    }
-                    if (gameState.playerID !== null) {
-                        game_data.playerID = gameState.playerID;
-                        // Get this player
-                        axios.get(gameSettings.apiURLs.farmer, {
-                            mode: 'same-origin',
-                            headers: {
-                                'X-CSRFToken': sessionStorage.getItem('csrf_token')
-                            },
-                            params: {
-                                playerID: gameState.playerID,
-                            }
-                        }).then(function (response) {
-                            gameState.gamesPlayed = response.data[0].gamesPlayed;
-                            gameState.playerDatabaseID = response.data[0].id;
-                        });
-                    }
+        /*
+        Get or create player
+         */
+        if (gameState.playerID !== null) {
+            game_data.playerID = gameState.playerID;
+            // Get this player
+            axios.get(gameSettings.apiURLs.farmer, {
+                mode: 'same-origin',
+                headers: {
+                    'X-CSRFToken': sessionStorage.getItem('csrf_token')
+                },
+                params: {
+                    playerID: gameState.playerID,
                 }
-            })
-            .catch(function (error) {
-                // handle error
-                console.log(error);
+            }).then(function (response) {
+                gameState.gamesPlayed = response.data[0].gamesPlayed;
+                console.log(response.data[0].control_group);
+                if (response.data[0].control_group == false) {
+                    gameState.control_group = 0;
+                }
+                game_data.control = gameState.control_group;
+                gameState.playerDatabaseID = response.data[0].id;
+                if ((gameState.control_group == 1) || (gameState.control_group == 0 && gameState.gamesPlayed == 0)) {
+                    gameState.infection_visible = 1;
+                } else {
+                    gameState.infection_visible = 0;
+                    game_data.infection_visible = 0;
+                }
+
+
+
+                // Create new game record
+
+                axios({
+                    method: 'post',
+                    mode: 'same-origin',
+                    url: gameSettings.apiURLs.game,
+                    headers: {
+                        'X-CSRFToken': sessionStorage.getItem('csrf_token')
+                    },
+                    data: game_data
+                })
+                    .then(function (response) {
+                        // handle success
+                        if (response && response.data) {
+                            gameState.gameID = response.data.gameID;
+                            gameState.playerID = response.data.playerID;
+                            localStorage.setItem('playerID', gameState.playerID);
+
+                            if (response.data.seed && response.data.seed > 0) {
+                                // Temporarily fixed (see note above)
+                                //this.randomSeed = response.data.seed;
+                            }
+
+
+                        }
+                    })
+                    .catch(function (error) {
+                        // handle error
+                        console.log(error);
+                    });
+
             });
+        }
 
 
     }
@@ -337,7 +342,6 @@ export default class GameScene extends FieldScene {
         // Player farm
         const startX = this.gameboardInfo.player.start[0] * this.BOARD_TILE_SIZE;
         const startY = (this.gameboardInfo.player.start[1] + 1) * this.BOARD_TILE_SIZE;
-        console.log("PLAYER: "+gameState.playerPortrait);
         let playerSprite = this.physics.add.sprite(
             startX,
             startY,
@@ -443,7 +447,6 @@ export default class GameScene extends FieldScene {
             id, name, balance, AISprite, farmerStart, threshold
         );
         aiFarmer.portrait = portraitKey;
-        console.log(spriteKey);
         aiFarmer.infections = gameSettings.gameRules.startingInfections;
         this.AIFarmers.push(aiFarmer);
         this.allFarmers.push(aiFarmer);

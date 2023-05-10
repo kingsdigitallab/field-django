@@ -18,7 +18,6 @@ from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import requires_csrf_token
 from .permissions import IsCreatorOrReadOnly
 
-
 # to toggle between easy for debug and production
 if settings.DEBUG:
     API_PERMISSIONS = [
@@ -32,7 +31,7 @@ else:
 
 class FieldGameViewSet(viewsets.ModelViewSet):
     """ Serve a new instance of the Field boardgame with relevant settings"""
-    #queryset = FieldGame.objects.all()
+    # queryset = FieldGame.objects.all()
     serializer_class = FieldGameSerializer
     permission_classes = API_PERMISSIONS
 
@@ -48,10 +47,9 @@ class FieldGameViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-gameID')
 
 
-
 class FarmerViewSet(viewsets.ModelViewSet):
     """ Serve a new instance of the Field boardgame with relevant settings"""
-    #queryset = Farmer.objects.all()
+    # queryset = Farmer.objects.all()
     serializer_class = FarmerSerializer
     permission_classes = API_PERMISSIONS
 
@@ -67,35 +65,43 @@ class FarmerViewSet(viewsets.ModelViewSet):
         "control_group": "control_group"
     }
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        # Check if our new user should be part of the control group
-        farmers = Farmer.objects.all()
-        if (farmers.count > 0):
-            f= farmers[0]
-            if f.control_group:
-                serializer.control_group = False
-        self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-        return Response(serializer.data, status=status.HTTP_201_CREATED,
-                        headers=headers)
+    # def create(self, request, *args, **kwargs):
+    #     serializer = self.get_serializer(data=request.data)
+    #     serializer.is_valid(raise_exception=True)
+    #     # Check if our new user should be part of the control group
+    #     farmers = Farmer.objects.all()
+    #     if (farmers.count > 0):
+    #         f= farmers[0]
+    #         if f.control_group:
+    #             serializer.control_group = False
+    #     self.perform_create(serializer)
+    #     headers = self.get_success_headers(serializer.data)
+    #     return Response(serializer.data, status=status.HTTP_201_CREATED,
+    #                     headers=headers)
 
     def get_queryset(self):
         queryset = Farmer.objects.all()
         if 'playerID' in self.request.query_params:
             playerID = self.request.query_params.get('playerID')
             queryset = queryset.filter(playerID=playerID)
+            if (queryset.count() == 0):
+                # create new player
+                control_group = True
+                farmers = Farmer.objects.all()
+                if (farmers.count() > 0):
+                    f = farmers[0]
+                    if f.control_group:
+                        control_group = False
+                newFarmer = Farmer(playerID=playerID, name=playerID,
+                       control_group=control_group)
+                newFarmer.save()
+                queryset = queryset.filter(playerID=playerID)
         return queryset.order_by('playerID')
-
-    # @method_decorator(csrf_protect)
-    # def update(self, request, *args, **kwargs):
-    #     return super().update(request, *args, **kwargs)
 
 
 class GameEventViewSet(viewsets.ModelViewSet):
     """ Serve a new instance of the Field boardgame with relevant settings"""
-    #queryset = GameEvent.objects.all()
+    # queryset = GameEvent.objects.all()
     serializer_class = GameEventSerializer
     permission_classes = API_PERMISSIONS
     filter_backends = [filters.SearchFilter]
@@ -116,18 +122,15 @@ class GameEventViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-gameID', 'turn', 'orderno')
 
 
-
-
 class GameLandingView(TemplateView):
     """ Game landing page"""
 
     template_name = ("game/landing.html")
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         playerList = list()
-        for player  in FieldGame.objects.order_by('playerID').values(
+        for player in FieldGame.objects.order_by('playerID').values(
             'playerID').distinct():
             playerList.append(player['playerID'])
         context['player_ids'] = playerList
@@ -159,5 +162,3 @@ class GameView(TemplateView):
     @method_decorator(requires_csrf_token)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
-
-
