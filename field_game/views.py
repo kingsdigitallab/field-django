@@ -83,8 +83,8 @@ class FarmerViewSet(viewsets.ModelViewSet):
                 newFarmer = Farmer(playerID=playerID, name=playerID,
                        control_group=control_group)
                 newFarmer.save()
-                queryset = queryset.filter(playerID=playerID)
-        return queryset.order_by('playerID')
+                queryset = Farmer.objects.filter(playerID=playerID)
+        return queryset
 
 
 class GameEventViewSet(viewsets.ModelViewSet):
