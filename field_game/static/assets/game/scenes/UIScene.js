@@ -435,9 +435,9 @@ export default class UIScene extends Phaser.Scene {
     /** Show infection info on top if control
      */
     showInfectionInformation() {
-        this.sickCowIcon.visible = false;
-        this.infectionLevel.visible = false;
-        this.infectionLevelBackground.visible = false;
+        this.sickCowIcon.visible = true;
+        this.infectionLevel.visible = true;
+        this.infectionLevelBackground.visible = true;
     }
 
     createInfectionInfo() {
