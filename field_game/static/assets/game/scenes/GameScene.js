@@ -123,6 +123,7 @@ export default class GameScene extends FieldScene {
             game_data.playerID = playerID;
         }
 
+        let uiScene = this.uiScene;
         /*
         Get or create player
          */
@@ -154,11 +155,11 @@ export default class GameScene extends FieldScene {
                     game_data.infection_visible = 0;
                 } else {
                     gameState.infection_visible = 1;
-                    this.uiScene.showInfectionInformation();
+
+                    uiScene.showInfectionInformation();
                 }
 
                 // Create new game record
-
                 axios({
                     method: 'post',
                     mode: 'same-origin',
