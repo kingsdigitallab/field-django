@@ -146,7 +146,7 @@ export default class GameScene extends FieldScene {
                 if (response.data[0].control_group == false) {
                     gameState.control_group = 0;
                 }
-                
+                console.log('show Infection:' + gameState.control_group == 0 && gameState.gamesPlayed == 1);
                 game_data.control_group = gameState.control_group;
                 gameState.playerDatabaseID = response.data[0].id;
                 if (gameState.control_group == 0 && gameState.gamesPlayed == 1) {
