@@ -2,6 +2,7 @@
 import {gameSettings} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
 import ScoreBoard from "../ui/ScoreBoard.js";
+import HelpScreen from "../ui/HelpScreen.js";
 import {gameState} from '../GameState.js';
 
 
@@ -42,6 +43,9 @@ export default class UIScene extends Phaser.Scene {
         this.scoreboard = new ScoreBoard(this);
         this.scoreboard.createScoreboard();
 
+        // Help screen overlay
+        this.helpScreen = new HelpScreen(this);
+        this.helpScreen.createHelpScreen();
 
         //Start bottom windows hidden
         this.toggleDialogWindow();
@@ -316,7 +320,12 @@ export default class UIScene extends Phaser.Scene {
 
         //let turnLabel = this.add.text(0, 0, " Turn ", this.turnInfoTextStyle);
         this.turnDisplay = this.add.text(0, 0, gameState.currentTurn, this.turnInfoTextStyle);
-
+        this.helpIcon = this.add.image(
+            0,
+            0,
+            'help_icon',
+            0
+        ).setScale(0.75);
         // Infection
 
         //this.infectionTitle = this.add.text(0, 1, 'Infection', this.defaultTextStyle);
@@ -331,6 +340,7 @@ export default class UIScene extends Phaser.Scene {
         this.playerInfoContainer.add(this.sickCowIcon);
         this.playerInfoContainer.add(this.playerInfoBalance);
         this.playerInfoContainer.add(this.playerInfoHerd);
+        this.playerInfoContainer.add(this.helpIcon);
 
         //this.playerInfoContainer.add(turnLabel);
         this.playerInfoContainer.add(this.turnDisplay);
@@ -360,6 +370,7 @@ export default class UIScene extends Phaser.Scene {
         Phaser.Display.Align.In.LeftCenter(
             this.infectionLevel, this.infectionLevelBackground, 0, 0
         );
+       
 
         /*Phaser.Display.Align.In.TopCenter(
             turnLabel,

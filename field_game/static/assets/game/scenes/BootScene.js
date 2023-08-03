@@ -35,6 +35,8 @@ export default class BootScene extends FieldScene {
 
     loadAssets() {
 
+        this.load.html('helpscreen', this.ASSET_URL +'/includes/helpscreen.html');
+
         // Farmers
         this.load.spritesheet('farmer_1',
             this.ASSET_URL + '/textures/farmer_1.png',
@@ -75,6 +77,7 @@ export default class BootScene extends FieldScene {
         this.load.image('farmer_owl', '/static/assets/game/sprites/owl_portrait.png');
         this.load.image('farmer_frog', '/static/assets/game/sprites/frog_portrait.png');
 
+        this.load.image('help_icon', this.ASSET_URL + '/sprites/help_white.png');
 
 
         // Coin

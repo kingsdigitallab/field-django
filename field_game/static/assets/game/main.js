@@ -66,6 +66,9 @@ let config = {
         },
         zoom:1.5 // Added for mobile
     },
+    dom: {
+        createContainer: true
+    }
 
 };
 

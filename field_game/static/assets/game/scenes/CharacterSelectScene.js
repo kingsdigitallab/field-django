@@ -156,6 +156,7 @@ export default class CharacterSelectScene extends FieldScene {
         this.scene.launch(gameSettings.SCENENAMES.UISCENENAME);
         this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
         this.characterSelect();
+
         //this.nextScene();
     }
 
