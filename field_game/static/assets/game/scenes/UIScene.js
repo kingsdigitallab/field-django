@@ -132,6 +132,9 @@ export default class UIScene extends Phaser.Scene {
     togglePlayerWindow() {
         if (this.playerInfoContainer.visible) {
             this.playerInfoContainer.visible = false;
+            if (gameState.infection_visible == 1){
+                this.hideInfectionInformation();
+            }
         } else {
             this.playerInfoContainer.visible = true;
             if (gameState.infection_visible == 1){
@@ -404,11 +407,10 @@ export default class UIScene extends Phaser.Scene {
         });
 
 
-       //if (gameState.infection_visible == 0) {
+
             this.sickCowIcon.visible = false;
             this.infectionLevel.visible = false;
             this.infectionLevelBackground.visible = false;
-       // }
 
         this.togglePlayerWindow();
 
@@ -420,6 +422,12 @@ export default class UIScene extends Phaser.Scene {
         this.sickCowIcon.visible = true;
         this.infectionLevel.visible = true;
         this.infectionLevelBackground.visible = true;
+    }
+
+    hideInfectionInformation() {
+        this.sickCowIcon.visible = false;
+        this.infectionLevel.visible = false;
+        this.infectionLevelBackground.visible = false;
     }
 
     createInfectionInfo() {

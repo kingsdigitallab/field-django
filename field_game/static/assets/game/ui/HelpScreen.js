@@ -92,8 +92,8 @@ export default class HelpScreen {
         this.textContainer = this.createTextContainer();
 
 
-        this.helpScreenBackground.depth = 1;
-        this.helpScreenEdge.depth = 1;
+        this.helpScreenBackground.depth = 3;
+        this.helpScreenEdge.depth = 3;
 
         // Hidden by default
         this.helpScreenBackground.visible = false;
@@ -109,7 +109,7 @@ export default class HelpScreen {
         ).createFromCache('helpscreen');
         textContainer.setOrigin(0.5,0.5);
         textContainer.x = this.rectCentreX ;
-        textContainer.depth = 1;
+        textContainer.depth = 3;
         return textContainer;
     }
 }

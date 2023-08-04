@@ -355,6 +355,7 @@ export default class GameScene extends FieldScene {
             gameSettings.CHARACTER_KEY,
             gameState.playerSpriteKeyFrame
         ).setScale(gameSettings.CHARACTERSPRITESCALE);
+        playerSprite.depth = 1;
 
         playerSprite.setCollideWorldBounds(true);
         this.player = new Player(1, 'Player', gameSettings.gameRules.startFarmerBalance, playerSprite, this.gameboardInfo.player.start);

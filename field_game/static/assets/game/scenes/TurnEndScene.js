@@ -27,7 +27,7 @@ export default class TurnEndScene extends Phaser.Scene {
             if (gameState.currentState === States.TURNEND) {
                 // Prompt for touch to continue
                 // Move to final scores if last turn
-                if (gameState.currentTurn < gameSettings.gameRules.totalTurns){
+                if (gameState.currentTurn < gameSettings.gameRules.totalTurns) {
                     this.uiScene.scoreboard.setScoreboardPromptVisible(true);
                 } else {
                     this.endTurn();
@@ -38,12 +38,24 @@ export default class TurnEndScene extends Phaser.Scene {
 
         // Prompt touched, end
         eventsCenter.on(gameSettings.EVENTS.TURNEND, function () {
-            if (gameState.currentState === States.TURNENDFINISH){
+            if (gameState.currentState === States.TURNENDFINISH) {
                 this.endTurn();
             }
         }, this);
 
 
+    }
+
+    /**
+     * To get around the two issues of income and infection not being clear it should be
+     * done in the turn end scene.  We'll show potential milk production, milk lost to
+     * infection, then the general infection growing.  Then scores.
+     */
+    playerSummary() {
+        // Load our scoreboard screen.
+        // Milk bottles, one for each, with X for infected?
+
+        //General infection grow progress bar
     }
 
     /**
@@ -189,7 +201,6 @@ export default class TurnEndScene extends Phaser.Scene {
     }
 
 
-
     /**
      * Sorting by cash plus assets e.g. cows
      * @return sorted players
@@ -198,7 +209,7 @@ export default class TurnEndScene extends Phaser.Scene {
         return this.sortPlayersByAssets(this.gameScene.getAllFarmers());
     }
 
-    sortPlayersByAssets(players){
+    sortPlayersByAssets(players) {
         players.sort(function (a, b) {
             if (a.getAssets() > b.getAssets()) {
                 return -1;
