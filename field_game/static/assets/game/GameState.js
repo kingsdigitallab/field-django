@@ -6,6 +6,7 @@ Stats of current game like turns, current player etc.
  */
 export let gameState = {
     currentTurn: 0,
+    clickEnabled: true,
     isOnBoarding: true, //Display help messages
     currentState: null,
     textScrolling: false,

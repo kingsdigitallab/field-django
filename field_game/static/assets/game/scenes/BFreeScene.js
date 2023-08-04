@@ -150,7 +150,7 @@ export default class BFreeScene extends Phaser.Scene {
     addListeners() {
         /* If we've chosen, once that's done and dialog over, go to next phase */
         eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, function () {
-            if (gameState.currentState === States.BOVINO || gameState.currentState === States.BOVIYES) {
+            if (gameState.clickEnabled && gameState.currentState === States.BOVINO || gameState.currentState === States.BOVIYES) {
                 setTimeout(function () {
                     eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
                 }, 1500);
@@ -159,16 +159,16 @@ export default class BFreeScene extends Phaser.Scene {
         }, this);
 
         this.gameScene.player.getPenZone().on('pointerup', function (pointer, localX, localY) {
-            if (gameState.currentState === States.BOVICHOOSE) {
+            if (gameState.clickEnabled && gameState.currentState === States.BOVICHOOSE) {
                 // If board is touchable, record touch
                 eventsCenter.emit(gameSettings.EVENTS.PLAYERPENTOUCHED);
             }
         }, this);
 
         this.playerHouseSprite.on('pointerup', function (pointer, localX, localY) {
-            console.log('HOUSE');
-            eventsCenter.emit(gameSettings.EVENTS.PLAYERHOUSETOUCHED);
-            // console.log('H');
+            if (gameState.clickEnabled) {
+                eventsCenter.emit(gameSettings.EVENTS.PLAYERHOUSETOUCHED);
+            }
 
         });
 

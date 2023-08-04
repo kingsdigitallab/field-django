@@ -18,33 +18,42 @@ export default class HelpScreen {
         this.borderColor = 0x907748;
         this.borderAlpha = 1;
         this.windowAlpha = 0.8;
-        this.windowColor = 0x303030;
+        this.windowColor = 0x000000;
         this.defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '14px'};
-        this.defaultTitleTextStyle = {fontFamily: 'PressStart2P', fontSize: '24px'};
 
 
     }
 
     helpScreenOn() {
+        this.helpScreenBackground.visible = true;
 
+        this.helpScreenEdge.visisble = true;
+        this.textContainer.visible = true;
     }
 
     helpScreenOff() {
+        this.helpScreenBackground.visible = false;
 
+        this.helpScreenEdge.visisble = false;
+        this.textContainer.visible = false;
     }
 
     toggleHelpScreen() {
-        console.log(this.screenVisible);
+
         if (this.screenVisible) {
             this.helpScreenOff();
+            gameState.clickEnabled = true;
+            this.screenVisible = false;
         } else {
             this.helpScreenOn();
+            gameState.clickEnabled =false;
+            this.screenVisible = true;
         }
-        this.screenVisible = !this.screenVisible;
+
     }
 
     createHelpScreen() {
-        this.helpScreen_width = this.scene.GAME_WIDTH - (this.scene.GAME_WIDTH / 8);
+        this.helpScreen_width = this.scene.GAME_WIDTH - (this.scene.GAME_WIDTH / 12);
         this.helpScreen_height = this.scene.GAME_HEIGHT - (this.scene.GAME_HEIGHT / 10);
         this.rectX = this.scene.GAME_WIDTH / 2 - (this.helpScreen_width / 2);
         this.rectY = this.scene.GAME_HEIGHT / 2 - (this.helpScreen_height / 2);
@@ -69,30 +78,38 @@ export default class HelpScreen {
         );
 
         // Screen title
-        let titleText = "HOW TO PLAY";
+        /*let titleText = "HOW TO PLAY";
         this.helpScreenTitle = this.scene.add.text(
             this.rectCentreX, this.rectY + 25, titleText,
             this.defaultTitleTextStyle
         );
         this.helpScreenTitle.x = this.rectCentreX - (this.helpScreenTitle.displayWidth / 2);
+*/
+
         this.defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '16px'};
 
         // Help text as a dom element, see helpscreen.html in includes
         this.textContainer = this.createTextContainer();
 
+
+        this.helpScreenBackground.depth = 1;
+        this.helpScreenEdge.depth = 1;
+
         // Hidden by default
         this.helpScreenBackground.visible = false;
-        this.helpScreenTitle.visible = false;
+
         this.helpScreenEdge.visisble = false;
         this.textContainer.visible =false;
 
     }
 
     createTextContainer() {
-        let textContainer = this.scene.add.dom(this.rectCentreX, this.rectCentreY).createFromCache('helpscreen');
+        let textContainer = this.scene.add.dom(
+            this.rectCentreX, this.rectCentreY
+        ).createFromCache('helpscreen');
         textContainer.setOrigin(0.5,0.5);
         textContainer.x = this.rectCentreX ;
-
+        textContainer.depth = 1;
         return textContainer;
     }
 }

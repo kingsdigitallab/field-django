@@ -147,7 +147,7 @@ export default class GameScene extends FieldScene {
                 if (response.data[0].control_group == false) {
                     gameState.control_group = 0;
                 }
-                console.log('show Infection:' + gameState.control_group == 0 && gameState.gamesPlayed == 1);
+
                 game_data.control_group = gameState.control_group;
                 gameState.playerDatabaseID = response.data[0].id;
                 if (gameState.control_group == 0 && gameState.gamesPlayed == 1) {
@@ -155,8 +155,6 @@ export default class GameScene extends FieldScene {
                     game_data.infection_visible = 0;
                 } else {
                     gameState.infection_visible = 1;
-
-                    uiScene.showInfectionInformation();
                 }
 
                 // Create new game record
@@ -321,7 +319,7 @@ export default class GameScene extends FieldScene {
         let hospitalExtent = this.gameboardInfo.hospital.extent;
 
         this.gameboardZones.hospitalZone = this.createZoneFromTiles(hospitalExtent).setOrigin(0, 0).setInteractive().on('pointerup', function (pointer, localX, localY) {
-            if (gameState.currentState === States.BOVICHOOSE) {
+            if (gameState.clickEnabled && gameState.currentState === States.BOVICHOOSE) {
                 // If board is touchable, record touch
                 eventsCenter.emit(gameSettings.EVENTS.HOSPITALTOUCHED);
                 // console.log('H');
@@ -649,8 +647,6 @@ export default class GameScene extends FieldScene {
      * Add global click/touch events
      */
     addEvents() {
-        //this.input.on('pointerdown', this.handlePointerDown, this);
-        //
         eventsCenter.on(gameSettings.EVENTS.TURNSTART, function () {
             this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
             //this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();

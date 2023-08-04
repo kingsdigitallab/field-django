@@ -39,7 +39,6 @@ export default class UIScene extends Phaser.Scene {
         this.dialogWindow.eventEmitter = eventsCenter;
         this.dialogWindow.createWindow(this);
 
-
         this.scoreboard = new ScoreBoard(this);
         this.scoreboard.createScoreboard();
 
@@ -133,15 +132,20 @@ export default class UIScene extends Phaser.Scene {
     togglePlayerWindow() {
         if (this.playerInfoContainer.visible) {
             this.playerInfoContainer.visible = false;
-            /*this.playerInfoBalance.visible = false;
-            this.playerInfoHerd.visible = false;
-            this.playerPortrait.visible = false;*/
         } else {
             this.playerInfoContainer.visible = true;
-            /*this.playerInfoBalance.visible = true;
-            this.playerInfoHerd.visible = true;
-            this.playerPortrait.visible = true;*/
+            if (gameState.infection_visible == 1){
+                this.showInfectionInformation();
+            }
+
         }
+    }
+
+    async toggleHelpScreen() {
+        //
+        this.helpScreen.toggleHelpScreen();
+        await this.sleep(500);
+        return true;
     }
 
     advanceDialogWindowSequence() {
@@ -325,7 +329,12 @@ export default class UIScene extends Phaser.Scene {
             0,
             'help_icon',
             0
-        ).setScale(0.75);
+        ).setScale(1).setInteractive();
+
+        // Add click event to toggle help
+        this.helpIcon.on('pointerdown', function(){
+            this.toggleHelpScreen();
+        }.bind(this));
         // Infection
 
         //this.infectionTitle = this.add.text(0, 1, 'Infection', this.defaultTextStyle);
@@ -349,7 +358,6 @@ export default class UIScene extends Phaser.Scene {
         //console.log('Control: '+gameState.control_group + ' :: '+gameState.gamesPlayed + ' ' +(gameState.control_group == 0 && gameState.gamesPlayed == 0));
         if (gameState.infection_visible == 1){
             //console.log('show');
-
             this.playerInfoContainer.add(this.infectionLevelBackground);
             this.playerInfoContainer.add(this.infectionLevel);
         }
@@ -360,7 +368,13 @@ export default class UIScene extends Phaser.Scene {
         Phaser.Display.Align.In.RightCenter(
             this.infectionLevelBackground,
             this.playerInfoBackground,
-            -10,0
+            -50,0
+        );
+
+        Phaser.Display.Align.In.RightCenter(
+            this.helpIcon,
+            this.playerInfoBackground,
+            0,0
         );
 
         Phaser.Display.Align.To.LeftCenter(
@@ -370,48 +384,8 @@ export default class UIScene extends Phaser.Scene {
         Phaser.Display.Align.In.LeftCenter(
             this.infectionLevel, this.infectionLevelBackground, 0, 0
         );
-       
-
-        /*Phaser.Display.Align.In.TopCenter(
-            turnLabel,
-            this.playerInfoBackground,
-            turnLabel.width / 2 * -1, turnLabel.height / 2 * -1
-        );
-
-        Phaser.Display.Align.In.TopCenter(
-            this.turnDisplay,
-            this.playerInfoBackground,
-            this.turnDisplay.width /2 * -1, this.turnDisplay.height / 2 * -1
-        );*/
 
 
-        /*
-        Phaser.Display.Align.In.TopLeft(
-            this.playerPortrait,
-            this.playerInfoBackground,
-            this.playerPortrait.width / 2 * -1,0
-        );
-        Phaser.Display.Align.To.RightCenter(
-            this.coinIcon, this.playerPortrait,
-            10,0
-        );
-
-        Phaser.Display.Align.To.RightCenter(
-            this.playerInfoBalance, this.coinIcon,
-            10,0
-        );
-
-        Phaser.Display.Align.To.RightCenter(
-            this.cowIcon, this.playerInfoBalance,
-            10, this.cowIcon.height /2 * -1 + 5
-        );
-        Phaser.Display.Align.To.RightCenter(
-            this.playerInfoHerd, this.cowIcon ,0,5
-        );
-
-        this.add.text(0, 0, " ", this.defaultTextStyle),
-            turnLabel, this.turnDisplay,
-        */
         let cellWidth = 16 * 3;
         let cellHeight = 16 * 3;
         this.infoCells = [
@@ -430,10 +404,7 @@ export default class UIScene extends Phaser.Scene {
         });
 
 
-        //this.playerInfoContainer.x = board_width/2;
-        //this.playerInfoContainer.y = board_height /2;
-
-        //if (gameState.infection_visible == 0) {
+       //if (gameState.infection_visible == 0) {
             this.sickCowIcon.visible = false;
             this.infectionLevel.visible = false;
             this.infectionLevelBackground.visible = false;
