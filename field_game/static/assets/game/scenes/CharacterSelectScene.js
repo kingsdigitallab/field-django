@@ -155,6 +155,8 @@ export default class CharacterSelectScene extends FieldScene {
         this.events.on(Phaser.Scenes.Events.SHUTDOWN, this.unloadEvents);
         this.scene.launch(gameSettings.SCENENAMES.UISCENENAME);
         this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
+
+
         this.characterSelect();
 
         //this.nextScene();

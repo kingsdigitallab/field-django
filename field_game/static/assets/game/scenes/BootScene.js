@@ -36,6 +36,7 @@ export default class BootScene extends FieldScene {
     loadAssets() {
 
         this.load.html('helpscreen', this.ASSET_URL +'/includes/helpscreen.html');
+        this.load.html('wireframe', this.ASSET_URL +'/includes/summarywireframe.html');
 
         // Farmers
         this.load.spritesheet('farmer_1',
