@@ -47,7 +47,7 @@ export default class TradingScene extends Phaser.Scene {
                 function (pointer, localX, localY) {
                     if (gameState.currentState === States.TRADINGCHOOSE) {
                         // If board is touchable, record touch
-                        console.log('touched');
+                        //console.log('touched');
                         eventsCenter.emit(gameSettings.EVENTS.AIFARMERPENTOUCHED, this);
 
                     }
@@ -211,7 +211,7 @@ export default class TradingScene extends Phaser.Scene {
                 eventsCenter.off(gameSettings.EVENTS.AIFARMERPENTOUCHED, this.playerPurchaseCow);
                 let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
                 // Send cow to player pen
-                console.log(summary);
+
                 this.uiScene.addTextAndStartDialog([summary]);
                 if (boughtCow) {
                     this.unhighlightTradingChoices();
@@ -338,13 +338,13 @@ export default class TradingScene extends Phaser.Scene {
                 boughtCow.removeCowFromPen();
                 let penIndex = buyer.findFreePenPoint();
                 if (penIndex >= 0) {
-                    // console.log(penIndex);
+
                     boughtCow.owner = buyer;
                     // Add cow to its new home
                     boughtCow.homePen = buyer.cowPenPoints[penIndex];
                     boughtCow.homePen.cow = boughtCow;
                     boughtCow.homePen.occupied = true;
-                    // console.log(boughtCow.homePen);
+
                 } else {
                     console.log("Error! pen index not found!");
                     console.log(buyer);

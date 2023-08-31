@@ -18,6 +18,7 @@ export let gameState = {
     highestScore: 0,
     gamesPlayed: 0,
     infectionTotal: 0,
+    infectionStart: 0,
     playerSpriteKeyFrame:null,
     playerPortrait:null,
     player:null,

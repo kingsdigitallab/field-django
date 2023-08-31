@@ -527,7 +527,7 @@ export default class GameScene extends FieldScene {
         this.createHerd();
 
         this.startGameWhenSetupComplete();
-        this.uiScene.turnSummaryScreen(5,2, 5, 10);
+
     }
 
     /**
@@ -644,8 +644,9 @@ export default class GameScene extends FieldScene {
 
     startTurn() {
         gameState.currentTurn += 1;
+        // Infection at start of turn so we can show change at summary
+        gameState.infectionStart = gameState.infectionTotal;
         this.uiScene.displayTurn();
-
     }
 
     /**

@@ -143,7 +143,6 @@ export default class TurnEndScene extends Phaser.Scene {
     }
 
 
-
     /**
      * Do end of turn calculations and show it on the scoreboard
      */
@@ -158,15 +157,22 @@ export default class TurnEndScene extends Phaser.Scene {
             this.updateInfection(farmers[f]);
         }
 
-        await this.uiScene.turnSummaryScreen(
-            this.gameScene.calculateFarmerIncome(this.gameScene.player),
-            this.gameScene.player.infections,
-            oldInfectionTotal, gameState.infectionTotal
-        );
-
         this.uiScene.scoreboard.updateScoreBoardTitles();
         this.uiScene.toggleDialogWindow();
         this.uiScene.togglePlayerWindow();
+
+        this.uiScene.scoreboard.scoreboardTitle.visible = true;
+        this.uiScene.scoreboard.scoreboardBackground.visible = true;
+        this.uiScene.scoreboard.scoreboardEdge.visible = true;
+
+        console.log("Infection: " + gameState.infectionStart + " : " + gameState.infectionTotal);
+        await this.uiScene.turnSummaryScreen(
+            this.uiScene.scoreboard.scoreboardTitle,
+            this.gameScene.calculateFarmerIncome(this.gameScene.player),
+            this.gameScene.player.infections,
+            gameState.infectionStart, gameState.infectionTotal
+        );
+
 
         this.uiScene.scoreboard.toggleScoreboard();
         await this.uiScene.sleep(1500);
@@ -185,7 +191,6 @@ export default class TurnEndScene extends Phaser.Scene {
 
         }
         let done = await Promise.all(balancePromises);
-
 
         await this.uiScene.scoreboard.infectionTickUp(oldInfectionTotal, gameState.infectionTotal);
         eventsCenter.emit(gameSettings.EVENTS.INFECTIONLEVELUPDATED);

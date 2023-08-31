@@ -53,6 +53,10 @@ export default class ScoreBoard {
 
     }
 
+
+
+
+
     toggleScoreboard() {
         this.scoreboardTitles.toggleVisible();
         this.scoreboardGroup.toggleVisible();
@@ -67,7 +71,6 @@ export default class ScoreBoard {
             }
         } else {
             this.scoreboardTitle.visible = true;
-            //this.scoreboardPrompt.visible = true;
             this.scoreboardBackground.visible = true;
             this.scoreboardEdge.visible = true;
         }
@@ -355,7 +358,7 @@ export default class ScoreBoard {
     }
 
     updateScoreboardTitleText() {
-        return "Turn " + gameState.currentTurn + " Scores";
+        return "Turn " + gameState.currentTurn;
     }
 
     setScoreboardPromptVisible(visibility) {
@@ -456,6 +459,7 @@ export default class ScoreBoard {
             this.rectCentreX, this.rectY + 25, titleText,
             this.defaultTitleTextStyle
         );
+
         this.createGridTitles();
 
         let prompts = this.createContinueButton(

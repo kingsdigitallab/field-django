@@ -30,7 +30,7 @@ export default class UIScene extends Phaser.Scene {
         //this.load.plugin('DialogModalPlugin', DialogModalPlugin, true);
     }
 
-    async turnSummaryScreen(income, infectedCows, oldInfectionTotal, newInfectionTotal) {
+    async turnSummaryScreen(titleText, income, infectedCows, oldInfectionTotal, newInfectionTotal) {
         let borderThickness = 3;
         let borderColor = 0x907748;
         let borderAlpha = 1;
@@ -48,33 +48,9 @@ export default class UIScene extends Phaser.Scene {
 
         let rectCentreX = this.GAME_WIDTH / 2;
         let rectCentreY = this.GAME_HEIGHT / 2;
-        // Nicked from the plugin
-        let graphics = this.add.graphics();
-        graphics.lineStyle(
-            borderThickness,
-            borderColor,
-            borderAlpha
-        );
-        let modalEdge = graphics.strokeRect(
-            rectX, rectY, board_width, board_height
-        );
-        graphics.fillStyle(
-            windowColor, windowAlpha
-        );
-        let modalBackground = graphics.fillRect(
-            rectX + 1, rectY + 1,
-            board_width - 1, board_height - 1
-        );
 
         //modalEdge.depth = 3;
         //modalBackground.depth = 3;
-
-        let titleText = this.add.text(
-            rectCentreX, this.GAME_HEIGHT / 6,
-            'Turn summary',
-            titleTextStyle
-        );
-        titleText.x = (this.GAME_WIDTH / 2) - (titleText.displayWidth / 2);
 
         let incomeTitle = this.add.text(
             rectCentreX, this.GAME_HEIGHT / 6,
@@ -112,9 +88,15 @@ export default class UIScene extends Phaser.Scene {
             'You made ' + income + ' coins from milk',
             defaultTextStyle
         );
+        let infectionReport = '';
+        if (infectedCows ==0){
+            infectionReport = "All cows are healthy"
+        } else{
+            infectionReport= infectedCows+' infected cows produced no milk';
+        }
         let infectionText = this.add.text(
             rectCentreX, this.GAME_HEIGHT / 6,
-            '2 infected cows produced no milk',
+            infectionReport,
             defaultTextStyle
         );
         Phaser.Display.Align.To.BottomCenter(
@@ -155,31 +137,25 @@ export default class UIScene extends Phaser.Scene {
             },
 
         });
-        await this.sleep(3000);
+        await this.sleep(5000);
         this.tweens.add({
-            targets: [
-                modalEdge,
-                modalBackground,
+            targets: milkBottles.concat([
                 infectionLevel,
                 infectionLevelBackground,
                 incomeText,
                 incomeTitle,
-                titleText,
                 infectionTitle,
                 infectionText,
-            ],
+            ]),
             alpha: 0,
             ease: 'Cubic.easeOut',
-            duration: 1500,
+            duration: 1000,
             onComplete: function () {
                 // Destroy
-                modalEdge.destroy();
-                modalBackground.destroy();
                 infectionLevel.destroy();
                 infectionLevelBackground.destroy();
                 incomeText.destroy();
                 incomeTitle.destroy();
-                titleText.destroy();
                 infectionTitle.destroy();
                 infectionText.destroy();
                 milkBottles.forEach(function (bottle) {
@@ -189,7 +165,7 @@ export default class UIScene extends Phaser.Scene {
 
         });
 
-        await this.sleep(2000);
+        await this.sleep(1200);
         return true;
 
     }
