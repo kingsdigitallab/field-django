@@ -159,6 +159,8 @@ export default class CharacterSelectScene extends FieldScene {
 
         this.characterSelect();
 
+
+
         //this.nextScene();
     }
 

@@ -527,6 +527,7 @@ export default class GameScene extends FieldScene {
         this.createHerd();
 
         this.startGameWhenSetupComplete();
+        this.uiScene.turnSummaryScreen(5,2, 5, 10);
     }
 
     /**
@@ -592,6 +593,9 @@ export default class GameScene extends FieldScene {
     }
 
 
+    calculateFarmerIncome(farmer){
+        return (farmer.herdTotal - farmer.infections);
+    }
     /**
      * Let all the board stuff happen
      * then call game start when ready

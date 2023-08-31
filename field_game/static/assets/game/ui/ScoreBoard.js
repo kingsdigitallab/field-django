@@ -388,6 +388,41 @@ export default class ScoreBoard {
         this.scene.scene.start(gameSettings.SCENENAMES.GAMEENDSCENENAME);
     }
 
+    createContinueButton(
+        borderThickness, borderColor, borderAlpha, windowColor, windowAlpha
+    ) {
+        // Continue button
+        let promptWidth = 250;
+        let promptHeight = 90;
+        let promptBackground = this.scene.add.graphics();
+
+        let scoreboardPrompt = this.scene.add.text(
+            this.rectCentreX,
+            this.board_height,
+            'Continue', this.defaultPromptTextStyle
+        )
+            .setOrigin(0.5)
+            .setPadding(25)
+            .setStyle({backgroundColor: '#111'});
+        scoreboardPrompt.y -= scoreboardPrompt.displayHeight / 2;
+
+
+        promptBackground.strokeRect(
+            scoreboardPrompt.x - (scoreboardPrompt.displayWidth / 2) - 1,
+            scoreboardPrompt.y - (scoreboardPrompt.displayHeight / 2) - 1,
+            scoreboardPrompt.displayWidth + 2,
+            scoreboardPrompt.displayHeight + 1
+        )
+            .lineStyle(
+                borderThickness,
+                borderColor,
+                borderAlpha
+            )
+            .fillStyle(
+                windowColor, windowAlpha
+            );
+        return [scoreboardPrompt, promptBackground];
+    }
     /** Overall scoreboard for all players
      *
      */
@@ -423,37 +458,13 @@ export default class ScoreBoard {
         );
         this.createGridTitles();
 
-        // Continue button
-        let promptWidth = 250;
-        let promptHeight = 90;
-        this.promptBackground = this.scene.add.graphics();
-
-        this.scoreboardPrompt = this.scene.add.text(
-            this.rectCentreX,
-            this.board_height,
-            'Continue', this.defaultPromptTextStyle
-        )
-            .setOrigin(0.5)
-            .setPadding(25)
-            .setStyle({backgroundColor: '#111'});
-        this.scoreboardPrompt.y -= this.scoreboardPrompt.displayHeight / 2;
+        let prompts = this.createContinueButton(
+            this.borderThickness, this.borderColor, this.borderAlpha, this.windowColor, this.windowAlpha
+        );
+        this.scoreboardPrompt = prompts[0];
+        this.promptBackground = prompts[1];
         this.scoreboardPrompt.setInteractive();
         this.scoreboardPrompt.on('pointerup', this.continueButtonEndTurn, this);
-
-        this.promptBackground.strokeRect(
-            this.scoreboardPrompt.x - (this.scoreboardPrompt.displayWidth / 2) - 1,
-            this.scoreboardPrompt.y - (this.scoreboardPrompt.displayHeight / 2) - 1,
-            this.scoreboardPrompt.displayWidth + 2,
-            this.scoreboardPrompt.displayHeight + 1
-        )
-            .lineStyle(
-                this.borderThickness,
-                this.borderColor,
-                this.borderAlpha
-            )
-            .fillStyle(
-                this.windowColor, this.windowAlpha
-            );
 
         this.promptBackground.visible = false;
         this.scoreboardPrompt.visible = false;

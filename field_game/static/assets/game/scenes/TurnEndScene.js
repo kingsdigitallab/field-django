@@ -128,8 +128,9 @@ export default class TurnEndScene extends Phaser.Scene {
         }
     }
 
+
     async updateFarmerIncome(farmer) {
-        let income = (farmer.herdTotal - farmer.infections);
+        let income = this.gameScene.calculateFarmerIncome(farmer);
         await this.uiScene.scoreboard.scoreboardTickUp(
             farmer.slug, this.uiScene.scoreboard.cellKeys.balanceCell,
             farmer.balance, (farmer.balance + income)
@@ -141,16 +142,29 @@ export default class TurnEndScene extends Phaser.Scene {
         this.uiScene.scoreboard.updateScoreboardCell(farmer.slug, this.uiScene.scoreboard.cellKeys.cowCell, farmer.herdTotal);
     }
 
+
+
     /**
      * Do end of turn calculations and show it on the scoreboard
      */
     async turnEndPhase() {
         // For each farmer
         gameState.currentState = States.TURNEND;
-
         let farmers = this.gameScene.getAllFarmers();
-        this.uiScene.scoreboard.updateScoreBoardTitles();
 
+        // Calculates infection
+        let oldInfectionTotal = gameState.infectionTotal;
+        for (let f = 0; f < farmers.length; f++) {
+            this.updateInfection(farmers[f]);
+        }
+
+        await this.uiScene.turnSummaryScreen(
+            this.gameScene.calculateFarmerIncome(this.gameScene.player),
+            this.gameScene.player.infections,
+            oldInfectionTotal, gameState.infectionTotal
+        );
+
+        this.uiScene.scoreboard.updateScoreBoardTitles();
         this.uiScene.toggleDialogWindow();
         this.uiScene.togglePlayerWindow();
 
@@ -171,11 +185,7 @@ export default class TurnEndScene extends Phaser.Scene {
 
         }
         let done = await Promise.all(balancePromises);
-        // Calculates infection
-        let oldInfectionTotal = gameState.infectionTotal;
-        for (let f = 0; f < farmers.length; f++) {
-            this.updateInfection(farmers[f]);
-        }
+
 
         await this.uiScene.scoreboard.infectionTickUp(oldInfectionTotal, gameState.infectionTotal);
         eventsCenter.emit(gameSettings.EVENTS.INFECTIONLEVELUPDATED);
@@ -184,6 +194,7 @@ export default class TurnEndScene extends Phaser.Scene {
         await this.uiScene.sleep(1000);
         let currentPlayers = this.sortAllPlayersByAssets();
         this.uiScene.scoreboard.updateScoreBoardRanks(this, currentPlayers);
+        //this.uiScene.hideInfoModal();
     }
 
     /**

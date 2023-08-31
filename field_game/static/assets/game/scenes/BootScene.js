@@ -36,7 +36,7 @@ export default class BootScene extends FieldScene {
     loadAssets() {
 
         this.load.html('helpscreen', this.ASSET_URL +'/includes/helpscreen.html');
-        this.load.html('wireframe', this.ASSET_URL +'/includes/summarywireframe.html');
+        //this.load.html('wireframe', this.ASSET_URL +'/includes/summarywireframe.html');
 
         // Farmers
         this.load.spritesheet('farmer_1',
@@ -89,6 +89,7 @@ export default class BootScene extends FieldScene {
 
         // Decorations (Grass, buildings, trees, fences, etc.)
         this.load.image('grass', this.ASSET_URL + '/textures/grass_1.png');
+        this.load.image('milk_bottle', this.ASSET_URL + '/sprites/milk_bottle.png');
 
         // Hospital and house for flashing highlights
         this.load.image('hospital', this.ASSET_URL + '/textures/hospital.png');
