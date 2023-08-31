@@ -79,7 +79,7 @@ export default class UIScene extends Phaser.Scene {
             cellWidth: cellWidth,
             cellHeight: cellHeight,
             position: Phaser.Display.Align.CENTER,
-            x: incomeTitle.x, //rectCentreX - ((cellWidth /2) * milkBottles.length / 2),
+            x: rectCentreX - ((cellWidth * milkBottles.length) / 2) + (cellWidth / 2),
             y: incomeTitle.y + 50
         });
 

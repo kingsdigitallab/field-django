@@ -54,9 +54,6 @@ export default class ScoreBoard {
     }
 
 
-
-
-
     toggleScoreboard() {
         this.scoreboardTitles.toggleVisible();
         this.scoreboardGroup.toggleVisible();
