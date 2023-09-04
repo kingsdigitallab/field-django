@@ -49,8 +49,7 @@ export default class UIScene extends Phaser.Scene {
         let rectCentreX = this.GAME_WIDTH / 2;
         let rectCentreY = this.GAME_HEIGHT / 2;
 
-        //modalEdge.depth = 3;
-        //modalBackground.depth = 3;
+        
 
         let incomeTitle = this.add.text(
             rectCentreX, this.GAME_HEIGHT / 6,
@@ -89,10 +88,10 @@ export default class UIScene extends Phaser.Scene {
             defaultTextStyle
         );
         let infectionReport = '';
-        if (infectedCows ==0){
+        if (infectedCows == 0) {
             infectionReport = "All cows are healthy"
-        } else{
-            infectionReport= infectedCows+' infected cows produced no milk';
+        } else {
+            infectionReport = infectedCows + ' infected cows produced no milk';
         }
         let infectionText = this.add.text(
             rectCentreX, this.GAME_HEIGHT / 6,
@@ -106,57 +105,79 @@ export default class UIScene extends Phaser.Scene {
             infectionText, incomeText, 0, 10
         );
 
-        let infectionTitle = this.add.text(
-            rectCentreX, this.GAME_HEIGHT / 6,
-            'Total Infection',
-            titleTextStyle
-        );
-        Phaser.Display.Align.To.BottomCenter(
-            infectionTitle, infectionText, 0, 100
-        );
+        let tweenElements = [];
+        // Display infection bar
+        let infectionTitle = null;
+        let infectionLevelBackground = null;
+        let infectionLevel = null;
+        if (gameState.infection_visible == 1) {
 
-        let infectionLevelBackground = this.add.rectangle(0, 0, 100, 16, 0xffffff, 1);
-        let infectionLevel = this.add.rectangle(
-            0, 0,
-            this.infectionBarWidth * (oldInfectionTotal / gameSettings.gameRules.startHerdSize),
-            16, 0xff0000, 1);
+            infectionTitle = this.add.text(
+                rectCentreX, this.GAME_HEIGHT / 6,
+                'Total Infection',
+                titleTextStyle
+            );
+            Phaser.Display.Align.To.BottomCenter(
+                infectionTitle, infectionText, 0, 100
+            );
 
-        Phaser.Display.Align.To.BottomCenter(
-            infectionLevelBackground, infectionTitle, 0, 50
-        );
-        Phaser.Display.Align.To.LeftCenter(
-            infectionLevel, infectionLevelBackground, 0, 0
-        );
+            infectionLevelBackground = this.add.rectangle(
+                0, 0, 100, 16, 0xffffff, 1).setOrigin(0, 0);
 
-        this.tweens.add({
-            targets: infectionLevel,
-            width: {
-                value: this.infectionBarWidth * (newInfectionTotal / gameSettings.gameRules.startHerdSize),
-                duration: 1000,
-                ease: 'Power1'
-            },
+            Phaser.Display.Align.To.BottomCenter(
+                infectionLevelBackground, infectionTitle, 0, 50
+            );
 
-        });
-        await this.sleep(5000);
-        this.tweens.add({
-            targets: milkBottles.concat([
+            infectionLevel = this.add.rectangle(
+                infectionLevelBackground.x, infectionLevelBackground.y,
+                this.infectionBarWidth * (oldInfectionTotal / gameSettings.gameRules.startHerdSize),
+                16, 0xff0000, 1).setOrigin(0, 0);
+
+
+
+            this.tweens.add({
+                targets: infectionLevel,
+                width: {
+                    value: this.infectionBarWidth * (newInfectionTotal / gameSettings.gameRules.startHerdSize),
+                    duration: 1000,
+                    ease: 'Power1'
+                },
+
+            });
+            tweenElements = [
                 infectionLevel,
                 infectionLevelBackground,
                 incomeText,
                 incomeTitle,
                 infectionTitle,
                 infectionText,
-            ]),
+            ];
+            await this.sleep(5000);
+        } else{
+            // Pause just for reading
+            tweenElements = [
+                incomeText,
+                incomeTitle,
+                infectionText,
+            ];
+            await this.sleep(3000);
+        }
+
+        this.tweens.add({
+            targets: milkBottles.concat(tweenElements),
             alpha: 0,
             ease: 'Cubic.easeOut',
             duration: 1000,
             onComplete: function () {
                 // Destroy
-                infectionLevel.destroy();
-                infectionLevelBackground.destroy();
+                if (gameState.infection_visible == 1) {
+                    infectionLevel.destroy();
+                    infectionLevelBackground.destroy();
+                    infectionTitle.destroy();
+                }
                 incomeText.destroy();
                 incomeTitle.destroy();
-                infectionTitle.destroy();
+
                 infectionText.destroy();
                 milkBottles.forEach(function (bottle) {
                     bottle.destroy();
@@ -170,56 +191,6 @@ export default class UIScene extends Phaser.Scene {
 
     }
 
-    // The info modal is a combined background used for:
-    // Help screen, turn end summaries and the scoreboard
-    createInfoModal() {
-        this.infoModal_width = this.GAME_WIDTH - (this.GAME_WIDTH / 12);
-        this.infoModal_height = this.GAME_HEIGHT - (this.GAME_HEIGHT / 10);
-        this.modalRectX = this.GAME_WIDTH / 2 - (this.infoModal_width / 2);
-        this.modalRectY = this.GAME_HEIGHT / 2 - (this.infoModal_height / 2);
-        //this.modalRectCentreX = this.scale.width / 2;
-        //this.modalRectCentreY = this.scale.height / 2;
-        // Nicked from the plugin
-        let graphics = this.add.graphics();
-        graphics.lineStyle(
-            this.borderThickness,
-            this.borderColor,
-            this.borderAlpha
-        );
-        this.infoModalEdge = graphics.strokeRect(
-            this.modalRectX, this.modalRectY, this.infoModal_width, this.infoModal_height
-        );
-        graphics.fillStyle(
-            this.windowColor, this.windowAlpha
-        );
-        this.infoModalBackground = graphics.fillRect(
-            this.modalRectX + 1, this.modalRectY + 1,
-            this.infoModal_width - 1, this.infoModal_height - 1
-        );
-
-        // Screen title
-
-
-        this.defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '16px'};
-
-        this.infoModalBackground.depth = 3;
-        this.infoModalEdge.depth = 3;
-
-        // Hidden by default
-        this.infoModalBackground.visible = false;
-        this.infoModalEdge.visisble = false;
-    }
-
-    /*
-    showInfoModal(){
-        this.infoModalBackground.visible = true;
-        this.infoModalEdge.visisble = true;
-    }
-
-    hideInfoModal(){
-        this.infoModalBackground.visible = false;
-        this.infoModalEdge.visisble = false;
-    }*/
 
     create() {
         this.GAME_WIDTH = this.scale.width;

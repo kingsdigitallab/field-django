@@ -19,6 +19,7 @@ export let gameState = {
     gamesPlayed: 0,
     infectionTotal: 0,
     infectionStart: 0,
+    infection_visible: 1,
     playerSpriteKeyFrame:null,
     playerPortrait:null,
     player:null,

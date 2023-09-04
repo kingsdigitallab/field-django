@@ -153,9 +153,9 @@ export default class TurnEndScene extends Phaser.Scene {
 
         // Calculates infection
         let oldInfectionTotal = gameState.infectionTotal;
-        for (let f = 0; f < farmers.length; f++) {
+        /*for (let f = 0; f < farmers.length; f++) {
             this.updateInfection(farmers[f]);
-        }
+        }*/
 
         this.uiScene.scoreboard.updateScoreBoardTitles();
         this.uiScene.toggleDialogWindow();
