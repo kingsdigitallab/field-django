@@ -49,7 +49,7 @@ export default class UIScene extends Phaser.Scene {
         let rectCentreX = this.GAME_WIDTH / 2;
         let rectCentreY = this.GAME_HEIGHT / 2;
 
-        
+
 
         let incomeTitle = this.add.text(
             rectCentreX, this.GAME_HEIGHT / 6,
