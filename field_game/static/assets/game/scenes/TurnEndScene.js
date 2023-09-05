@@ -198,6 +198,7 @@ export default class TurnEndScene extends Phaser.Scene {
         //Give user a chance to read it
         await this.uiScene.sleep(1000);
         let currentPlayers = this.sortAllPlayersByAssets();
+        console.log(currentPlayers);
         this.uiScene.scoreboard.updateScoreBoardRanks(this, currentPlayers);
         //this.uiScene.hideInfoModal();
     }
