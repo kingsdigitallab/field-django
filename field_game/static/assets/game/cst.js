@@ -25,7 +25,8 @@ export const gameSettings = {
         cowScale: 0.75,
         infectionBeta: 0.5,
         startingInfections: 1,
-        playerSlug: "Player1"
+        playerSlug: "Player1",
+        warmupRounds: 1
     },
     gameboardInfo: {
         herdSpawn: [19, 29],

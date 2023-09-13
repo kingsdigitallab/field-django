@@ -89,7 +89,7 @@
           You will be asked to choose a character. When you enter the game, you will see your character standing at your
           farm. You will also see 5 other characters standing next to their farms. They are your opponents.</p>
         <p>
-          Each player starts with <b>20</b> coins and a pen containing <b>8</b> cows. Cows can do three things: </p>
+          Each player starts with <b>£20</b> and a pen containing <b>8</b> cows. Cows can do three things: </p>
         <ol>
           <li>Make money for the farm by producing milk</li>
           <li>Be bought and sold to other farms</li>
@@ -103,11 +103,11 @@
       <div>
         <strong>Decision 1: to treat or not treat your cows for infection</strong>
         <div>
-          <img class="game-image" alt="Innoculation phase" src="{% static 'assets/game/images/game_bfree.png' %}">
+          <img class="game-image" alt="Treatment phase" src="{% static 'assets/game/images/decision1.png' %}">
         </div>
-        <p>Tap on the hospital in the middle of the screen to 'treat' your cows. This will cost <b>5</b> coins and it
+        <p>Tap on the hospital in the middle of the screen to 'treat' your cows. This will cost <b>£5</b> and it
           will make any infected cows healthy. Cows returning from the hospital are blue to show that they have been
-          treated. Tap on your farm to choose to 'not treat' your cows this costs nothing, but any infected cows on the
+          treated. Tap on your farm to choose to 'not treat' your cows. This costs nothing, but any infected cows on the
           farm will remain infected.
         </p>
       </div>
@@ -115,10 +115,10 @@
     <section>
       <strong>Decision 2: who to buy from</strong>
       <div>
-        <img class="game-image" alt="Trading phase" src="{% static 'assets/game/images/decision_2_screenshot.png' %}">
+        <img class="game-image" alt="Trading phase" src="{% static 'assets/game/images/decision2.png' %}">
       </div>
       <p>
-        Tap on the pen of another farm to bring one of their cows onto your own farm. <b>5</b> of your coins will go to
+        Tap on the pen of another farm to bring one of their cows onto your own farm. You will pay <b>£5</b> to
         the owner of the farm you chose.</p>
       <p>There is one restriction regarding who you can buy from: if your cows are treated, you can only choose farms
         that have treated cows. If your cows are untreated, you can only choose farms that have untreated cows.</p>
@@ -138,21 +138,16 @@
     <section>
       <strong>End of the round</strong>
       <div>
-        <img class="game-image" alt="End of round" src="{% static 'assets/game/images/game_roundend.png' %}">
+        <img class="game-image" alt="End of round" src="{% static 'assets/game/images/milk_and_infection.png' %}">
       </div>
       At the end of the round two things happen:</p>
       <ol>
+        <li><b>Cows are milked:</b> each farmer receives <b>£1</b> for every healthy cow on their farm</li>
+
         <li>
-          Infection spreads: the number of infected cows on a farm will <b>double</b> (until there are no more cows to
-          become infected).
+          <b>Infection spreads:</b> infected cows transmit the disease to other cows in the same pen
         </li>
-
-        <li>Cows are milked: each farmer receives <b>one coin</b> for every healthy cow on their farm</li>
       </ol>
-      <h2>How infection works</h2>
-
-      <p>If the farmer does not treat their infected cows, it will spread to
-        other cows in the pen.</p>
 
     </section>
     <section>
@@ -161,9 +156,12 @@
         <img class="game-image" alt="End of game" src="{% static 'assets/game/images/game_end.png' %}">
       </div>
       <p>
-        The game ends after the <b>6th</b> round
+        The game ends after the <b>6th</b> round.
         <br/>
         The winner of the game is the player who has the most money in the bank.
+      </p>
+      <p>
+        You can review the rules at any time by tapping the <b>?</b> in the top right corner of the screen.
       </p>
     </section>
     <section>
@@ -172,7 +170,9 @@
         the game twice. We would like to see how much you improve between the first play and the second. No personal
         data will be collected.</p>
 
-      <div>
+    </section>
+    <br/>
+    <div>
         <form id="gameForm" method="get" action="{% url 'game' %}">
           <input id="playedBefore" type="checkbox" name="playedBefore" value="1">
           <label for="playedBefore">I have played the game before</label>
@@ -180,12 +180,11 @@
           <input id="privacyConsent" type="checkbox">
           <label for="privacyConsent">I agree to the FIELD project's <a href="https://www.kcl.ac.uk/terms/privacy">privacy
             policy</a>.</label>
+          <br/><br/><br/>
           <br/><br/>
           <button type="submit">Play the game</button>
         </form>
       </div>
-    </section>
-    <br/>
     <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
     <script src="{% static 'assets/js/game_landing.js' %}"></script>
   </div>

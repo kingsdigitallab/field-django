@@ -87,7 +87,7 @@ export default class UIScene extends Phaser.Scene {
             'You made ' + income + ' coins from milk',
             defaultTextStyle
         );
-        let infectionReport = '';
+        /*let infectionReport = '';
         if (infectedCows == 0) {
             infectionReport = "All cows are healthy"
         } else {
@@ -97,13 +97,13 @@ export default class UIScene extends Phaser.Scene {
             rectCentreX, this.GAME_HEIGHT / 6,
             infectionReport,
             defaultTextStyle
-        );
+        );*/
         Phaser.Display.Align.To.BottomCenter(
             incomeText, incomeTitle, 0, 50
         );
-        Phaser.Display.Align.To.BottomCenter(
+        /*Phaser.Display.Align.To.BottomCenter(
             infectionText, incomeText, 0, 10
-        );
+        );*/
 
         let tweenElements = [];
         // Display infection bar
@@ -118,7 +118,7 @@ export default class UIScene extends Phaser.Scene {
                 titleTextStyle
             );
             Phaser.Display.Align.To.BottomCenter(
-                infectionTitle, infectionText, 0, 100
+                infectionTitle, incomeText, 0, 100
             );
 
             infectionLevelBackground = this.add.rectangle(
@@ -150,7 +150,7 @@ export default class UIScene extends Phaser.Scene {
                 incomeText,
                 incomeTitle,
                 infectionTitle,
-                infectionText,
+                //infectionText,
             ];
             await this.sleep(5000);
         } else{
@@ -158,7 +158,7 @@ export default class UIScene extends Phaser.Scene {
             tweenElements = [
                 incomeText,
                 incomeTitle,
-                infectionText,
+                //infectionText,
             ];
             await this.sleep(3000);
         }
@@ -178,7 +178,7 @@ export default class UIScene extends Phaser.Scene {
                 incomeText.destroy();
                 incomeTitle.destroy();
 
-                infectionText.destroy();
+                // infectionText.destroy();
                 milkBottles.forEach(function (bottle) {
                     bottle.destroy();
                 });

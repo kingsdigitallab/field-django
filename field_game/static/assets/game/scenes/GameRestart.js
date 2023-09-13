@@ -36,10 +36,14 @@ export default class GameRestartScene extends Phaser.Scene {
             'THANK YOU FOR PLAYING', this.defaultTitleTextStyle
         ).setOrigin(0.5);
 
+        let explanationText = '';
+        if (gameState.gamesPlayed == 0){
+            // First game, warmup
+            explanationText = 'Warm up round over.  Please play again to start the experiment.';
+        } else if (gameState.gamesPlayed <= gameSettings.gameRules.warmupRounds) {
+            explanationText = 'Now that you’ve played the game, we’d like you to try again to beat your high score.  To make it more of a challenge, we may remove the infection bar, so you won’t know how many cows are infected.';
 
-        let explanationText = 'Now that you’ve played the game, we’d like you to try again to beat your high score.  To make it more of a challenge, we may remove the infection bar, so you won’t know how many cows are infected.';
-
-        if (gameState.gamesPlayed > 0) {
+        } else if (gameState.gamesPlayed > gameSettings.gameRules.warmupRounds) {
             explanationText = 'The experiment is finished.\n\nBut you can still play again!';
         }
 
@@ -55,8 +59,7 @@ export default class GameRestartScene extends Phaser.Scene {
             h / 2,
             gameSettings.CHARACTER_KEY,
             gameState.playerSpriteKeyFrame
-        )
-            .setScale(3);
+        ).setScale(3);
 
         playerSprite.anims.create({
             key: 'walk',

@@ -357,7 +357,7 @@ export default class TradingScene extends Phaser.Scene {
             // Reset time since last sale for seller
             seller.timeSinceLastSale = -1;
 
-            let transactionSummary = buyer.name + ' bought a cow from  for £' + price;
+            let transactionSummary = 'You bought a cow from  for £' + price;
             let summary = buyer.name + ' bought a cow from for £' + price;
             transactionMessageProps.description = summary;
             this.gameScene.gameLog(transactionSummary);

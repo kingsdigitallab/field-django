@@ -150,7 +150,7 @@ export default class GameScene extends FieldScene {
 
                 game_data.control_group = gameState.control_group;
                 gameState.playerDatabaseID = response.data[0].id;
-                if (gameState.control_group == 0 && gameState.gamesPlayed == 1) {
+                if (gameState.control_group == 0 && gameState.gamesPlayed == gameSettings.gameRules.warmupRounds) {
                     gameState.infection_visible = 0;
                     game_data.infection_visible = 0;
                 } else {
