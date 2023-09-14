@@ -14,7 +14,7 @@ export const gameSettings = {
         startHerdSize: 48, //48
         startFarmerBalance: 20,
         AIFarmerTotal: 5,
-        totalTurns: 6, //6
+        totalTurns: 2, //6
         // AI farmer will join scheme at least once per this many turns
         bfreeTrigger: 4,
         bfreeJoinCost: 5, // Cost to join scheme
