@@ -212,7 +212,8 @@ export default class TradingScene extends Phaser.Scene {
                 let [summary, boughtCow] = this.transaction(this.gameScene.player, seller);
                 // Send cow to player pen
 
-                this.uiScene.addTextAndStartDialog([summary]);
+                this.uiScene.addTextAndStartDialog([
+                    summary.replace('Player', 'You')]);
                 if (boughtCow) {
                     this.unhighlightTradingChoices();
                     eventsCenter.emit(gameSettings.EVENTS.PLAYERBALANCEUPDATED);
@@ -357,8 +358,8 @@ export default class TradingScene extends Phaser.Scene {
             // Reset time since last sale for seller
             seller.timeSinceLastSale = -1;
 
-            let transactionSummary = 'You bought a cow from  for £' + price;
-            let summary = buyer.name + ' bought a cow from for £' + price;
+            let transactionSummary = buyer.name +' bought a cow for £' + price;
+            let summary = buyer.name + ' bought a cow for £' + price;
             transactionMessageProps.description = summary;
             this.gameScene.gameLog(transactionSummary);
             this.gameScene.logTransaction(transactionMessageProps);
