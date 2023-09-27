@@ -25,7 +25,7 @@ export default class TradingScene extends Phaser.Scene {
                 "You can only buy cows that have been treated",
                 "You can only buy cows that have not been treated"
             ],
-            start: ["Trading phase"],
+            start: [""],
 
         };
     }

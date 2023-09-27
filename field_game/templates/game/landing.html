@@ -8,6 +8,9 @@
 
 {% block css %}
   <style type="text/css">
+  button.play_btn {
+        font-size: 150%;
+      }
     @media screen and (min-width: 1171px) {
       img.game-image {
         max-width: 30%;
@@ -15,6 +18,10 @@
         display: block;
         margin-left: auto;
         margin-right: auto;
+      }
+
+      #game_form {
+
       }
     }
 
@@ -166,25 +173,27 @@
     </section>
     <section>
       <h2>Play the game</h2>
-      <p>We are using this game to collect data for an experiment. For our experiment we want each participant to play
-        the game twice. We would like to see how much you improve between the first play and the second. No personal
-        data will be collected.</p>
+      <p>For our experiment we want you to play the game three times. We would like to see how much you improve as you
+        play. No personal data will be collected</p>
 
     </section>
     <br/>
-    <div>
-        <form id="gameForm" method="get" action="{% url 'game' %}">
-          <input id="playedBefore" type="checkbox" name="playedBefore" value="1">
-          <label for="playedBefore">I have played the game before</label>
-          <br/>
-          <input id="privacyConsent" type="checkbox">
-          <label for="privacyConsent">I agree to the FIELD project's <a href="https://www.kcl.ac.uk/terms/privacy">privacy
-            policy</a>.</label>
-          <br/><br/><br/>
-          <br/><br/>
-          <button type="submit">Play the game</button>
-        </form>
-      </div>
+    <div class="spacer">&nbsp;</div>
+    <div id="game_form">
+      <form id="gameForm" method="get" action="{% url 'game' %}">
+        <input id="playedBefore" type="checkbox" name="playedBefore" value="1">
+        <label for="playedBefore">I have played the game before</label>
+        <br/>
+        <input id="privacyConsent" type="checkbox">
+        <label for="privacyConsent">I agree to the FIELD project's <a href="https://www.kcl.ac.uk/terms/privacy">privacy
+          policy</a>.</label>
+        <br/><br/><br/>
+        <br/><br/>
+
+        <button type="submit" class="play_btn">Play the game</button>
+      </form>
+    </div>
+    <br/>
     <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
     <script src="{% static 'assets/js/game_landing.js' %}"></script>
   </div>

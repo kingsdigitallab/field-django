@@ -84,7 +84,7 @@ export default class UIScene extends Phaser.Scene {
 
         let incomeText = this.add.text(
             rectCentreX, this.GAME_HEIGHT / 6,
-            'You made ' + income + ' coins from milk',
+            'You made £' + income + ' from milk',
             defaultTextStyle
         );
         /*let infectionReport = '';
