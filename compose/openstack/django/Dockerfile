@@ -23,7 +23,7 @@ RUN apt-get update \
 
 # Requirements are installed here to ensure they will be cached.
 RUN mkdir -p /requirements
-COPY ./requirements /requirements
+COPY ../requirements /requirements
 RUN pip install -U pip
 RUN pip install -U pip-tools \
   && pip-compile --annotate --resolver=backtracking --quiet /requirements/base.in \
