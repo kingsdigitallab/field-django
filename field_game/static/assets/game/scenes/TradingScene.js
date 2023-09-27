@@ -20,7 +20,6 @@ export default class TradingScene extends Phaser.Scene {
         super(gameSettings.SCENENAMES.TRADINGSCENENAME);
         this.dialogTexts = {
             onboards: [
-                "Trading phase\n" +
                 "Buy a cow from a player by tapping their pen. Cows cost £"+ gameSettings.gameRules.normalCowPrice +". ",
                 "You can only buy cows that have been treated",
                 "You can only buy cows that have not been treated"
