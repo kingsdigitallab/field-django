@@ -26,14 +26,19 @@ export default class TurnEndScene extends Phaser.Scene {
         eventsCenter.on(gameSettings.EVENTS.SCOREBOARDFINISH, function () {
             if (gameState.currentState === States.TURNEND) {
                 // Prompt for touch to continue
-                this.uiScene.scoreboard.scoreboardPrompt.visible = true;
+                // Move to final scores if last turn
+                if (gameState.currentTurn < gameSettings.gameRules.totalTurns) {
+                    this.uiScene.scoreboard.setScoreboardPromptVisible(true);
+                } else {
+                    this.endTurn();
+                }
                 gameState.currentState = States.TURNENDFINISH;
             }
         }, this);
 
-        // Touch to continue prompt
-        this.input.on('pointerup', function(){
-            if (gameState.currentState === States.TURNENDFINISH){
+        // Prompt touched, end
+        eventsCenter.on(gameSettings.EVENTS.TURNEND, function () {
+            if (gameState.currentState === States.TURNENDFINISH) {
                 this.endTurn();
             }
         }, this);
@@ -42,21 +47,37 @@ export default class TurnEndScene extends Phaser.Scene {
     }
 
     /**
+     * To get around the two issues of income and infection not being clear it should be
+     * done in the turn end scene.  We'll show potential milk production, milk lost to
+     * infection, then the general infection growing.  Then scores.
+     */
+    playerSummary() {
+        // Load our scoreboard screen.
+        // Milk bottles, one for each, with X for infected?
+
+        //General infection grow progress bar
+    }
+
+    /**
      * End our turn, and start a new one or end the game
      */
     endTurn() {
-        // Await a touch anywhere
 
         // If last turn, go to game end
         //Otherwise start new turn
         if (gameState.currentTurn >= gameSettings.gameRules.totalTurns) {
+
+            // Game over man
+            //this.scene.get(gameSettings.SCENENAMES.GAMEENDSCENENAME).start();
+
             // Final scores
+
             // Set the winner
-            let currentPlayers = this.sortPlayersByAssets();
+            let currentPlayers = this.sortAllPlayersByAssets();
 
             gameState.winnerSpriteKeyFrame = currentPlayers[0].sprite.frame.name;
             gameState.winner = currentPlayers[0];
-            console.log(gameState.winnerSpriteKeyFrame = currentPlayers[0].sprite.frame.name);
+
             let scene = this.scene;
             this.add.tween({
                 targets: this.uiScene.scoreboard.scoreboardTitle,
@@ -71,10 +92,22 @@ export default class TurnEndScene extends Phaser.Scene {
                         alpha: 1,
                         duration: 1000,
                         onComplete: () => {
-                            eventsCenter.once(gameSettings.EVENTS.ADVANCEDIALOG, function () {
-                                // Game over man
-                                scene.start(gameSettings.SCENENAMES.GAMEENDSCENENAME);
-                            });
+                            console.log("Game end");
+                            // Change continue button event and display
+                            this.uiScene.scoreboard.scoreboardPrompt.off(
+                                'pointerup',
+                                this.uiScene.scoreboard.continueButton
+                            );
+                            this.uiScene.scoreboard.scoreboardPrompt.off(
+                                'pointerup',
+                                this.uiScene.scoreboard.continueButtonEndTurn
+                            );
+                            this.uiScene.scoreboard.scoreboardPrompt.on(
+                                'pointerup',
+                                this.uiScene.scoreboard.continueButtonEndGame
+                            );
+                            this.uiScene.scoreboard.setScoreboardPromptVisible(true);
+
                         }
                     }, this);
                 }
@@ -82,7 +115,7 @@ export default class TurnEndScene extends Phaser.Scene {
 
         } else {
             this.uiScene.scoreboard.toggleScoreboard();
-            this.uiScene.scoreboard.scoreboardPrompt.visible = false;
+            this.uiScene.scoreboard.setScoreboardPromptVisible(false);
             this.resetBoard();
 
             // Update player info balance
@@ -95,8 +128,9 @@ export default class TurnEndScene extends Phaser.Scene {
         }
     }
 
+
     async updateFarmerIncome(farmer) {
-        let income = (farmer.herdTotal - farmer.infections);
+        let income = this.gameScene.calculateFarmerIncome(farmer);
         await this.uiScene.scoreboard.scoreboardTickUp(
             farmer.slug, this.uiScene.scoreboard.cellKeys.balanceCell,
             farmer.balance, (farmer.balance + income)
@@ -108,18 +142,37 @@ export default class TurnEndScene extends Phaser.Scene {
         this.uiScene.scoreboard.updateScoreboardCell(farmer.slug, this.uiScene.scoreboard.cellKeys.cowCell, farmer.herdTotal);
     }
 
+
     /**
      * Do end of turn calculations and show it on the scoreboard
      */
     async turnEndPhase() {
         // For each farmer
         gameState.currentState = States.TURNEND;
-
         let farmers = this.gameScene.getAllFarmers();
-        this.uiScene.scoreboard.updateScoreBoardTitles();
 
+        // Calculates infection
+        let oldInfectionTotal = gameState.infectionTotal;
+        for (let f = 0; f < farmers.length; f++) {
+            this.updateInfection(farmers[f]);
+        }
+
+        this.uiScene.scoreboard.updateScoreBoardTitles();
         this.uiScene.toggleDialogWindow();
         this.uiScene.togglePlayerWindow();
+
+        this.uiScene.scoreboard.scoreboardTitle.visible = true;
+        this.uiScene.scoreboard.scoreboardBackground.visible = true;
+        this.uiScene.scoreboard.scoreboardEdge.visible = true;
+
+        console.log("Infection: " + gameState.infectionStart + " : " + gameState.infectionTotal);
+        await this.uiScene.turnSummaryScreen(
+            this.uiScene.scoreboard.scoreboardTitle,
+            this.gameScene.calculateFarmerIncome(this.gameScene.player),
+            this.gameScene.player.infections,
+            gameState.infectionStart, gameState.infectionTotal
+        );
+
 
         this.uiScene.scoreboard.toggleScoreboard();
         await this.uiScene.sleep(1500);
@@ -138,23 +191,16 @@ export default class TurnEndScene extends Phaser.Scene {
 
         }
         let done = await Promise.all(balancePromises);
-        // Calculates infection
-        let oldInfectionTotal = gameState.infectionTotal;
-        for (let f = 0; f < farmers.length; f++) {
-            this.updateInfection(farmers[f]);
-        }
 
         await this.uiScene.scoreboard.infectionTickUp(oldInfectionTotal, gameState.infectionTotal);
         eventsCenter.emit(gameSettings.EVENTS.INFECTIONLEVELUPDATED);
 
         //Give user a chance to read it
         await this.uiScene.sleep(1000);
-        let currentPlayers = this.sortPlayersByAssets();
+        let currentPlayers = this.sortAllPlayersByAssets();
+
         this.uiScene.scoreboard.updateScoreBoardRanks(this, currentPlayers);
-
-
-
-
+        //this.uiScene.hideInfoModal();
     }
 
     /**
@@ -171,30 +217,16 @@ export default class TurnEndScene extends Phaser.Scene {
 
     }
 
-    /**
-     * Sorting just by their current cash balance
-     * @return sorted players
-     */
-    sortPlayersByBalance() {
-        let players = this.gameScene.getAllFarmers();
-        players.sort(function (a, b) {
-            if (a.balance > b.balance) {
-                return -1;
-            } else if (b.balance < a.balance) {
-                return 1;
-            } else {
-                return 0;
-            }
-        });
-        return players;
-    }
 
     /**
      * Sorting by cash plus assets e.g. cows
      * @return sorted players
      */
-    sortPlayersByAssets() {
-        let players = this.gameScene.getAllFarmers();
+    sortAllPlayersByAssets() {
+        return this.sortPlayersByAssets(this.gameScene.getAllFarmers());
+    }
+
+    sortPlayersByAssets(players) {
         players.sort(function (a, b) {
             if (a.getAssets() > b.getAssets()) {
                 return -1;

@@ -16,7 +16,7 @@ export default class FieldScene extends Phaser.Scene {
     GAME_HEIGHT = 960;
     BOARD_TILE_SIZE = 16;
     FARMER_TILE_SIZE = 32;
-    COW_TILE_SIZE = 64;
+    COW_TILE_SIZE = [32, 40];
 
 
     constructor(sceneName) {

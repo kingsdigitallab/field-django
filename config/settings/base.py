@@ -71,6 +71,7 @@ THIRD_PARTY_APPS = [
     "allauth.account",
     "allauth.socialaccount",
 
+
     "django_elasticsearch_dsl",
 
     # wagtail
@@ -465,6 +466,7 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
     ],
+
 }
 
 # ----------------------------------------------------------------------------

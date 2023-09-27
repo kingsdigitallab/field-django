@@ -25,9 +25,9 @@ RUN apt-get update \
 COPY ./requirements /requirements
 RUN pip install -U pip
 RUN pip install -U pip-tools \
-  && pip-compile --annotate --quiet /requirements/base.in \
-  && pip-compile --annotate --quiet /requirements/local.in \
-  && pip-compile --annotate --quiet /requirements/production.in
+  && pip-compile --annotate --resolver=backtracking --quiet /requirements/base.in \
+  && pip-compile --annotate --resolver=backtracking --quiet /requirements/local.in \
+  && pip-compile --annotate --resolver=backtracking --quiet /requirements/production.in
 RUN pip install -r /requirements/local.txt
 
 COPY ./compose/production/django/entrypoint /entrypoint

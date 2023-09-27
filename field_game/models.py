@@ -3,6 +3,7 @@ import random
 from django.db import models
 from faker import Faker
 from faker.providers import person
+from django.utils.timezone import now
 
 
 class FieldGame(models.Model):
@@ -17,6 +18,8 @@ class FieldGame(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     log = models.TextField(null=True, blank=True)
     control_group = models.BooleanField(default=True)
+    infection_visible = models.BooleanField(default=True)
+    played_before = models.BooleanField(default=False)
 
     class Meta:
         verbose_name = "Field game record"
@@ -30,6 +33,9 @@ class FieldGame(models.Model):
         # New player, generate name
         if not self.playerID:
             self.playerID = make_player_name()
+            # Save player object
+            f = Farmer(playerID=self.playerID, name=self.playerID)
+            f.save()
         # Create new game id
         games = FieldGame.objects.filter().all().order_by('-gameID')
         newGameID = 1
@@ -67,8 +73,21 @@ class Farmer(models.Model):
     """A player in the game, for tracking AI farmers in logs
     will be used once AIs have behaviour profiles"""
 
-    farmerID = models.CharField(null=True, blank=True, max_length=128)
+    playerID = models.CharField(null=True, blank=True, max_length=128)
     name = models.CharField(null=True, blank=True, max_length=128)
+    control_group = models.BooleanField(default=True)
+    gamesPlayed = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Field game player"
+        verbose_name_plural = "Field game players"
+        ordering = ["-created_at"]
+
+    def __str__(self):
+        return (
+            self.playerID
+        )
 
 
 class GameEvent(models.Model):

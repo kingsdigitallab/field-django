@@ -5,31 +5,47 @@ Game constants like prices, starting players etc.
  */
 export const gameSettings = {
     DEBUG: true,
+    apiURLs: {
+            'game': '/game/api/games/',
+            'event': '/game/api/events/',
+            'farmer': '/game/api/farmers/',
+        },
     gameRules: {
-        startHerdSize: 48,
+        startHerdSize: 48, //48
         startFarmerBalance: 20,
         AIFarmerTotal: 5,
-        totalTurns: 8,
+        totalTurns: 6, //6
         // AI farmer will join scheme at least once per this many turns
         bfreeTrigger: 4,
-        bfreeJoinCost: 1, // Cost to join scheme
+        bfreeJoinCost: 5, // Cost to join scheme
         // Cow prices, buy and sell
-        bfreeCowPrice: 2,
-        normalCowPrice: 2,
-        cowSpeed: 150,
+        bfreeCowPrice: 5,
+        normalCowPrice: 5,
+        cowSpeed: 50,
+        cowScale: 0.75,
         infectionBeta: 0.5,
-        startingInfections: 1
+        startingInfections: 1,
+        playerSlug: "Player1",
+        warmupRounds: 1
     },
     gameboardInfo: {
         herdSpawn: [19, 29],
         playerHouse: [[17, 4], [4, 4]],
-        playerCowPen: [[15, 11], [9, 7]],
+        playerCowPen: [[16, 11], [8, 7]],
         farmerCowPens: [
-            [[0, 11], [9, 7]],
-            [[0, 47], [9, 7]],
-            [[15, 47], [9, 7]],
-            [[31, 47], [9, 7]],
-            [[31, 11], [8, 7]],
+            [[1, 11], [9, 7]],
+            [[1, 47], [9, 7]],
+            [[16, 47], [7, 6]],
+            [[32, 47], [7, 6]],
+            [[32, 11], [7, 6]],
+
+        ],
+        farmerCowPenHighlights: [
+            [[0, 11], [8, 6]],
+            [[0, 47], [8, 6]],
+            [[15, 47], [8, 6]],
+            [[31, 47], [8, 6]],
+            [[31, 11], [8, 6]],
 
         ],
         player: {
@@ -53,14 +69,14 @@ export const gameSettings = {
         BFREESCENENAME: 'BFreeScene',
         TRADINGSCENENAME: 'TradingScene',
         TURNENDSCENENAME: "RoundEndScene",
-        GAMEENDSCENENAME: "GameEndScene"
+        GAMEENDSCENENAME: "GameEndScene",
+        GAMERESTARTSCENENAME: "GameRESTARTScene"
     },
 
     EVENTS: {
         UICREATED:'UICREATED',
         ONCHARACTERSELECTED:'onCHARACTERSELECTED',
         ONCHARACTERSELECTEDFINISHED:'characterSelectedFINISHED',
-
         BOARDTOUCHED: "boardTouched",
         HOSPITALTOUCHED: "hospitalTouched",
         PLAYERPENTOUCHED: "playerpenTouched",
@@ -76,6 +92,7 @@ export const gameSettings = {
         PLAYERHERDUPDATED: "PLAYERHERDUPDATED",
         INFECTIONLEVELUPDATED: "INFECTIONLEVELUPDATED",
         TURNUPDATED:"TURNUPDATED",
+        HELPSCREENTOGGLE:"HELPSCREENTOGGLE",
         BFREEUPDATED: "BFREEUPDATED",
         SCOREBOARDFINISH: "SCOREBOARDFINISH",
         TURNSTART: "TURNBEGINS", // Start of turn
@@ -85,7 +102,7 @@ export const gameSettings = {
     DIALOGSPEEDS: {
         slow: 2,
         normal: 30,
-        fast: 5
+        fast: 60
     },
     TRANSACTIONEVENTTYPES: {
         Trade: 1,
@@ -121,9 +138,10 @@ export const gameSettings = {
         'farmer_balloon': 26,
         'farmer_robot': 34,
         'farmer_frog': 42,
-        'farmer_roach': 50,
-        'farmer_robot2': 58,
-        'farmer_ghost': 66,
+        'farmer_owl': 50,
+        'farmer_roach': 58,
+        'farmer_robot2': 66,
+        'farmer_ghost': 74,
     },
     ANNIMAL_FRAMES: {
         'snake_1': 0,
@@ -149,8 +167,9 @@ export const States = {
     BOVICHOOSE: 2,
     BOVINO: 3,
     BOVIYES: 4,
-    TRADINGSTART: 5,
-    TRADINGCHOOSE: 6,
+    TRADINGSTART: 51,
+    TRADINGCHOOSE: 52,
+    TRADINGPARTNERCHOOSEN: 53,
     TRADINGAI: 10,
     TRADINGFINISH:7,
     TURNEND: 8,

@@ -30,14 +30,14 @@ export default class ScoreBoard {
         this.defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '14px'};
         this.defaultColumnTitleTextStyle = {fontFamily: 'PressStart2P', fontSize: '14px'};
         this.defaultTitleTextStyle = {fontFamily: 'PressStart2P', fontSize: '24px'};
-        this.defaultPromptTextStyle = {fontFamily: 'PressStart2P', fontSize: '16px'};
+        this.defaultPromptTextStyle = {fontFamily: 'PressStart2P', fontSize: '24px'};
 
         this.columns = 4;
         this.cellWidth = 80;
         this.cellHeight = 64;
 
         // ms delay for scoreboard increases
-        this.tickDelay = 100;
+        this.tickDelay = 20;
         this.cellKeys = {
             rankCell: 'rankCell',
             nameCell: 'nameCell',
@@ -53,12 +53,12 @@ export default class ScoreBoard {
 
     }
 
+
     toggleScoreboard() {
         this.scoreboardTitles.toggleVisible();
         this.scoreboardGroup.toggleVisible();
         if (this.visible === true) {
             this.scoreboardTitle.visible = false;
-            this.scoreboardPrompt.visible = false;
             this.scoreboardBackground.visible = false;
             this.scoreboardEdge.visible = false;
             // Check we're not mid update score
@@ -68,7 +68,6 @@ export default class ScoreBoard {
             }
         } else {
             this.scoreboardTitle.visible = true;
-            //this.scoreboardPrompt.visible = true;
             this.scoreboardBackground.visible = true;
             this.scoreboardEdge.visible = true;
         }
@@ -82,38 +81,39 @@ export default class ScoreBoard {
      *
      */
     createScoreLine(farmer, rank, x, y, alpha) {
+        let lineTextStyle = this.defaultTextStyle;
 
+        //if (farmer === this.)
         let rankCell = this.scene.add.text(
             x, y,
-            rank, this.defaultTextStyle
+            rank, lineTextStyle
         ).setAlpha(alpha);
-        //console.log(rankCell.displayWidth);
-        let nameCell = this.scene.physics.add.sprite(
+
+        /*let nameCell = this.scene.physics.add.sprite(
             x,
             y,
             gameSettings.CHARACTER_KEY,
             farmer.sprite.frame.name
-        ).setScale(2).setAlpha(alpha);
-        /*
-        let nameCell = this.scene.add.text(
-            x, y,
-            farmer.name, this.defaultTextStyle
-        ).setAlpha(alpha);*/
-
+        ).setScale(2).setAlpha(alpha);*/
+        let nameCell = this.scene.add.image(x, y, farmer.portrait);
+        nameCell.setScale(2);
+        nameCell.setAlpha(alpha);
+        //console.log(farmer.portrait);
         let balanceCell = this.scene.add.text(
             x, y,
             farmer.balance,
-            this.defaultTextStyle
+            lineTextStyle
         ).setAlpha(alpha);
+
         let cowCell = this.scene.add.text(
             x, y,
             farmer.herdTotal,
-            this.defaultTextStyle
+            lineTextStyle
         ).setAlpha(alpha);
         /*let infectedCell = this.scene.add.text(
             x, y,
             farmer.infections,
-            this.defaultTextStyle
+            lineTextStyle
         ).setAlpha(alpha);*/
 
         this.scoreboardLines[farmer.slug] = {
@@ -210,13 +210,10 @@ export default class ScoreBoard {
                 AND (this was the annoying bit) it's the CENTER x,y of that first cell
                 we offset by half its width as well
                  */
-                x: this.rectCentreX - ((this.cellWidth * this.columns) / 2) + (this.cellWidth/2),
+                x: this.rectCentreX - ((this.cellWidth * this.columns) / 2) + (this.cellWidth / 2),
                 y: this.rectCentreY - ((this.cellHeight * 7) / 2)
             });
-
-
         }
-
     }
 
 
@@ -229,6 +226,7 @@ export default class ScoreBoard {
     sleep(ms) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+
     /**
      * Use a timer to progressively increase a number on the scoreboard
      */
@@ -272,6 +270,46 @@ export default class ScoreBoard {
 
     }
 
+    addPlayerHighlightBox() {
+        let playerLine = this.scoreboardLines.Player;
+        //console.log(this.rectCentreX - ((this.cellWidth * this.columns) / 2) + (this.cellWidth / 2));
+        this.playerHighlightTween = this.scene.tweens.add({
+            targets: playerLine.nameCell,
+            scale: 2.5,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });
+        /*this.playerHighlight = this.scene.add.rectangle(
+            this.rectCentreX,
+            playerLine.rankCell.y + this.cellHeight / 4,
+            this.columns * this.cellWidth,
+            this.cellHeight
+        );
+        this.playerHighlight = this.scene.add.rectangle(
+            playerLine.rankCell.x - (this.cellWidth/2),
+            playerLine.rankCell.y - this.cellHeight/2,
+            this.columns * this.cellWidth,
+            this.cellHeight
+        );
+        this.playerHighlight.setOrigin(0,0);
+        this.playerHighlight.setStrokeStyle(2, 0xefc53f);*/
+
+        /*this.playerHighlightTween = this.scene.tweens.add({
+            targets: this.playerHighlight,
+            alpha: 0.2,
+            yoyo: true,
+            repeat: -1,
+            ease: 'Sine.easeInOut'
+        });*/
+
+         /*'rankCell': rankCell,
+            'nameCell': nameCell,
+            'balanceCell': balanceCell,
+            'cowCell': cowCell,*/
+
+    }
+
     /**
      * sort on passed cell
      * Play tween animations to fade out
@@ -279,8 +317,8 @@ export default class ScoreBoard {
      * fade in
      */
     updateScoreBoardRanks(scene, players) {
+
         //Fade
-        console.log(players);
         let scoreboard = this;
         let group = this.scoreboardGroup;
         let fadeOut = this.scoreFadeOut;
@@ -294,22 +332,20 @@ export default class ScoreBoard {
             });
         });
         fadeOut.setCallback('onComplete', function () {
-
             group.destroy(true);
             let rankedGroup = scoreboard.generateScoreGrid(players, 0);
             scoreboard.arrangeScoreGrid();
             fadeIn = scene.tweens.createTimeline();
             fadeIn.setCallback('onComplete', function () {
                 if (gameState.currentState === States.TURNEND) {
-                    console.log('complete');
+                    scoreboard.addPlayerHighlightBox();
                     eventsCenter.emit(gameSettings.EVENTS.SCOREBOARDFINISH);
                 }
-
             });
             rankedGroup.getChildren().forEach(function (child) {
                 fadeIn.add({
                     targets: child,
-                    alpha: {value: 1, duration: 100, ease: 'Power1'},
+                    alpha: {value: 1, duration: 50, ease: 'Power1'},
                 });
             });
             fadeIn.play();
@@ -319,9 +355,74 @@ export default class ScoreBoard {
     }
 
     updateScoreboardTitleText() {
-        return "Turn " + gameState.currentTurn + " Scores";
+        return "Turn " + gameState.currentTurn;
     }
 
+    setScoreboardPromptVisible(visibility) {
+        if (visibility === true) {
+            this.scoreboardPrompt.x = this.scoreboardTitle.x + this.scoreboardTitle.displayWidth / 2;
+            //this.scoreboardPrompt.y = this.scoreboardBackground.y + this.scoreboardBackground.displayHeight - (this.scoreboardPrompt.displayHeight /2);
+            this.scoreboardPrompt.visible = true;
+            this.promptBackground.visible = true;
+        } else {
+            this.scoreboardPrompt.visible = false;
+            this.promptBackground.visible = false;
+        }
+    }
+
+    continueButtonEndTurn() {
+        //console.log('End clicked');
+        if (gameState.currentState === States.TURNENDFINISH) {
+            //this.playerHighlight.visible = false;
+            this.playerHighlightTween.stop();
+            if (this.scoreboardLines.Player && this.scoreboardLines.Player.nameCell){
+                this.scoreboardLines.Player.nameCell.setScale(2);
+            }
+            eventsCenter.emit(gameSettings.EVENTS.TURNEND);
+        }
+    }
+
+    continueButtonEndGame() {
+        // Start the end game sequence
+        //this.playerHighlight.visible = false;
+        this.scene.scene.start(gameSettings.SCENENAMES.GAMEENDSCENENAME);
+    }
+
+    createContinueButton(
+        borderThickness, borderColor, borderAlpha, windowColor, windowAlpha
+    ) {
+        // Continue button
+        let promptWidth = 250;
+        let promptHeight = 90;
+        let promptBackground = this.scene.add.graphics();
+
+        let scoreboardPrompt = this.scene.add.text(
+            this.rectCentreX,
+            this.board_height,
+            'Continue', this.defaultPromptTextStyle
+        )
+            .setOrigin(0.5)
+            .setPadding(25)
+            .setStyle({backgroundColor: '#111'});
+        scoreboardPrompt.y -= scoreboardPrompt.displayHeight / 2;
+
+
+        promptBackground.strokeRect(
+            scoreboardPrompt.x - (scoreboardPrompt.displayWidth / 2) - 1,
+            scoreboardPrompt.y - (scoreboardPrompt.displayHeight / 2) - 1,
+            scoreboardPrompt.displayWidth + 2,
+            scoreboardPrompt.displayHeight + 1
+        )
+            .lineStyle(
+                borderThickness,
+                borderColor,
+                borderAlpha
+            )
+            .fillStyle(
+                windowColor, windowAlpha
+            );
+        return [scoreboardPrompt, promptBackground];
+    }
     /** Overall scoreboard for all players
      *
      */
@@ -355,12 +456,18 @@ export default class ScoreBoard {
             this.rectCentreX, this.rectY + 25, titleText,
             this.defaultTitleTextStyle
         );
-        this.createGridTitles();
-        this.scoreboardPrompt = this.scene.add.text(
-            this.rectCentreX, this.rectY + this.board_height - this.promptOffset, 'Touch to continue',
-            this.defaultPromptTextStyle
-        );
 
+        this.createGridTitles();
+
+        let prompts = this.createContinueButton(
+            this.borderThickness, this.borderColor, this.borderAlpha, this.windowColor, this.windowAlpha
+        );
+        this.scoreboardPrompt = prompts[0];
+        this.promptBackground = prompts[1];
+        this.scoreboardPrompt.setInteractive();
+        this.scoreboardPrompt.on('pointerup', this.continueButtonEndTurn, this);
+
+        this.promptBackground.visible = false;
         this.scoreboardPrompt.visible = false;
         this.scoreboardBackground.visible = false;
         this.scoreboardTitle.visible = false;
