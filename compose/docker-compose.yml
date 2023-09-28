@@ -1,17 +1,12 @@
+version: '3'
+
 volumes:
   django_media: {}
-
+  postgres_data: {}
+  postgres_data_backups: {}
+  traefik: {}
 
 services:
-
-  ## To define the ingress point for a domain, see the tomcat
-  ## example below. The following will route project_domain.kdl.kcl.ac.uk
-  ## to the specified container on port 8080.
-  ##
-  ##  environment:
-  ##    VIRTUAL_HOST: "project_domain.kdl.kcl.ac.uk"
-  ##    VIRTUAL_PROTO: http
-  ##    VIRTUAL_PORT: 8080
 
   # Required - Nginx Ingress
   nginx-proxy:
@@ -25,10 +20,10 @@ services:
 
   django:
     build:
-      context: .
-      dockerfile: ./openstack/django/Dockerfile
+      context: ../
+      dockerfile: ./compose/production/django/Dockerfile
     image: field_liv_django
-    container_name: field_django
+    container_name: field_liv_django
     volumes:
       - django_media:/app/field/media
     depends_on:
@@ -39,45 +34,43 @@ services:
     command: /start
     restart: unless-stopped
     environment:
-      VIRTUAL_HOST: localhost
-      LETSENCRYPT_HOST: localhost
+      VIRTUAL_HOST: field-wt.co.uk/
+      LETSENCRYPT_HOST: field-wt.co.uk/
       VIRTUAL_PROTO: http
-      VIRTUAL_PORT: 8001
-
+      VIRTUAL_PORT: 8000
 
   db:
     image: postgres
     restart: always
-    environment:
-      POSTGRES_PASSWORD: example
-
-  # Optional - Postgres
-#  postgres:
-#    build:
-#      context: .
-#      dockerfile: ./compose/production/postgres/Dockerfile
-#    image: field_liv_postgres
-#    container_name: field_liv_postgres
-#    volumes:
-#      - postgres_data:/var/lib/postgresql/data:Z
-#      - postgres_data_backups:/backups:z
-#    env_file:
-#      - ./.envs/.liv/.postgres
-#    restart: unless-stopped
 
   postgres:
-    image: postgres
-    restart: always
-    container_name: postgres
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      PGDATA: /var/lib/postgresql/data/pgdata
+    build:
+      context: ../
+      dockerfile: ./compose/production/postgres/Dockerfile
+    image: field_liv_postgres
+    container_name: field_liv_postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data:Z
+      - postgres_data_backups:/backups:z
     env_file:
       - .env
-    volumes:
-      - ../volumes/postgres/data:/var/lib/postgresql/data/
+    restart: unless-stopped
     expose:
       - "5432"
+
+#  postgres:
+#    image: postgres
+#    restart: always
+#    container_name: postgres
+#    environment:
+#      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+#      PGDATA: /var/lib/postgresql/data/pgdata
+#    env_file:
+#      - .env
+#    volumes:
+#      - ../volumes/postgres/data:/var/lib/postgresql/data/
+#    expose:
+#      - "5432"
 
   # Optional - Elasticsearch
   elasticsearch:
@@ -100,8 +93,6 @@ services:
     expose:
       - "9200"
       - "9300"
-
-
 
 # Required - Openstack networking - note the indentation level
 networks:
