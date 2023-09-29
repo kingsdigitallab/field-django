@@ -33,11 +33,13 @@ services:
       - .env
     command: /start
     restart: unless-stopped
+    expose:
+      - "5000"
     environment:
       VIRTUAL_HOST: "field-wt.co.uk,localhost"
-      LETSENCRYPT_HOST: field-wt.co.uk
+      LETSENCRYPT_HOST: "field-wt.co.uk,localhost"
       VIRTUAL_PROTO: http
-      VIRTUAL_PORT: 8000
+      VIRTUAL_PORT: 5000
 
   postgres:
     build:
@@ -58,20 +60,20 @@ services:
     expose:
       - "5432"
 
-  traefik:
-    build:
-      context: ../
-      dockerfile: ./compose/liv/traefik/Dockerfile
-    image: field_liv_traefik
-    container_name: field_liv_traefik
-    depends_on:
-      - django
-    volumes:
-      - traefik:/etc/traefik/acme
-    ports:
-      - '127.0.0.1:8201:80'
-    restart: unless-stopped
-
+#  traefik:
+#    build:
+#      context: ../
+#      dockerfile: ./compose/liv/traefik/Dockerfile
+#    image: field_liv_traefik
+#    container_name: field_liv_traefik
+#    depends_on:
+#      - django
+#    volumes:
+#      - traefik:/etc/traefik/acme
+#    ports:
+#      - '127.0.0.1:8201:80'
+#    restart: unless-stopped
+#
   redis:
     image: redis:5.0
     container_name: field_liv_redis
