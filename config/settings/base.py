@@ -341,7 +341,7 @@ SOCIALACCOUNT_ADAPTER = "field.users.adapters.SocialAccountAdapter"
 # https://django-compressor.readthedocs.io/en/latest/quickstart/#installation
 INSTALLED_APPS += ["compressor"]
 STATICFILES_FINDERS += ["compressor.finders.CompressorFinder"]
-
+COMPRESS_ENABLED = True
 COMPRESS_CSS_FILTERS = [
     # CSS minimizer
     'compressor.filters.cssmin.CSSMinFilter'

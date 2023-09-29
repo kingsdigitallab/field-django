@@ -34,14 +34,10 @@ services:
     command: /start
     restart: unless-stopped
     environment:
-      VIRTUAL_HOST: field-wt.co.uk/
-      LETSENCRYPT_HOST: field-wt.co.uk/
+      VIRTUAL_HOST: "field-wt.co.uk,localhost"
+      LETSENCRYPT_HOST: field-wt.co.uk
       VIRTUAL_PROTO: http
       VIRTUAL_PORT: 8000
-
-#  db:
-#    image: postgres
-#    restart: always
 
   postgres:
     build:
@@ -62,19 +58,24 @@ services:
     expose:
       - "5432"
 
-  #  postgres:
-  #    image: postgres
-  #    restart: always
-  #    container_name: postgres
-  #    environment:
-  #      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-  #      PGDATA: /var/lib/postgresql/data/pgdata
-  #    env_file:
-  #      - .env
-  #    volumes:
-  #      - ../volumes/postgres/data:/var/lib/postgresql/data/
-  #    expose:
-  #      - "5432"
+  traefik:
+    build:
+      context: ../
+      dockerfile: ./compose/liv/traefik/Dockerfile
+    image: field_liv_traefik
+    container_name: field_liv_traefik
+    depends_on:
+      - django
+    volumes:
+      - traefik:/etc/traefik/acme
+    ports:
+      - '127.0.0.1:8201:80'
+    restart: unless-stopped
+
+  redis:
+    image: redis:5.0
+    container_name: field_liv_redis
+    restart: unless-stopped
 
   # Optional - Elasticsearch
   elasticsearch:
