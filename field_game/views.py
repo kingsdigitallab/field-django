@@ -122,6 +122,7 @@ class GameLandingView(TemplateView):
             'playerID').distinct():
             playerList.append(player['playerID'])
         context['player_ids'] = playerList
+        context['hide_footer_mailing_list'] = True
         return context
 
 
