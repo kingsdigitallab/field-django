@@ -14,6 +14,7 @@ services:
     restart: always
     ports:
       - "80:80"
+      - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - django_media:/usr/share/nginx/media:ro
@@ -21,23 +22,23 @@ services:
   django:
     build:
       context: ../
-      dockerfile: ./compose/production/django/Dockerfile
+      dockerfile: ./compose/openstack/django/Dockerfile
+    command: /start
     image: field_liv_django
     container_name: field_liv_django
     volumes:
-      - django_media:/app/field/media
+      - ./volumes/django/django_media:/app/field/media
     depends_on:
       - postgres
       - elasticsearch
     env_file:
       - .env
-    command: /start
     restart: unless-stopped
     expose:
+      - "8000"
       - "5000"
     environment:
-      VIRTUAL_HOST: "field-wt.co.uk,localhost"
-      LETSENCRYPT_HOST: "field-wt.co.uk,localhost"
+      VIRTUAL_HOST: "field.kdl.kcl.ac.uk,field.app.cch.kcl.ac.uk,localhost"
       VIRTUAL_PROTO: http
       VIRTUAL_PORT: 5000
 
@@ -59,25 +60,6 @@ services:
       - .env
     expose:
       - "5432"
-
-#  traefik:
-#    build:
-#      context: ../
-#      dockerfile: ./compose/liv/traefik/Dockerfile
-#    image: field_liv_traefik
-#    container_name: field_liv_traefik
-#    depends_on:
-#      - django
-#    volumes:
-#      - traefik:/etc/traefik/acme
-#    ports:
-#      - '127.0.0.1:8201:80'
-#    restart: unless-stopped
-#
-  redis:
-    image: redis:5.0
-    container_name: field_liv_redis
-    restart: unless-stopped
 
   # Optional - Elasticsearch
   elasticsearch:

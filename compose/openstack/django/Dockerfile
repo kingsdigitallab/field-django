@@ -23,7 +23,7 @@ RUN apt-get update \
 
 # Requirements are installed here to ensure they will be cached.
 RUN mkdir -p /requirements
-COPY ../requirements /requirements
+COPY ./requirements /requirements
 RUN pip install -U pip
 RUN pip install -U pip-tools \
   && pip-compile --annotate --resolver=backtracking --quiet /requirements/base.in \
@@ -31,13 +31,14 @@ RUN pip install -U pip-tools \
   && pip-compile --annotate --resolver=backtracking --quiet /requirements/production.in
 RUN pip install -r /requirements/local.txt
 
-COPY ./production/django/entrypoint /entrypoint
+COPY ./compose/openstack/django/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint
 RUN chmod +x /entrypoint
 
-COPY ./openstack/django/start /start
+COPY ./compose/openstack/django/start /start
 RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
+COPY --chown=django:django ./volumes/django /app
 
 WORKDIR /app
 
