@@ -1,0 +1,63 @@
+{% extends "kdl_wagtail_core/base_page.html" %}
+{% load kdl_wagtail_core_tags wagtailcore_tags wagtailimages_tags %}
+{% block meta_title %}{% endblock %}
+{% block page-header %}
+{% endblock page-header %}
+{% block page-body %}
+<div class="home">
+  <section class="carousel">
+    <div id="carousel">
+      <img alt="" src="https://images.pexels.com/photos/158179/lake-constance-sheep-pasture-sheep-blue-158179.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2">
+      <img alt="" src="https://images.pexels.com/photos/288621/pexels-photo-288621.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260">
+      <img alt="" src="https://images.pexels.com/photos/97317/pexels-photo-97317.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=2">
+      <img alt="" src="https://images.pexels.com/photos/1276237/pexels-photo-1276237.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260">
+    </div>
+  </section>
+  <section class="intro">
+    {{ page.body|richtext }}
+    <div class="readmore"><a href="about">Read more</a></div>
+  </section>
+  <section class="media">
+    <header>
+      <h2>Media</h2>
+    </header>
+    {% for image in media_images|slice:":4" %}
+    <div class="card">
+      {% image image fill-360x180 %}
+      <div class="overlay">
+        <h3 class="truncated-text padded-text">{{ image.title }}</h3>
+      </div>
+    </div>
+    {% endfor %}
+  </section>
+  <section class="blog">
+    <header>
+      <h2><a href="/blog-news/">Latest</a></h2>
+    </header>
+    {% for news_item in news|slice:":4" %}
+    <div class="card">
+      <a href="{{ news_item.get_url }}">
+        {% image news_item.header_image width-400 %}
+        <div class="overlay">
+          <h3 class="truncated-text padded-text">{{ news_item.title }}</h3>
+        </div>
+      </a>
+    </div>
+    {% endfor %}
+  </section>
+  {% if 0 %}
+  <section class="paper">
+    <header>
+      <h2>Papers</h2>
+    </header>
+    <ul>
+      <li>Lorem ipsum dolor sit amet</li>
+      <li>Qualisque erroribus consectetuer sit et, id eam volutpat</li>
+      <li>Eam ex dicit dolorum</li>
+      <li>Stet volutpat ne nec</li>
+      <li>Eu elitr consetetur mediocritatem vim</li>
+    </ul>
+  </section>
+  {% endif %}
+</div>
+{% endblock page-body %}

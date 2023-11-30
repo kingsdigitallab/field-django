@@ -1,0 +1,21 @@
+{% extends "kdl_wagtail_page/rich_page.html" %}
+{% load kdl_wagtail_core_tags wagtailcore_tags wagtailimages_tags resource_tags %}
+
+
+{% block main %}
+    {{ page.body|richtext }}
+    <ul>
+        {% for resource_item in page.resource_items.all %}
+            <li>
+            {% if resource_item.resource.wagtail_image %}
+                {% image resource_item.resource.wagtail_image width-400 as custom_image %}
+                <img src="{{ custom_image.url }}" width="{{ custom_image.width }}"
+    height="{{ custom_image.height }}" alt="{{ custom_image.alt_text }}" />
+            {% endif %}
+            <br/>
+            {{ resource_item.resource.title }}
+            </li>
+        {% endfor %}
+    </ul>
+
+{% endblock %}

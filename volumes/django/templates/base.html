@@ -1,0 +1,77 @@
+{% load staticfiles compress wagtailuserbar kdl_wagtail_core_tags %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <title>
+    {% block meta_title %}{{ page.title }} | {% endblock %} {{ PROJECT_TITLE }}
+  </title>
+  <meta name="author" content="King's Digital Lab">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <link rel="stylesheet" type="text/css" href="{% static '@fortawesome/fontawesome-free/css/all.css' %}">
+  {% compress css %}
+    <link rel="stylesheet" type="text/x-scss" href="{% static 'scss/main.scss' %}">
+  {% endcompress %}
+
+  {# % include 'includes/favicon.html' % #}
+
+  <link rel="icon" type="image/png" href="{% static 'images/field-favicon.png' %}">
+
+  {% block css %}
+    {% comment %}
+        Please leave this block, even if it is empty,
+        as it allows other templates to insert css files in the head.
+    {% endcomment %}
+  {% endblock %}
+
+
+</head>
+<body class="ct-{% get_page_label page %}">
+  <!-- header>
+    {% include 'includes/header.html' %}
+  </header -->
+
+  {% include 'includes/navigation.html' %}
+
+  <main>
+    <section>
+    {% block breadcrumb %}{% include 'includes/breadcrumb.html' %}{% endblock %}
+
+    {% block main %}
+
+    {% endblock %}
+    </section>
+  </main>
+
+  {% wagtailuserbar %}
+
+  <footer class="footer">
+    {% block footer %}
+      {% include 'includes/footer.html' %}
+    {% endblock %}
+  </footer>
+
+  {% if GA_ID and not DEBUG %}
+    <script src="{% static 'js/google_analytics.js' %}"></script>
+    <script>
+      ga('create', '{{ GA_ID }}', 'auto');
+      ga('send', 'pageview');
+    </script>
+  {% endif %}
+
+  {% compress js %}
+    <script src="{% static 'jquery/dist/jquery.min.js' %}"></script>
+    <script type="text/javascript">
+      // Notice how this gets configured before we load Font Awesome
+      window.FontAwesomeConfig = { autoReplaceSvg: false }
+    </script>
+
+    <script src="{% static 'js/main.js' %}"></script>
+  {% endcompress %}
+
+  {% block footer_scripts %}{% endblock %}
+</body>
+</html>
