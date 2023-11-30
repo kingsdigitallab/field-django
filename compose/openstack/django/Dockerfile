@@ -13,6 +13,8 @@ ENV PYTHONDONTWRITEBYTECODE 1
 RUN apt-get update \
   # dependencies for building Python packages
   && apt-get install -y build-essential \
+  && apt-get install -y python3-dev \
+  && apt-get install -y libldap2-dev libsasl2-dev ldap-utils \
   # psycopg2 dependencies
   && apt-get install -y libpq-dev \
   # Translations dependencies
@@ -23,13 +25,13 @@ RUN apt-get update \
 
 # Requirements are installed here to ensure they will be cached.
 RUN mkdir -p /requirements
-COPY ./requirements /requirements
+COPY ./volumes/django/requirements /requirements
 RUN pip install -U pip
 RUN pip install -U pip-tools \
   && pip-compile --annotate --resolver=backtracking --quiet /requirements/base.in \
   && pip-compile --annotate --resolver=backtracking --quiet /requirements/local.in \
   && pip-compile --annotate --resolver=backtracking --quiet /requirements/production.in
-RUN pip install -r /requirements/local.txt
+RUN pip install -r /requirements/production.txt
 
 COPY ./compose/openstack/django/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint
