@@ -5,7 +5,8 @@ __pycache__/
 *$py.class
 
 #volumes
-
+volumes/elasticsearch-data
+volumes/postgres
 # C extensions
 *.so
 
