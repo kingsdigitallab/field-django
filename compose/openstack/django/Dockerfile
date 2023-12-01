@@ -3,7 +3,7 @@ FROM node:10-stretch-slim as image-npm
 WORKDIR /app
 COPY ./package*.json /app/
 RUN npm ci && npm cache clean --force
-RUN tar czf node_modules.tar.gz node_modules
+#RUN tar czf node_modules.tar.gz node_modules
 
 FROM python:3.8-slim-buster
 
@@ -33,6 +33,11 @@ RUN pip install -U pip-tools \
   && pip-compile --annotate --resolver=backtracking --quiet /requirements/production.in
 RUN pip install -r /requirements/production.txt
 
+WORKDIR /app
+
+RUN mkdir node_modules
+COPY --from=image-npm --chown=django:django /app/node_modules /app/node_modules
+
 COPY ./compose/openstack/django/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint
 RUN chmod +x /entrypoint
@@ -42,8 +47,8 @@ RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
 COPY --chown=django:django ./volumes/django /app
 
-WORKDIR /app
 
-COPY --from=image-npm /app/node_modules.tar.gz /
+
+
 
 ENTRYPOINT ["/entrypoint"]
