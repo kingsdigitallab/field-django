@@ -68,7 +68,7 @@ services:
     container_name: openstack_field_liv_elasticsearch
     environment:
       - discovery.type=single-node
-    ports:
+ #   ports:
 #      - "9200:9200"
 #      - "9300:9300"
     restart: unless-stopped
