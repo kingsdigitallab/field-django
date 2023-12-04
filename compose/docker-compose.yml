@@ -85,8 +85,9 @@ services:
       - "9300"
 
 # Required - Openstack networking - note the indentation level
-networks:
-  default:
-    driver: bridge
-    driver_opts:
-      com.docker.network.driver.mtu: 1442
+# commented out on old vm
+#networks:
+#  default:
+#    driver: bridge
+#    driver_opts:
+#      com.docker.network.driver.mtu: 1442
