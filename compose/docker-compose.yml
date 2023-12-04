@@ -4,13 +4,13 @@ volumes:
   django_media: { }
   postgres_data: { }
   postgres_data_backups: { }
-  traefik: { }
 
 services:
 
   # Required - Nginx Ingress
   nginx-proxy:
     image: nginxproxy/nginx-proxy
+    container_name: openstack_nginx_proxy
     restart: always
     ports:
       - "8210:80"
