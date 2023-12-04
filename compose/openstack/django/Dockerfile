@@ -36,7 +36,7 @@ RUN pip install -r /requirements/production.txt
 WORKDIR /app
 
 RUN mkdir node_modules
-COPY --from=image-npm --chown=django:django /app/node_modules /app/node_modules
+COPY --from=image-npm  /app/node_modules /app/node_modules
 
 COPY ./compose/openstack/django/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint
