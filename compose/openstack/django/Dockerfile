@@ -37,6 +37,7 @@ WORKDIR /app
 
 RUN mkdir node_modules
 COPY --from=image-npm  /app/node_modules /app/node_modules
+#--chown=django:django
 
 COPY ./compose/openstack/django/entrypoint /entrypoint
 RUN sed -i 's/\r$//g' /entrypoint
@@ -45,8 +46,8 @@ RUN chmod +x /entrypoint
 COPY ./compose/openstack/django/start /start
 RUN sed -i 's/\r$//g' /start
 RUN chmod +x /start
-COPY --chown=django:django ./volumes/django /app
-
+COPY ./volumes/django /app
+# --chown=django:django
 
 
 
