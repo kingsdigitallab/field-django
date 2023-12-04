@@ -12,7 +12,6 @@ services:
     image: nginxproxy/nginx-proxy
     container_name: openstack_nginx_proxy
     restart: always
-    privileged: true
     ports:
       - "8202:80"
       # - "443:443"
