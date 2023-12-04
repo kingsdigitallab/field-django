@@ -39,7 +39,7 @@ services:
     expose:
       - "8000"
     environment:
-      VIRTUAL_HOST: "field.kdl.kcl.ac.uk,field.app.cch.kcl.ac.uk,localhost"
+      VIRTUAL_HOST: "field.kdl.kcl.ac.uk,field.app.cch.kcl.ac.uk,127.0.0.1"
       VIRTUAL_PROTO: http
       VIRTUAL_PORT: 8000
 
