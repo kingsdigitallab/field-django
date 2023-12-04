@@ -13,7 +13,7 @@ services:
     image: nginxproxy/nginx-proxy
     restart: always
     ports:
-      - "8202:80"
+      - "8210:80"
       - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
