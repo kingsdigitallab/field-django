@@ -13,7 +13,7 @@ services:
     container_name: openstack_nginx_proxy
     restart: always
     ports:
-      - "8210:80"
+      - "8202:80"
       # - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
