@@ -27,7 +27,7 @@ services:
       dockerfile: ./compose/openstack/django/Dockerfile
     command: /start
     image: field_liv_django
-    container_name: field_liv_django
+    container_name: openstack_field_django
     volumes:
       - ./volumes/django/django_media:/app/field/media
     depends_on:
@@ -49,7 +49,7 @@ services:
       dockerfile: ./compose/production/postgres/Dockerfile
     restart: always
     image: postgres
-    container_name: field_liv_postgres
+    container_name: openstack_field_postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
@@ -65,7 +65,7 @@ services:
   # Optional - Elasticsearch
   elasticsearch:
     image: docker.elastic.co/elasticsearch/elasticsearch:7.9.1 # Specify app required version
-    container_name: field_liv_elasticsearch
+    container_name: openstack_field_liv_elasticsearch
     environment:
       - xpack.security.enabled=false
       - discovery.type=single-node
