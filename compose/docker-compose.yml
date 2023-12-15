@@ -5,16 +5,14 @@ volumes:
   postgres_data: { }
   postgres_data_backups: { }
 
+
 services:
 
-
   nginx-proxy:
-    image: nginxproxy/nginx-proxy
-    container_name: openstack_nginx_proxy
-    restart: always
+    image: nginxproxy/nginx-proxy:1.4
+    restart: unless-stopped
     ports:
       - "8201:80"
-      # - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
 
@@ -36,7 +34,7 @@ services:
     expose:
       - "8000"
     environment:
-      VIRTUAL_HOST: "field.kdl.kcl.ac.uk,field.app.cch.kcl.ac.uk,127.0.0.1"
+      VIRTUAL_HOST: "field.kdl.kcl.ac.uk,field.app.cch.kcl.ac.uk,localhost,127.0.0.1"
       VIRTUAL_PROTO: http
       VIRTUAL_PORT: 8000
 
@@ -46,15 +44,15 @@ services:
       dockerfile: ./compose/nginx/Dockerfile
     restart: unless-stopped
     expose:
-      - 8001
+      - "8001"
     volumes:
       - ../volumes/django/assets:/usr/share/nginx/Assets:ro
 
     environment:
-      VIRTUAL_HOST: "field.kdl.kcl.ac.uk,field.app.cch.kcl.ac.uk,127.0.0.1"
+      VIRTUAL_HOST: "field.kdl.kcl.ac.uk,field.app.cch.kcl.ac.uk,localhost,127.0.0.1"
       VIRTUAL_PATH: "~^/(Assets/|redist/|robots.txt)"
       VIRTUAL_PROTO: http
-      VIRTUAL_PORT: 8201
+      VIRTUAL_PORT: 8001
 
 
   postgres:
@@ -82,9 +80,9 @@ services:
     container_name: openstack_field_liv_elasticsearch
     environment:
       - discovery.type=single-node
- #   ports:
-#      - "9200:9200"
-#      - "9300:9300"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
     restart: unless-stopped
 
 #  elasticsearch:
