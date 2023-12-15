@@ -7,19 +7,16 @@ volumes:
 
 services:
 
-  # Required - Nginx Ingress
+
   nginx-proxy:
     image: nginxproxy/nginx-proxy
     container_name: openstack_nginx_proxy
     restart: always
     ports:
-      - "8202:80"
+      - "8201:80"
       # - "443:443"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
-      - ./nginx/certs:/etc/nginx/certs
-      - ./nginx/html:/usr/share/nginx/html
-      - django_media:/usr/share/nginx/media:ro
 
   django:
     build:
@@ -42,6 +39,23 @@ services:
       VIRTUAL_HOST: "field.kdl.kcl.ac.uk,field.app.cch.kcl.ac.uk,127.0.0.1"
       VIRTUAL_PROTO: http
       VIRTUAL_PORT: 8000
+
+  nginx:
+    build:
+      context: ..
+      dockerfile: ./compose/nginx/Dockerfile
+    restart: unless-stopped
+    expose:
+      - 8001
+    volumes:
+      - ../volumes/django/assets:/usr/share/nginx/Assets:ro
+
+    environment:
+      VIRTUAL_HOST: "field.kdl.kcl.ac.uk,field.app.cch.kcl.ac.uk,127.0.0.1"
+      VIRTUAL_PATH: "~^/(Assets/|redist/|robots.txt)"
+      VIRTUAL_PROTO: http
+      VIRTUAL_PORT: 8201
+
 
   postgres:
     build:
