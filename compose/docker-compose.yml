@@ -2,6 +2,7 @@ version: '3'
 
 volumes:
   django_media: { }
+  django_static: { }
   postgres_data: { }
   postgres_data_backups: { }
 
@@ -15,6 +16,7 @@ services:
       - "8201:80"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
+      - ./nginx/certs:/etc/nginx/certs
 
   django:
     build:
@@ -24,7 +26,8 @@ services:
     image: field_liv_django
     container_name: openstack_field_django
     volumes:
-      - ./volumes/django/django_media:/app/field/media
+      - ../volumes/django/django_media:/app/field/media
+      - django_static:/app/staticfiles
     depends_on:
       - postgres
       - elasticsearch
@@ -32,12 +35,15 @@ services:
       - .env
     restart: unless-stopped
     expose:
-      - "8000"
+      - 8000
     environment:
       VIRTUAL_HOST: "field.kdl.kcl.ac.uk,field.app.cch.kcl.ac.uk,localhost,127.0.0.1"
+      VIRTUAL_PATH: "/"
       VIRTUAL_PROTO: http
       VIRTUAL_PORT: 8000
+      #- ../volumes/django/assets:/usr/share/nginx/Assets:ro
 
+#       - ../volumes/django/static:/usr/share/nginx/static:ro
   nginx:
     build:
       context: ..
@@ -46,11 +52,10 @@ services:
     expose:
       - "8001"
     volumes:
-      - ../volumes/django/assets:/usr/share/nginx/Assets:ro
-
+      - django_static:/usr/share/nginx/static:ro
     environment:
       VIRTUAL_HOST: "field.kdl.kcl.ac.uk,field.app.cch.kcl.ac.uk,localhost,127.0.0.1"
-      VIRTUAL_PATH: "~^/(Assets/|redist/|robots.txt)"
+      VIRTUAL_PATH: "~^/(static/|redist/|robots.txt)"
       VIRTUAL_PROTO: http
       VIRTUAL_PORT: 8001
 
