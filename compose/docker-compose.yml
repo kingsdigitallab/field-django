@@ -13,7 +13,7 @@ services:
     image: nginxproxy/nginx-proxy:1.4
     restart: unless-stopped
     ports:
-      - "8201:80"
+      - "8202:80"
     volumes:
       - /var/run/docker.sock:/tmp/docker.sock:ro
       - ./nginx/certs:/etc/nginx/certs
