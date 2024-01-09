@@ -288,4 +288,4 @@ field/media/
 /legacy/.vagrant_provisioning/playbook.yml.bk
 /legacy/python.tar.xz
 /tmp/
-.volumes
+/volumes/django/static/
