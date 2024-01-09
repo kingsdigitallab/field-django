@@ -45,13 +45,10 @@ export default class GameScene extends FieldScene {
         this.herd = [];
 
         // Random number and seed
-        this.randomSeed = Math.random();
+        // Now fixed for consistent play.
+        this.randomSeed = 0.8384816872011894; //Math.random();
         this.currentRandom = this.randomSeed;
 
-        this.apiURLs = {
-            'game': '/game/api/games/',
-            'event': '/game/api/events/',
-        };
 
     }
 
@@ -63,6 +60,8 @@ export default class GameScene extends FieldScene {
     gameLog(message) {
         this.log += "\n" + message;
     }
+
+
 
     /**
      * Return a random between 0 and 1 based
@@ -88,61 +87,110 @@ export default class GameScene extends FieldScene {
      */
     logNewGame() {
         let playerID = localStorage.getItem('playerID');
-        if (gameSettings.playerIDParam !== null && gameSettings.playerIDParam.length > 0){
-            if (gameSettings.playerIDParam === 'new'){
-                playerID = null;
+        if (playerID != null && gameSettings.playerIDParam != null && gameSettings.playerIDParam.length > 0) {
+            if (playerID === 'new') {
+                playerID = 'TESTER';
             } else {
-                playerID = gameSettings.playerIDParam;
+                gameSettings.playerIDParam = playerID;
             }
 
         }
+        if (playerID == null) {
+            playerID = 'TESTER';
+        }
+
 
         // Control true by default
-        let control = true;
+        let control = 1;
+        gameState.control_group = control;
         let game_data = {
             final_score: '0',
             csrfmiddlewaretoken: sessionStorage.getItem('csrf_token'),
             creator_sessionid: sessionStorage.session_id,
             seed: this.randomSeed,
+            control_group: control,
+            infection_visible: 1,
             log: "Game started",
         };
+
+
+        if (localStorage.getItem("playedBefore")) {
+            // Set the floor to 1 as they've checked it on the form
+            game_data.played_before = localStorage.getItem("playedBefore");
+
+        }
         if (playerID !== null) {
             game_data.playerID = playerID;
-            // Randomly allocate to control group
-            if (Math.random() < 0.5){
-                // In treatment group
-                control = false;
-            }
         }
-        if (gameSettings.controlGroupParam !== null && gameSettings.controlGroupParam.length > 0){
-            control = gameSettings.controlGroupParam;
-        }
-        console.log(playerID + ' :: '+ control);
-        gameState.control_group = control;
-        game_data.control_group = control;
-        axios({
-            method: 'post',
-            mode: 'same-origin',
-            url: this.apiURLs.game,
-            headers: {
-                'X-CSRFToken': sessionStorage.getItem('csrf_token')
-            },
-            data: game_data
-        })
-            .then(function (response) {
-                // handle success
 
-                if (response && response.data) {
-                    gameState.gameID = response.data.gameID;
-                    gameState.playerID = response.data.playerID;
-                    localStorage.setItem('playerID', gameState.playerID);
+        let uiScene = this.uiScene;
+        /*
+        Get or create player
+         */
+        if (playerID != null) {
+
+            // Get this player
+            axios.get(gameSettings.apiURLs.farmer, {
+                mode: 'same-origin',
+                headers: {
+                    'X-CSRFToken': sessionStorage.getItem('csrf_token')
+                },
+                params: {
+                    playerID: playerID,
+                }
+            }).then(function (response) {
+                gameState.gamesPlayed = response.data[0].gamesPlayed;
+                gameState.playerID = response.data[0].playerID;
+                game_data.playerID = gameState.playerID;
+                localStorage.setItem('playerID', gameState.playerID);
+                console.log(response.data[0].control_group == false);
+                if (response.data[0].control_group == false) {
+                    gameState.control_group = 0;
                 }
 
-            })
-            .catch(function (error) {
-                // handle error
-                console.log(error);
+                game_data.control_group = gameState.control_group;
+                gameState.playerDatabaseID = response.data[0].id;
+                if (gameState.control_group == 0 && gameState.gamesPlayed == gameSettings.gameRules.warmupRounds) {
+                    gameState.infection_visible = 0;
+                    game_data.infection_visible = 0;
+                } else {
+                    gameState.infection_visible = 1;
+                }
+
+                // Create new game record
+                axios({
+                    method: 'post',
+                    mode: 'same-origin',
+                    url: gameSettings.apiURLs.game,
+                    headers: {
+                        'X-CSRFToken': sessionStorage.getItem('csrf_token')
+                    },
+                    data: game_data
+                })
+                    .then(function (response) {
+                        // handle success
+                        if (response && response.data) {
+                            gameState.gameID = response.data.gameID;
+                            gameState.playerID = response.data.playerID;
+
+
+                            if (response.data.seed && response.data.seed > 0) {
+                                // Temporarily fixed (see note above)
+                                //this.randomSeed = response.data.seed;
+                            }
+
+
+                        }
+                    })
+                    .catch(function (error) {
+                        // handle error
+                        console.log(error);
+                    });
+
             });
+        }
+
+
     }
 
 
@@ -181,7 +229,7 @@ export default class GameScene extends FieldScene {
         axios({
             method: 'post',
             mode: 'same-origin',
-            url: this.apiURLs.event,
+            url: gameSettings.apiURLs.event,
             headers: {
                 'X-CSRFToken': sessionStorage.getItem('csrf_token')
             },
@@ -189,11 +237,11 @@ export default class GameScene extends FieldScene {
         })
             .then(function (response) {
                 // handle success
-                console.log(response);
+                //console.log(response);
             })
             .catch(function (error) {
                 // handle error
-                console.log(error);
+                //console.log(error);
             });
     }
 
@@ -271,7 +319,7 @@ export default class GameScene extends FieldScene {
         let hospitalExtent = this.gameboardInfo.hospital.extent;
 
         this.gameboardZones.hospitalZone = this.createZoneFromTiles(hospitalExtent).setOrigin(0, 0).setInteractive().on('pointerup', function (pointer, localX, localY) {
-            if (gameState.currentState === States.BOVICHOOSE) {
+            if (gameState.clickEnabled && gameState.currentState === States.BOVICHOOSE) {
                 // If board is touchable, record touch
                 eventsCenter.emit(gameSettings.EVENTS.HOSPITALTOUCHED);
                 // console.log('H');
@@ -281,12 +329,19 @@ export default class GameScene extends FieldScene {
     }
 
     createZoneFromTiles(tileExtent) {
+        let extent = this.createExtentFromTiles(tileExtent);
         return this.add.zone(
+            extent[0], extent[1], extent[2], extent[3]
+        );
+    }
+
+    createExtentFromTiles(tileExtent) {
+        return [
             tileExtent[0][0] * this.BOARD_TILE_SIZE,
             tileExtent[0][1] * this.BOARD_TILE_SIZE,
             (tileExtent[1][0] + 1) * this.BOARD_TILE_SIZE,
             (tileExtent[1][1] + 1) * this.BOARD_TILE_SIZE,
-        );
+        ];
     }
 
 
@@ -294,26 +349,21 @@ export default class GameScene extends FieldScene {
         // Player farm
         const startX = this.gameboardInfo.player.start[0] * this.BOARD_TILE_SIZE;
         const startY = (this.gameboardInfo.player.start[1] + 1) * this.BOARD_TILE_SIZE;
-
         let playerSprite = this.physics.add.sprite(
             startX,
             startY,
             gameSettings.CHARACTER_KEY,
             gameState.playerSpriteKeyFrame
         ).setScale(gameSettings.CHARACTERSPRITESCALE);
+        playerSprite.depth = 1;
 
         playerSprite.setCollideWorldBounds(true);
         this.player = new Player(1, 'Player', gameSettings.gameRules.startFarmerBalance, playerSprite, this.gameboardInfo.player.start);
+        this.player.portrait = gameState.playerPortrait;
         this.player.infections = gameSettings.gameRules.startingInfections;
         let penZone = this.createZoneFromTiles(this.gameboardInfo.playerCowPen)
             .setOrigin(0, 0)
-            .setInteractive().on('pointerup', function (pointer, localX, localY) {
-                if (gameState.currentState === States.BOVICHOOSE) {
-                    // If board is touchable, record touch
-                    eventsCenter.emit(gameSettings.EVENTS.PLAYERPENTOUCHED);
-
-                }
-            }, this);
+            .setInteractive();
         this.player.setPenZone(penZone);
         this.allFarmers.push(this.player);
         //this.updatePlayerBalance(this.player.balance);
@@ -332,7 +382,11 @@ export default class GameScene extends FieldScene {
     }
 
     createCow(owner, startX, startY) {
-        let sprite = this.physics.add.sprite(startX + 16, startY + 16, 'cow_1');
+        let sprite = this.physics.add.sprite(
+            startX,
+            startY, 'cow_walk_0'
+        );
+        sprite.setScale(gameSettings.gameRules.cowScale);
         sprite.setCollideWorldBounds(true);
         return new Cow(owner, sprite);
     }
@@ -361,13 +415,21 @@ export default class GameScene extends FieldScene {
                 // Assign pen to the farmer
                 owner.pen = pen;
             }
+            //let spawnOrigin = owner.getPenTile(0);
+            //+ (16 * gameSettings.gameRules.cowScale)
+            //let spawnPoint = spawnOrigin;
+            owner.makePenPoints(20, 4);
+
             for (let c = 0; c < cowsPerPlayer; c++) {
-                let spawnPoint = owner.getPenTile(c);
+                let spawnPoint = owner.cowPenPoints[c].tileXY;
                 let cow = this.createCow(
                     owner,
                     ((spawnPoint[0]) * this.BOARD_TILE_SIZE),
                     (spawnPoint[1] * this.BOARD_TILE_SIZE)
                 );
+                cow.homePen = owner.cowPenPoints[c];
+                cow.homePen.cow = cow;
+                cow.homePen.occupied = true;
                 // Pick
                 owner.herdTotal += 1;
                 this.herd.push(cow);
@@ -382,7 +444,7 @@ export default class GameScene extends FieldScene {
         return true;
     }
 
-    createAIFarmer(id, name, balance, farmerStart, threshold, spriteKey, spriteFrame) {
+    createAIFarmer(id, name, balance, farmerStart, threshold, spriteKey, spriteFrame, portraitKey) {
 
         let AISprite = this.physics.add.sprite(
             farmerStart[0] * this.BOARD_TILE_SIZE, (farmerStart[1] + 1) * this.BOARD_TILE_SIZE, spriteKey, spriteFrame
@@ -392,6 +454,7 @@ export default class GameScene extends FieldScene {
         let aiFarmer = new AIFarmer(
             id, name, balance, AISprite, farmerStart, threshold
         );
+        aiFarmer.portrait = portraitKey;
         aiFarmer.infections = gameSettings.gameRules.startingInfections;
         this.AIFarmers.push(aiFarmer);
         this.allFarmers.push(aiFarmer);
@@ -427,20 +490,17 @@ export default class GameScene extends FieldScene {
             let aiFarmer = this.createAIFarmer(
                 x, 'AI ' + (x + 1), gameSettings.gameRules.startFarmerBalance,
                 this.gameboardInfo.farmerStarts[x], gameSettings.INFECTIONTHRESHOLDS[x],
-                'creature_farmers', gameSettings.CHARACTER_FRAMES[spriteKeys[x]]
+                'creature_farmers', gameSettings.CHARACTER_FRAMES[spriteKeys[x]],
+                spriteKeys[x]
             );
+
             let penZone = this.createZoneFromTiles(this.gameboardInfo.farmerCowPens[x])
                 .setOrigin(0, 0)
-                .setInteractive().on('pointerup', function (pointer, localX, localY) {
-
-                    if (gameState.currentState === States.TRADINGCHOOSE) {
-                        // If board is touchable, record touch
-                        console.log('touched');
-                        eventsCenter.emit(gameSettings.EVENTS.AIFARMERPENTOUCHED, this);
-
-                    }
-                }, aiFarmer);
+                .setInteractive();
             aiFarmer.setPenZone(penZone);
+            let highlightExtent = this.createExtentFromTiles(this.gameboardInfo.farmerCowPenHighlights[x]);
+            aiFarmer.makePenZoneHighlight(this, highlightExtent);
+            aiFarmer.highlightPenZone(this);
 
         }
     }
@@ -467,20 +527,28 @@ export default class GameScene extends FieldScene {
         this.createHerd();
 
         this.startGameWhenSetupComplete();
+
     }
 
     /**
      * Move entire herd to their cow pens, if they're not there already
      */
     async sendAllHerdToPens() {
-        return this.sendHerdToPens(this.herd);
+        return this.sendHerdToHomePen(this.herd);
     }
 
-    async sendHerdToPens(cows) {
+    /** Move a herd (array) of cows to their home pens
+     * Used to move traded cows to their new homes
+     *
+     * @param cows
+     * @return {Promise<boolean>}
+     */
+    async sendHerdToHomePen(cows) {
         let promiseArray = [];
-
+        // cows[c].owner.sendCowToPen(cows[c])
         for (let c = 0; c < cows.length; c++) {
-            promiseArray.push(cows[c].owner.sendCowToPen(cows[c]));
+            promiseArray.push(cows[c].sendCowToHomePen()
+            );
         }
         let done = await Promise.all(promiseArray);
 
@@ -525,6 +593,9 @@ export default class GameScene extends FieldScene {
     }
 
 
+    calculateFarmerIncome(farmer){
+        return (farmer.herdTotal - farmer.infections);
+    }
     /**
      * Let all the board stuff happen
      * then call game start when ready
@@ -573,16 +644,15 @@ export default class GameScene extends FieldScene {
 
     startTurn() {
         gameState.currentTurn += 1;
+        // Infection at start of turn so we can show change at summary
+        gameState.infectionStart = gameState.infectionTotal;
         this.uiScene.displayTurn();
-
     }
 
     /**
      * Add global click/touch events
      */
     addEvents() {
-        //this.input.on('pointerdown', this.handlePointerDown, this);
-        //
         eventsCenter.on(gameSettings.EVENTS.TURNSTART, function () {
             this.scene.get(gameSettings.SCENENAMES.BFREESCENENAME).bFreePhase();
             //this.scene.get(gameSettings.SCENENAMES.TURNENDSCENENAME).turnEndPhase();

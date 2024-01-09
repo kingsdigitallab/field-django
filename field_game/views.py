@@ -1,5 +1,5 @@
 from django.conf import settings
-from field_game.models import FieldGame, GameEvent, Farmer
+from field_game.models import FieldGame, GameEvent, Farmer, make_player_name
 from field_game.serializers import (
     FieldGameSerializer,
     GameEventSerializer,
@@ -31,7 +31,7 @@ else:
 
 class FieldGameViewSet(viewsets.ModelViewSet):
     """ Serve a new instance of the Field boardgame with relevant settings"""
-    #queryset = FieldGame.objects.all()
+    # queryset = FieldGame.objects.all()
     serializer_class = FieldGameSerializer
     permission_classes = API_PERMISSIONS
 
@@ -44,21 +44,52 @@ class FieldGameViewSet(viewsets.ModelViewSet):
         if 'playerID' in self.request.query_params:
             playerID = self.request.query_params.get('playerID')
             queryset = queryset.filter(playerID=playerID)
-
         return queryset.order_by('-gameID')
 
 
-class FarmerViewSet(viewsets.ReadOnlyModelViewSet):
+class FarmerViewSet(viewsets.ModelViewSet):
     """ Serve a new instance of the Field boardgame with relevant settings"""
-    queryset = Farmer.objects.all()
+    # queryset = Farmer.objects.all()
     serializer_class = FarmerSerializer
     permission_classes = API_PERMISSIONS
 
+    filterset_fields = ['playerID']
+
+    search_fields = [
+        'id', 'playerID'
+    ]
+
+    filter_fields = {
+        "pk": "pk",
+        "playerID": "playerID",
+        "control_group": "control_group"
+    }
+
+    def get_queryset(self):
+        queryset = Farmer.objects.all()
+        if 'playerID' in self.request.query_params:
+            playerID = self.request.query_params.get('playerID')
+            queryset = queryset.filter(playerID=playerID)
+            if queryset.count() == 0:
+                # create new player
+                control_group = True
+                farmers = Farmer.objects.all()
+                if (farmers.count() > 0):
+                    f = farmers[0]
+                    if f.control_group:
+                        control_group = False
+                if playerID == "TESTER":
+                    playerID = make_player_name();
+                newFarmer = Farmer(playerID=playerID, name=playerID,
+                       control_group=control_group)
+                newFarmer.save()
+                queryset = Farmer.objects.filter(playerID=playerID)
+        return queryset
 
 
 class GameEventViewSet(viewsets.ModelViewSet):
     """ Serve a new instance of the Field boardgame with relevant settings"""
-    #queryset = GameEvent.objects.all()
+    # queryset = GameEvent.objects.all()
     serializer_class = GameEventSerializer
     permission_classes = API_PERMISSIONS
     filter_backends = [filters.SearchFilter]
@@ -67,10 +98,7 @@ class GameEventViewSet(viewsets.ModelViewSet):
     ]
 
     def get_queryset(self):
-        """
-        This view should return a list of all the purchases
-        for the currently authenticated user.
-        """
+
         queryset = GameEvent.objects.all()
         if 'gameID' in self.request.query_params:
             gameID = self.request.query_params.get('gameID')
@@ -82,38 +110,19 @@ class GameEventViewSet(viewsets.ModelViewSet):
         return queryset.order_by('-gameID', 'turn', 'orderno')
 
 
-
-
-
-
-
-"""
-    @method_decorator(csrf_protect)
-    def create(self, request, *args, **kwargs):
-        return super().create(self, request, *args, **kwargs)
-
-    @method_decorator(csrf_protect)
-    def update(self, request, *args, **kwargs):
-        return super().update(self, request, *args, **kwargs)
-
-    @method_decorator(csrf_protect)
-    def destroy(self, request, *args, **kwargs):
-        return super().destroy(self, request, *args, **kwargs)"""
-
-
 class GameLandingView(TemplateView):
     """ Game landing page"""
 
     template_name = ("game/landing.html")
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         playerList = list()
-        for player  in FieldGame.objects.order_by('playerID').values(
+        for player in FieldGame.objects.order_by('playerID').values(
             'playerID').distinct():
             playerList.append(player['playerID'])
         context['player_ids'] = playerList
+        context['hide_footer_mailing_list'] = True
         return context
 
 
@@ -123,25 +132,22 @@ class GameView(TemplateView):
 
     template_name = ("game/game_module.html")
 
-
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.request.user.is_authenticated is False:
-            # Log in as default field game user
-            user = authenticate(
-                username=settings.FIELD_GAME_USER,
-                password=settings.FIELD_GAME_PASSWORD
-            )
-            if user is not None:
-                login(self.request, user)
-                context['session_id'] = self.request.session.session_key
-        else:
-            user = User.objects.get(username=self.request.user)
-            context['session_id'] = self.request.COOKIES['sessionid']
+        # if self.request.user.is_authenticated is False:
+        #     # Log in as default field game user
+        #     user = authenticate(
+        #         username=settings.FIELD_GAME_USER,
+        #         password=settings.FIELD_GAME_PASSWORD
+        #     )
+        #     if user is not None:
+        #         login(self.request, user)
+        #         context['session_id'] = self.request.session.session_key
+        # else:
+        #     user = User.objects.get(username=self.request.user)
+        #     context['session_id'] = self.request.COOKIES['sessionid']
         return context
 
     @method_decorator(requires_csrf_token)
     def dispatch(self, *args, **kwargs):
         return super().dispatch(*args, **kwargs)
-
-

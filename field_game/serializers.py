@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 
 class FieldGameSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = FieldGame
         fields = [
@@ -14,16 +15,27 @@ class FieldGameSerializer(serializers.ModelSerializer):
             "final_score",
             "seed",
             "log",
-            "created_at"
+            "created_at",
+            "infection_visible",
+            "played_before"
         ]
+
+    def get_gamesPlayed(self):
+        return FieldGame.objects.filter(playerID=self.playerID).count();
+
+
 
 
 class FarmerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Farmer
         fields = [
-            "farmerID",
-            "name"
+            "id",
+            "playerID",
+            "name",
+            "control_group",
+            "gamesPlayed",
+            "created_at"
         ]
 
 

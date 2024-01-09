@@ -13,7 +13,7 @@ export default class BFreeScene extends Phaser.Scene {
             no: 'Bovifree not joined!',
         };
         this.bFreeDialogTexts = {
-            onboards: ["Click on the hospital to join BoviFree (Lasts one turn) Or touch your house to skip.\n\n"],
+            onboards: ["Tap the hospital to heal your sick cows (costs £5) or tap your house to skip\n\n"],
             start: ["BFree phase"],
             yes: ["Cows have been cured. Your herd is disease free"],
             no: ["Your herd may still have disease"]
@@ -39,9 +39,7 @@ export default class BFreeScene extends Phaser.Scene {
     create() {
         this.gameScene = this.scene.get(gameSettings.SCENENAMES.GAMESCENENAME);
         this.uiScene = this.scene.get(gameSettings.SCENENAMES.UISCENENAME);
-        this.addListeners();
         this.createHighlightGraphics();
-
 
     }
 
@@ -78,12 +76,7 @@ export default class BFreeScene extends Phaser.Scene {
             .setVisible(false)
             .setTintFill(0xffff00)
             .setAlpha(0)
-            .setInteractive().on('pointerup', function (pointer, localX, localY) {
-                console.log('HOUSE');
-                eventsCenter.emit(gameSettings.EVENTS.PLAYERHOUSETOUCHED);
-                // console.log('H');
-
-            });
+            .setInteractive();
 
 
         this.hospitalHighlightTween = this.tweens.add({
@@ -136,10 +129,14 @@ export default class BFreeScene extends Phaser.Scene {
         console.log('BFree phase start');
         // Start text and onboarding if enabled
         gameState.currentState = States.BOVISTART;
+
+        this.addListeners();
         this.uiScene.toggleDialogWindow();
         this.uiScene.togglePlayerWindow();
 
         this.toggleHighlightTweens();
+
+
         if (gameState.isOnBoarding) {
             this.uiScene.addTextAndStartDialog(this.bFreeDialogTexts.onboards);
 
@@ -151,11 +148,9 @@ export default class BFreeScene extends Phaser.Scene {
     }
 
     addListeners() {
-
-
         /* If we've chosen, once that's done and dialog over, go to next phase */
         eventsCenter.on(gameSettings.EVENTS.DIALOGFINISHED, function () {
-            if (gameState.currentState === States.BOVINO || gameState.currentState === States.BOVIYES) {
+            if (gameState.clickEnabled && gameState.currentState === States.BOVINO || gameState.currentState === States.BOVIYES) {
                 setTimeout(function () {
                     eventsCenter.emit(gameSettings.EVENTS.BFREEPHASEEND);
                 }, 1500);
@@ -163,9 +158,24 @@ export default class BFreeScene extends Phaser.Scene {
 
         }, this);
 
+        this.gameScene.player.getPenZone().on('pointerup', function (pointer, localX, localY) {
+            if (gameState.clickEnabled && gameState.currentState === States.BOVICHOOSE) {
+                // If board is touchable, record touch
+                eventsCenter.emit(gameSettings.EVENTS.PLAYERPENTOUCHED);
+            }
+        }, this);
+
+        this.playerHouseSprite.on('pointerup', function (pointer, localX, localY) {
+            if (gameState.clickEnabled) {
+                eventsCenter.emit(gameSettings.EVENTS.PLAYERHOUSETOUCHED);
+            }
+
+        });
+
         eventsCenter.on(gameSettings.EVENTS.BFREEPHASEEND, this.endPhase, this);
         eventsCenter.on(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes, this);
         eventsCenter.on(gameSettings.EVENTS.PLAYERHOUSETOUCHED, this.joinBFreeNo, this);
+
     }
 
     /**
@@ -199,16 +209,21 @@ export default class BFreeScene extends Phaser.Scene {
         if (result) {
             // Sleep for startDelay, then begin moving
             await new Promise(resolve => setTimeout(resolve, startDelay));
+
             //Move the Cow
-            let backHome = cow.movePath.slice().reverse();
+            //let backHome = cow.movePath.slice().reverse();
+
+
             result = await cow.moveCowAlongPath(cowSpeed);
             if (result) {
                 // Power Up!
                 result = await cow.innoculationAnimation();
                 if (result) {
                     // Back to pen using reverse of calculated path
-                    cow.movePath = backHome;
-                    await cow.moveCowAlongPath(cowSpeed);
+                    /*await cow.calculateMovePath(cow.homePen.tileXY[0],
+                        cow.homePen.tileXY[1]);
+                    await cow.moveCowAlongPath(cowSpeed);*/
+                    await cow.sendCowToHomePen();
                     return true;
                 }
             }
@@ -253,7 +268,7 @@ export default class BFreeScene extends Phaser.Scene {
     }
 
     joinBFree(farmer) {
-        let totalCost = gameSettings.gameRules.bfreeJoinCost + farmer.infections;
+        let totalCost = gameSettings.gameRules.bfreeJoinCost; //+ farmer.infections;
         farmer.balance -= totalCost;
         // Remove infection from cattle
         gameState.infectionTotal -= farmer.infections;
@@ -352,12 +367,21 @@ export default class BFreeScene extends Phaser.Scene {
     }
 
 
-    endPhase() {
-        //console.log("Joining Bovi Free COMPLETE");
-        this.scene.get(gameSettings.SCENENAMES.TRADINGSCENENAME).tradingPhase();
+    removeListeners() {
+        this.gameScene.player.getPenZone().off('pointerup');
+        this.playerHouseSprite.off('pointerup');
+
+        eventsCenter.off(gameSettings.EVENTS.BFREEPHASEEND, this.endPhase);
+        eventsCenter.off(gameSettings.EVENTS.HOSPITALTOUCHED, this.joinBFreeYes);
+        eventsCenter.off(gameSettings.EVENTS.PLAYERHOUSETOUCHED, this.joinBFreeNo);
+
     }
 
-
+    endPhase() {
+        //console.log("Joining Bovi Free COMPLETE");
+        this.removeListeners();
+        this.scene.get(gameSettings.SCENENAMES.TRADINGSCENENAME).tradingPhase();
+    }
 
 
 }

@@ -2,6 +2,7 @@
 import {gameSettings} from "../cst.js";
 import eventsCenter from "./EventsCenter.js";
 import ScoreBoard from "../ui/ScoreBoard.js";
+import HelpScreen from "../ui/HelpScreen.js";
 import {gameState} from '../GameState.js';
 
 
@@ -29,6 +30,168 @@ export default class UIScene extends Phaser.Scene {
         //this.load.plugin('DialogModalPlugin', DialogModalPlugin, true);
     }
 
+    async turnSummaryScreen(titleText, income, infectedCows, oldInfectionTotal, newInfectionTotal) {
+        let borderThickness = 3;
+        let borderColor = 0x907748;
+        let borderAlpha = 1;
+        let windowAlpha = 0.8;
+        let windowColor = 0x000000;
+        let titleTextStyle = {fontFamily: 'PressStart2P', fontSize: '24px'};
+        let defaultTextStyle = {fontFamily: 'PressStart2P', fontSize: '14px'};
+        console.log('turn end');
+
+        // set up modal
+        let board_width = this.GAME_WIDTH - (this.GAME_WIDTH / 6);
+        let board_height = this.GAME_HEIGHT - (this.GAME_HEIGHT / 6);
+        let rectX = this.GAME_WIDTH / 2 - (board_width / 2);
+        let rectY = this.GAME_HEIGHT / 2 - (board_height / 2);
+
+        let rectCentreX = this.GAME_WIDTH / 2;
+        let rectCentreY = this.GAME_HEIGHT / 2;
+
+
+
+        let incomeTitle = this.add.text(
+            rectCentreX, this.GAME_HEIGHT / 6,
+            'Income',
+            titleTextStyle
+        );
+
+        Phaser.Display.Align.To.BottomCenter(
+            incomeTitle, titleText, 0, 100
+        );
+
+        // milk bottles
+        let milkBottles = [];
+        for (let i = 0; i < income; i++) {
+            let bottle = this.add.image(rectCentreX, 0, 'milk_bottle').setScale(1.5);
+            milkBottles.push(bottle);
+
+        }
+
+        let cellWidth = 16 * 2;
+        let cellHeight = 16 * 2;
+
+        Phaser.Actions.GridAlign(milkBottles, {
+            width: milkBottles.length,
+            height: 1,
+            cellWidth: cellWidth,
+            cellHeight: cellHeight,
+            position: Phaser.Display.Align.CENTER,
+            x: rectCentreX - ((cellWidth * milkBottles.length) / 2) + (cellWidth / 2),
+            y: incomeTitle.y + 50
+        });
+
+        let incomeText = this.add.text(
+            rectCentreX, this.GAME_HEIGHT / 6,
+            'You made £' + income + ' from milk',
+            defaultTextStyle
+        );
+        /*let infectionReport = '';
+        if (infectedCows == 0) {
+            infectionReport = "All cows are healthy"
+        } else {
+            infectionReport = infectedCows + ' infected cows produced no milk';
+        }
+        let infectionText = this.add.text(
+            rectCentreX, this.GAME_HEIGHT / 6,
+            infectionReport,
+            defaultTextStyle
+        );*/
+        Phaser.Display.Align.To.BottomCenter(
+            incomeText, incomeTitle, 0, 50
+        );
+        /*Phaser.Display.Align.To.BottomCenter(
+            infectionText, incomeText, 0, 10
+        );*/
+
+        let tweenElements = [];
+        // Display infection bar
+        let infectionTitle = null;
+        let infectionLevelBackground = null;
+        let infectionLevel = null;
+        if (gameState.infection_visible == 1) {
+
+            infectionTitle = this.add.text(
+                rectCentreX, this.GAME_HEIGHT / 6,
+                'Total Infection',
+                titleTextStyle
+            );
+            Phaser.Display.Align.To.BottomCenter(
+                infectionTitle, incomeText, 0, 100
+            );
+
+            infectionLevelBackground = this.add.rectangle(
+                0, 0, 100, 16, 0xffffff, 1).setOrigin(0, 0);
+
+            Phaser.Display.Align.To.BottomCenter(
+                infectionLevelBackground, infectionTitle, 0, 50
+            );
+
+            infectionLevel = this.add.rectangle(
+                infectionLevelBackground.x, infectionLevelBackground.y,
+                this.infectionBarWidth * (oldInfectionTotal / gameSettings.gameRules.startHerdSize),
+                16, 0xff0000, 1).setOrigin(0, 0);
+
+
+
+            this.tweens.add({
+                targets: infectionLevel,
+                width: {
+                    value: this.infectionBarWidth * (newInfectionTotal / gameSettings.gameRules.startHerdSize),
+                    duration: 1000,
+                    ease: 'Power1'
+                },
+
+            });
+            tweenElements = [
+                infectionLevel,
+                infectionLevelBackground,
+                incomeText,
+                incomeTitle,
+                infectionTitle,
+                //infectionText,
+            ];
+            await this.sleep(5000);
+        } else{
+            // Pause just for reading
+            tweenElements = [
+                incomeText,
+                incomeTitle,
+                //infectionText,
+            ];
+            await this.sleep(3000);
+        }
+
+        this.tweens.add({
+            targets: milkBottles.concat(tweenElements),
+            alpha: 0,
+            ease: 'Cubic.easeOut',
+            duration: 1000,
+            onComplete: function () {
+                // Destroy
+                if (gameState.infection_visible == 1) {
+                    infectionLevel.destroy();
+                    infectionLevelBackground.destroy();
+                    infectionTitle.destroy();
+                }
+                incomeText.destroy();
+                incomeTitle.destroy();
+
+                // infectionText.destroy();
+                milkBottles.forEach(function (bottle) {
+                    bottle.destroy();
+                });
+            }
+
+        });
+
+        await this.sleep(1200);
+        return true;
+
+    }
+
+
     create() {
         this.GAME_WIDTH = this.scale.width;
         this.GAME_HEIGHT = this.scale.height;
@@ -38,10 +201,16 @@ export default class UIScene extends Phaser.Scene {
         this.dialogWindow.eventEmitter = eventsCenter;
         this.dialogWindow.createWindow(this);
 
+        // this.createInfoModal();
 
         this.scoreboard = new ScoreBoard(this);
         this.scoreboard.createScoreboard();
 
+        // Help screen overlay
+        this.helpScreen = new HelpScreen(this);
+        this.helpScreen.createHelpScreen(
+            this.modalRectX, this.modalRectY
+        );
 
         //Start bottom windows hidden
         this.toggleDialogWindow();
@@ -129,15 +298,23 @@ export default class UIScene extends Phaser.Scene {
     togglePlayerWindow() {
         if (this.playerInfoContainer.visible) {
             this.playerInfoContainer.visible = false;
-            /*this.playerInfoBalance.visible = false;
-            this.playerInfoHerd.visible = false;
-            this.playerPortrait.visible = false;*/
+            if (gameState.infection_visible == 1) {
+                this.hideInfectionInformation();
+            }
         } else {
             this.playerInfoContainer.visible = true;
-            /*this.playerInfoBalance.visible = true;
-            this.playerInfoHerd.visible = true;
-            this.playerPortrait.visible = true;*/
+            if (gameState.infection_visible == 1) {
+                this.showInfectionInformation();
+            }
+
         }
+    }
+
+    async toggleHelpScreen() {
+        //
+        this.helpScreen.toggleHelpScreen();
+        await this.sleep(500);
+        return true;
     }
 
     advanceDialogWindowSequence() {
@@ -174,7 +351,7 @@ export default class UIScene extends Phaser.Scene {
     /** Stop dialog and clear the window
      *
      */
-    clearDialogWindow(){
+    clearDialogWindow() {
         this.dialogWindow.eventCounter = 0;
         this.dialogWindow.dialog = '';
         this.dialogWindow.timedEvent.remove();
@@ -240,9 +417,9 @@ export default class UIScene extends Phaser.Scene {
      *
      */
     displayTurn() {
-        this.turnDisplay.text = "Turn " +gameState.currentTurn;
-        this.turnDisplay.x = this.playerInfoBackground.width / 2 - (this.turnDisplay.width /2);
-        this.turnDisplay.y = this.playerInfoBackground.height / 2 - (this.turnDisplay.height /2);
+        this.turnDisplay.text = "Turn " + gameState.currentTurn;
+        this.turnDisplay.x = this.playerInfoBackground.width / 2 - (this.turnDisplay.width / 2);
+        this.turnDisplay.y = this.playerInfoBackground.height / 2 - (this.turnDisplay.height / 2);
         this.updateTitleDisplay("Turn " + gameState.currentTurn, function () {
             eventsCenter.emit(gameSettings.EVENTS.TURNSTART);
         }, this);
@@ -283,10 +460,10 @@ export default class UIScene extends Phaser.Scene {
 
         /*
         graphics = this.add.graphics({x: 0, y: 0});
-        this.scene.graphics.lineStyle(this.dialogWindow.borderThickness,
+        this.graphics.lineStyle(this.dialogWindow.borderThickness,
             this.dialogWindow.borderColor, this.dialogWindow.borderAlpha
         );
-        this.scene.graphics.strokeRect(0, 0, board_width, board_height);*/
+        this.graphics.strokeRect(0, 0, board_width, board_height);*/
 
         this.playerInfoBalance = this.add.text(0, 1, this.balanceText, this.defaultTextStyle);
         this.playerInfoHerd = this.add.text(0, 22, this.herdText, this.defaultTextStyle);
@@ -316,12 +493,22 @@ export default class UIScene extends Phaser.Scene {
 
         //let turnLabel = this.add.text(0, 0, " Turn ", this.turnInfoTextStyle);
         this.turnDisplay = this.add.text(0, 0, gameState.currentTurn, this.turnInfoTextStyle);
+        this.helpIcon = this.add.image(
+            0,
+            0,
+            'help_icon',
+            0
+        ).setScale(1).setInteractive();
 
+        // Add click event to toggle help
+        this.helpIcon.on('pointerdown', function () {
+            this.toggleHelpScreen();
+        }.bind(this));
         // Infection
 
         //this.infectionTitle = this.add.text(0, 1, 'Infection', this.defaultTextStyle);
         this.infectionLevelBackground = this.add.rectangle(0, 0, 100, 16, 0xffffff, 1);
-        this.infectionLevel = this.add.rectangle(0, 0, this.infectionBarWidth * this.getInfectionLevel() , 16, 0xff0000, 1);
+        this.infectionLevel = this.add.rectangle(0, 0, this.infectionBarWidth * this.getInfectionLevel(), 16, 0xff0000, 1);
 
 
         this.playerInfoContainer.add(this.playerInfoBackground);
@@ -331,13 +518,15 @@ export default class UIScene extends Phaser.Scene {
         this.playerInfoContainer.add(this.sickCowIcon);
         this.playerInfoContainer.add(this.playerInfoBalance);
         this.playerInfoContainer.add(this.playerInfoHerd);
+        this.playerInfoContainer.add(this.helpIcon);
 
         //this.playerInfoContainer.add(turnLabel);
         this.playerInfoContainer.add(this.turnDisplay);
 
 
-
-        if (gameState.control_group){
+        //console.log('Control: '+gameState.control_group + ' :: '+gameState.gamesPlayed + ' ' +(gameState.control_group == 0 && gameState.gamesPlayed == 0));
+        if (gameState.infection_visible == 1) {
+            //console.log('show');
             this.playerInfoContainer.add(this.infectionLevelBackground);
             this.playerInfoContainer.add(this.infectionLevel);
         }
@@ -348,57 +537,24 @@ export default class UIScene extends Phaser.Scene {
         Phaser.Display.Align.In.RightCenter(
             this.infectionLevelBackground,
             this.playerInfoBackground,
-            -10,0
+            -50, 0
+        );
+
+        Phaser.Display.Align.In.RightCenter(
+            this.helpIcon,
+            this.playerInfoBackground,
+            0, 0
         );
 
         Phaser.Display.Align.To.LeftCenter(
             this.sickCowIcon, this.infectionLevelBackground,
-            10,0
+            10, 0
         );
         Phaser.Display.Align.In.LeftCenter(
             this.infectionLevel, this.infectionLevelBackground, 0, 0
         );
 
-        /*Phaser.Display.Align.In.TopCenter(
-            turnLabel,
-            this.playerInfoBackground,
-            turnLabel.width / 2 * -1, turnLabel.height / 2 * -1
-        );
 
-        Phaser.Display.Align.In.TopCenter(
-            this.turnDisplay,
-            this.playerInfoBackground,
-            this.turnDisplay.width /2 * -1, this.turnDisplay.height / 2 * -1
-        );*/
-
-
-        /*
-        Phaser.Display.Align.In.TopLeft(
-            this.playerPortrait,
-            this.playerInfoBackground,
-            this.playerPortrait.width / 2 * -1,0
-        );
-        Phaser.Display.Align.To.RightCenter(
-            this.coinIcon, this.playerPortrait,
-            10,0
-        );
-
-        Phaser.Display.Align.To.RightCenter(
-            this.playerInfoBalance, this.coinIcon,
-            10,0
-        );
-
-        Phaser.Display.Align.To.RightCenter(
-            this.cowIcon, this.playerInfoBalance,
-            10, this.cowIcon.height /2 * -1 + 5
-        );
-        Phaser.Display.Align.To.RightCenter(
-            this.playerInfoHerd, this.cowIcon ,0,5
-        );
-
-        this.add.text(0, 0, " ", this.defaultTextStyle),
-            turnLabel, this.turnDisplay,
-        */
         let cellWidth = 16 * 3;
         let cellHeight = 16 * 3;
         this.infoCells = [
@@ -417,17 +573,26 @@ export default class UIScene extends Phaser.Scene {
         });
 
 
-        //this.playerInfoContainer.x = board_width/2;
-        //this.playerInfoContainer.y = board_height /2;
-
-        if (gameState.control_group === false) {
-            this.sickCowIcon.visible = false;
-            this.infectionLevel.visible = false;
-            this.infectionLevelBackground.visible = false;
-        }
+        this.sickCowIcon.visible = false;
+        this.infectionLevel.visible = false;
+        this.infectionLevelBackground.visible = false;
 
         this.togglePlayerWindow();
 
+    }
+
+    /** Show infection info on top if control
+     */
+    showInfectionInformation() {
+        this.sickCowIcon.visible = true;
+        this.infectionLevel.visible = true;
+        this.infectionLevelBackground.visible = true;
+    }
+
+    hideInfectionInformation() {
+        this.sickCowIcon.visible = false;
+        this.infectionLevel.visible = false;
+        this.infectionLevelBackground.visible = false;
     }
 
     createInfectionInfo() {
@@ -438,35 +603,13 @@ export default class UIScene extends Phaser.Scene {
         this.infectionTitle = this.add.text(0, 1, 'Total Infection', this.defaultTextStyle);
         this.infectionLevelBackground = this.add.rectangle(0, 0, 100, 16, 0xffffff, 1);
         this.infectionLevel = this.add.rectangle(0, 0, this.infectionBarWidth * this.getInfectionLevel(), 16, 0xff0000, 1);
-        /*this.infectionIcon = this.add.image(
-            0,
-            0,
-            'cow_1',
-            12
-        ).setScale(2);*/
+
         this.infectionInfoContainer.add(this.infectionInfoBackground);
         this.infectionInfoContainer.add(this.infectionTitle);
         //this.infectionInfoContainer.add(this.infectionIcon);
         this.infectionInfoContainer.add(this.infectionLevelBackground);
         this.infectionInfoContainer.add(this.infectionLevel);
 
-
-
-        /*
-        Phaser.Display.Align.In.TopCenter(
-            this.infectionTitle, this.infectionInfoBackground, 0, -10
-        );
-
-        Phaser.Display.Align.To.BottomCenter(
-            this.infectionIcon, this.infectionTitle, 0, 0
-        );
-
-        Phaser.Display.Align.To.BottomCenter(
-            this.infectionLevelBackground, this.infectionIcon, 0, 20
-        );
-        Phaser.Display.Align.In.LeftCenter(
-            this.infectionLevel, this.infectionLevelBackground, 0, 0
-        );*/
 
     }
 
@@ -478,7 +621,7 @@ export default class UIScene extends Phaser.Scene {
     }
 
     getInfectionLevel() {
-        console.log(gameState.infectionTotal + '::' + gameSettings.gameRules.startHerdSize);
+        //console.log(gameState.infectionTotal + '::' + gameSettings.gameRules.startHerdSize);
         return gameState.infectionTotal / gameSettings.gameRules.startHerdSize;
     }
 

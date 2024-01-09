@@ -10,15 +10,15 @@ router = routers.DefaultRouter()
 router.register(r'games', FieldGameViewSet, basename="game")
 router.register(r'farmers', FarmerViewSet, basename="farmer")
 router.register(r'events', GameEventViewSet, basename="event")
-urlpatterns = router.urls
+apipatterns = router.urls
 
 farmer_list = FarmerViewSet.as_view({
     'get': 'list',
 })
 
 urlpatterns = [
-    #path("api/", include(urlpatterns)),
-    #path("phaser/", GameView.as_view(), name="game"),
-    #path("", GameLandingView.as_view(),
-    #     name="game_landing"),
+    path("api/", include(apipatterns)),
+    path("phaser/", GameView.as_view(), name="game"),
+    path("", GameLandingView.as_view(),
+        name="game_landing"),
 ]
