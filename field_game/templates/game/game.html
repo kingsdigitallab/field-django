@@ -1,0 +1,815 @@
+{% load staticfiles compress %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>BoviFlu Game</title>
+  <script src="{% static 'phaser/dist/phaser.js' %}"></script>
+  <script type="text/javascript" src="{% static 'easystarjs/bin/easystar-0.4.4.js' %}"></script>
+  <style type="text/css">
+    @font-face {
+      font-family: PressStart2P;
+      src: url({% static 'assets/game/fonts/PressStart2P-vaV7.ttf'%});
+      font-weight: normal;
+    }
+
+    body {
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+<h4 style="font-family: PressStart2P;">Phaser Game</h4>
+<script type="text/javascript">
+
+
+  // Game classes
+  class Farmer {
+    id = 0;
+    name = '';
+    balance = 0;
+    sprite = null;
+    farm = null;
+
+    constructor(id, name, balance, sprite, farm) {
+      this.id = id;
+      this.name = name;
+      this.balance = balance;
+      this.sprite = sprite;
+      this.farm = farm;
+    }
+  }
+
+  class Player extends Farmer {
+    constructor(id, name, balance, sprite, farm) {
+      super(id, name, balance, sprite);
+    }
+  }
+
+  class Cow {
+    owner = null;
+    isBoviFree = false;
+    isSick = false;
+    sprite = null;
+    isMoving = false;
+    movePath = null;
+
+    constructor(owner, boviFree, isSick, sprite) {
+      this.owner = owner;
+      this.isBoviFree = boviFree;
+      this.isSick = isSick;
+      this.sprite = sprite;
+    }
+
+    // Move to 5, 10
+    /*
+
+      this.debug(startTile);
+
+      this.finder.calculate();*/
+
+    getMoveDirection(startX, startY, newX, newY) {
+      // Figure out the change in direction
+      let deltaX = newX - startX;
+      let deltaY = newY - startY;
+      let angle = 0;
+
+      if (deltaX === 0) {
+        if (deltaY < 0) {
+          // Up
+          angle = 0;
+        } else if (deltaY > 0) {
+          //Down
+          angle = 180
+        }
+      }
+      if (deltaY === 0) {
+        if (deltaX < 0) {
+          // left
+          angle = 270;
+        } else if (deltaX > 0) {
+          //right
+          angle = 90
+        }
+      }
+      if (deltaX > 0 && deltaY < 0) {
+        //up-right
+        angle = 45;
+      }
+      if (deltaX > 0 && deltaY > 0) {
+        //bottom-right
+        angle = 135;
+      }
+      if (deltaX < 0 && deltaY < 0) {
+        //up-left
+        angle = 315;
+      }
+      if (deltaX < 0 && deltaY > 0) {
+        //bottom-left
+        angle = 225;
+      }
+      return angle;
+
+    }
+
+    /**
+     * Move the cow the next step in its path
+     * @param path easystarjs path
+     */
+
+
+    updateCowSprite(tween) {
+      let sprite = tween.targets[0];
+      let angle = tween.data[0].getEndValue();
+
+      let animationName = null;
+      if (angle > 270 && angle <= 90){
+        animationName = 'cow_walk_up';
+      }else if (angle > 90 && angle <= 270){
+        animationName = 'cow_walk_down';
+      }
+      if (animationName){
+        //onsole.log(animationName);
+        //sprite.anims.play(animationName);
+      }
+
+
+    }
+    startCowSprite(tween) {
+      tween.targets[0].play('cow_walk_up');
+    }
+
+
+    stopCowSprite(tween) {
+      tween.targets[0].anims.stop();
+    }
+
+    /**
+     * Move the cow from current position with easystarjs
+     *
+     * @param {Tile} DestinationTile
+     */
+    calculateCowPath(destinationTile) {
+      let cow = this;
+      let scene = cow.sprite.scene;
+      let startTile = cow.sprite.scene.map.getTileAtWorldXY(cow.sprite.x, cow.sprite.y, cow.sprite.scene.layers['pathLayer']);
+      cow.sprite.scene.finder.findPath(startTile.x, startTile.y, destinationTile.x, destinationTile.y, function (path) {
+        if (path === null) {
+          console.log("Path was not found.");
+        } else {
+          let timeline = cow.sprite.scene.tweens.createTimeline();
+          //let currentRotation= cow.sprite.rotation;
+          let startX = (startTile.x * cow.sprite.scene.BOARD_TILE_SIZE);
+          let startY = (startTile.y * cow.sprite.scene.BOARD_TILE_SIZE);
+          let currentAngle = cow.sprite.angle;
+          for (let i = 0; i < path.length - 1; i++) {
+            let ex = path[i + 1].x;
+            let ey = path[i + 1].y;
+            let newX = ex * cow.sprite.scene.BOARD_TILE_SIZE
+            let newY = ey * cow.sprite.scene.BOARD_TILE_SIZE
+            let angle = cow.getMoveDirection(startX, startY, newX, newY);
+            let diff = angle - currentAngle;
+            //console.log(currentAngle + diff);
+            if (angle !== currentAngle) {
+              if (diff < -180) {
+                diff += 360;
+              } else if (diff > 180) {
+                diff -= 360;
+              }
+              timeline.add({
+                targets: cow.sprite,
+                ease: 'Linear',
+                angle: {value: currentAngle + diff, duration: 200},
+              });
+              currentAngle = currentAngle + diff;
+            }
+            let moveTween = {
+              targets: cow.sprite,
+              ease: 'Power1',
+              x: {value: newX, duration: 200},
+              y: {value: newY, duration: 200},
+            }
+            if (i ===0){
+              moveTween.onStart = cow.startCowSprite;
+            }else if (i === path.length - 2) {
+              // Last step, add stop sprite on complete
+              moveTween.onComplete = cow.stopCowSprite;
+            }
+            timeline.add(moveTween);
+            // Update starting point for next tween
+            startX = newX;
+            startY = newY;
+
+          }
+          timeline.play();
+        }
+      });
+      cow.sprite.scene.finder.calculate();
+    }
+
+  }
+
+  class FieldScene extends Phaser.Scene {
+
+    // Debugger toggle
+    DEBUG = true;
+
+    // Turn on logging of games (through db api calls)
+    LOGGER = true;
+
+    MIN_WIDTH = 320;
+    MIN_HEIGHT = 640;
+    MAX_WIDTH = 1400;
+    MAX_HEIGHT = 1200;
+
+    GAME_WIDTH = 640; // In 16 tiles, 40 X 60
+    GAME_HEIGHT = 960;
+    BOARD_TILE_SIZE = 16;
+    FARMER_TILE_SIZE = 32;
+    COW_TILE_SIZE = 64;
+
+
+    constructor(sceneName) {
+      super(sceneName);
+    }
+
+    debug(message) {
+      if (this.DEBUG) {
+        console.log(message)
+      }
+
+    }
+
+    // Write to api
+    // todo refactor with object
+    log(message) {
+
+    }
+
+
+    //  ------------------------
+    //  ------------------------
+    //  ------------------------
+    //  Resize related functions
+    //  ------------------------
+    //  ------------------------
+    //  ------------------------
+    // From: https://phaser.io/examples/v3/view/scalemanager/mobile-game-example
+
+    resize(gameSize) {
+      const width = gameSize.width;
+      const height = gameSize.height;
+
+      this.parent.setSize(width, height);
+      this.sizer.setSize(width, height);
+
+      this.updateCamera();
+    }
+
+    updateCamera() {
+      const camera = this.cameras.main;
+
+      const x = Math.ceil((this.parent.width - this.sizer.width) * 0.5);
+      const y = 0;
+      const scaleX = this.sizer.width / this.GAME_WIDTH;
+      const scaleY = this.sizer.height / this.GAME_HEIGHT;
+
+      camera.setViewport(x, y, this.sizer.width, this.sizer.height);
+      camera.setZoom(Math.max(scaleX, scaleY));
+      camera.centerOn(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2);
+
+    }
+
+    getZoom() {
+      return this.cameras.main.zoom;
+    }
+
+    loadAssets(game) {
+      // Farmers
+      this.load.spritesheet('farmer_1',
+              '{% static 'assets/game/textures/farmer_1.png' %}',
+              {frameWidth: 32, frameHeight: 32}
+      );
+
+      this.load.spritesheet('farmer_2',
+              '{% static 'assets/game/textures/farmer_2.png' %}',
+              {frameWidth: 32, frameHeight: 32}
+      );
+
+      //Animals
+      this.load.spritesheet('cow_1',
+              '{% static 'assets/game/textures/cow_walk_64.png' %}',
+              {frameWidth: 64, frameHeight: 64}
+      );
+
+
+      this.load.image('player_farm', '{% static 'assets/game/maps/player_farm.png' %}');
+      this.load.image('AI_farm_left', '{% static 'assets/game/maps/AI_farm_left.png' %}');
+      this.load.image('AI_farm_right', '{% static 'assets/game/maps/AI_farm_right.png' %}');
+
+      // Decorations (Grass, buildings, trees, fences, etc.)
+      this.load.image('grass', '{% static 'assets/game/textures/grass_1.png' %}');
+      this.load.image('tree_1', '{% static 'assets/game/textures/tree_1.png' %}');
+
+    }
+
+
+  }
+
+  class TitleScene extends FieldScene {
+
+    spacebar;
+
+    constructor() {
+      super('Title');
+    }
+
+    /**
+     * Main Title screen
+     */
+    createTitleScreen() {
+      this.titleContainer = this.add.container(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2);
+      // Background
+      let titleBackground = this.add.rectangle(0, 0, this.GAME_WIDTH, this.GAME_HEIGHT, 0x000000, 0.5);
+      titleBackground.setInteractive();
+      titleBackground.once('pointerdown', () => this.advance());
+      this.titleContainer.add(titleBackground);
+      let titleText = this.add.text(0, 0, 'BoviFree Game', {fontFamily: '"PressStart2P"', fontSize: '300%',});
+      titleText.setOrigin(0.5, 0.5);
+      console.log(this.GAME_HEIGHT / 4 * -1);
+      titleText.setY(this.GAME_HEIGHT / 4 * -1);
+      let promptText = this.add.text(0, 0, 'Press Space', {fontFamily: '"PressStart2P"', fontSize: '200%',});
+      promptText.setOrigin(0.5, 0.5);
+      promptText.setY(this.GAME_HEIGHT / 4);
+      this.titleContainer.add(titleText);
+      this.titleContainer.add(promptText);
+    }
+
+
+    create() {
+      const width = this.scale.gameSize.width;
+      const height = this.scale.gameSize.height;
+
+      this.parent = new Phaser.Structs.Size(width, height);
+      this.sizer = new Phaser.Structs.Size(this.GAME_WIDTH, this.GAME_HEIGHT, Phaser.Structs.Size.FIT, this.parent);
+
+      this.parent.setSize(width, height);
+      this.sizer.setSize(width, height);
+      this.updateCamera();
+      this.scale.on('resize', this.resize, this);
+
+      // cursors = this.input.keyboard.createCursorKeys();
+      this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
+      this.createTitleScreen();
+
+    }
+
+    /** advance our prompts in the title screen
+     *
+     */
+    advance() {
+      // Show rules, intro etc. eventually
+      this.startGame();
+    }
+
+    startGame() {
+      this.scene.switch('Game');
+    }
+
+    update() {
+      if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
+        this.startGame();
+      }
+    }
+  }
+
+
+  class GameScene extends FieldScene {
+
+    map;
+    layers;
+
+    // UI objects
+    scoreboardContainer;
+    scoreboardTitle;
+    scoreboardText;
+    titleContainer;
+
+    // Board creation settings
+    farmPaddingX = 16;
+
+    //Game rules and constants
+    startHerdSize = 20;
+    startFarmerBalance = 200;
+    AIFarmerTotal = 6;
+    totalRounds = 8;
+
+    bfreeJoinCost = 40; // Cost to join scheme
+    // Cow prices, buy and sell
+    bfreeCowPrice = 30;
+    normalCowPrice = 20;
+
+
+    /* Main player*/
+    player;
+    // Computer farmers (Farmer)
+    AIfarmers;
+    //Herd of cows (Cow)
+    herd;
+
+    constructor() {
+      super('Game');
+      this.AIfarmers = [];
+      this.herd = [];
+      this.layers = [];
+    }
+
+    /* setup functions */
+
+
+    /**
+     * Scoreboard with all player/AI totals
+     */
+    createScoreboard() {
+      this.scoreboardContainer = this.add.container(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2);
+      let scoreboardBackground = this.add.rectangle(0, 0, this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2, 0x000000, 0.5);
+      this.scoreboardTitle = this.add.text(0,0,'BoviFlu game', {fontFamily: 'PressStart2P'});
+      this.scoreboardText = this.add.text(0,0,'Press Start', {fontFamily: 'PressStart2P'});
+      this.scoreboardText.setOrigin(0.5,0.5);
+      this.scoreboardTitle.setOrigin(0.5, 0.5);
+      this.scoreboardContainer.add(scoreboardBackground);
+      this.scoreboardContainer.add(this.scoreboardTitle);
+      this.scoreboardContainer.add(this.scoreboardText);
+
+      Phaser.Display.Align.In.TopCenter(
+              this.scoreboardTitle, scoreboardBackground
+      );
+      // Start hidden
+      //this.scoreboardContainer.setVisible(false);
+    }
+
+
+    /**
+     * Setup game board
+     * -Load tile map
+     * https://stackabuse.com/phaser-3-and-tiled-building-a-platformer/
+     * - Manually create ground layer from single tiles
+     * (may change later)
+     * -parse building and decoration layers
+     * -set collision for collidable tiles if necessary
+     * -Parse player layer, getting where player and AI starts
+     */
+    createGameBoard() {
+      this.map = this.make.tilemap({key: 'map'});
+
+      // Ground layer
+      let groundLayer = this.add.layer();
+      for (let x = 0; x < (this.MAX_WIDTH / 16); x++) {
+        for (let y = 0; y < (this.MAX_HEIGHT / 16); y++) {
+          groundLayer.add(this.add.image(x * 16, y * 16, 'grass').setOrigin(0, 0));
+        }
+      }
+
+      // simple_farm = tileset name we've used in Tiled
+      const tileset = this.map.addTilesetImage('simple_farm', 'tiles');
+      // Buildings and fences
+      this.layers['buildingLayer'] = this.map.createLayer('Buildings', tileset, 0, 0);
+      this.layers['pathLayer'] = this.map.createLayer('Paths', tileset, 0, 0);
+      this.layers['playerLayer'] = this.map.createLayer('Players', tileset, 0, 0);
+      // Hidden as we only want information about starting points here
+      //this.layers['playerLayer'].setVisible(false);
+      //Build Easyjs map
+      // from https://www.dynetisgames.com/2018/03/06/pathfinding-easystar-phaser-3/
+      // obstacles = 0, road = 1 , grass = 2
+      let grid = [];
+      for (var y = 0; y < (this.GAME_HEIGHT / this.BOARD_TILE_SIZE); y++) {
+        let col = [];
+        for (var x = 0; x < (this.GAME_WIDTH / this.BOARD_TILE_SIZE); x++) {
+          // In each cell we store the ID of the tile, which corresponds
+          // to its index in the tileset of the map ("ID" field in Tiled)
+          //
+          let tile = this.map.getTileAt(x, y, true, this.layers['buildingLayer']);
+          if (tile.index >= 0) {
+            // Building, fence, or other obstacle
+            col.push(0);
+          } else {
+            tile = this.map.getTileAt(x, y, true, this.layers['pathLayer']);
+            if (tile.index >= 0) {
+              // Road/path
+              col.push(1)
+            } else {
+              // Assume grass in our basic map
+              col.push(2);
+            }
+          }
+        }
+        grid.push(col);
+      }
+      this.finder.setGrid(grid);
+      this.finder.enableDiagonals();
+      this.finder.setAcceptableTiles([1, 2]);
+      this.finder.setTileCost(2, 2);
+
+
+    }
+
+    createPlayer() {
+      // Player farm
+      //let playerFarm = this.add.image(this.GAME_WIDTH / 2, 0, 'player_farm').setOrigin(0.5, 0);
+      let sprite = this.physics.add.sprite(playerFarm.getCenter().x, playerFarm.getCenter().y - this.BOARD_TILE_SIZE, 'farmer_1');
+      sprite.setCollideWorldBounds(true);
+      this.player = new Player(1, 'Player', 0, sprite, playerFarm)
+    }
+
+    createCow(owner, boviFree, isSick) {
+      let sprite = this.physics.add.sprite(this.GAME_WIDTH / 2, this.GAME_HEIGHT / 2, 'cow_1');
+      let cow = new Cow(owner, boviFree, isSick, sprite)
+    }
+
+    /**
+     * Creat the default herd
+     * All cows split evenly amongst players
+     * Currently default cows are NOT sick and NOT bovifree
+     */
+    createHerd() {
+      this.debug('Creating herd...')
+      // Even split for now
+      let cowsPerPlayer = Math.floor(this.startHerdSize / (this.AIFarmerTotal + 1));
+      this.debug(cowsPerPlayer + ' cows per player')
+      let owner = this.player;
+      let startingX = (this.GAME_WIDTH / 2) - (cowsPerPlayer / 2 * 34);
+      let startingY = this.GAME_HEIGHT / 2;
+      //this.player
+      //this.AIfarmers
+      for (let p = -1; p < this.AIFarmerTotal; p++) {
+        if (p >= 0) {
+          owner = this.AIfarmers[p];
+        }
+        for (let c = 0; c < cowsPerPlayer; c++) {
+          this.herd.push(new Cow(owner, false, false, this.physics.add.sprite(startingX + (c * 34), startingY + (p * 34), 'cow_1')));
+        }
+      }
+
+    }
+
+    createAIFarmer(id, name, balance, createX, createY, isLeft) {
+      let originX = 0;
+      let imageKey = 'AI_farm_left';
+      if (!isLeft) {
+        originX = 1;
+        imageKey = 'AI_farm_right';
+      }
+      // let farm = this.add.image(createX, createY, imageKey).setOrigin(originX, 0);
+      // todo figure out where the AI starts
+      let startX = createX + (farm.displayWidth / 2);
+      if (!isLeft) {
+        startX = createX - (farm.displayWidth / 2);
+      }
+      //6Y
+      //3X
+      let startY = createY + (farm.displayHeight / 2) - this.BOARD_TILE_SIZE;
+      let AISprite = this.physics.add.sprite(startX, startY, 'farmer_2');
+      AISprite.setCollideWorldBounds(true);
+      //AISprite.setVisible(false);
+      this.AIfarmers.push(new Farmer(id, name, balance, AISprite, farm));
+    }
+
+    createFarmers() {
+      //let farm = this.add.image(this.GAME_WIDTH, 0, 'AI_farm').setOrigin(1, 0);
+      for (let x = 0; x <= (this.AIFarmerTotal / 2); x++) {
+        // Split evenly on left  and right side
+        this.createAIFarmer(x, 'AI ' + (x + 1), this.startFarmerBalance, this.farmPaddingX, (this.GAME_HEIGHT / 4) * x, true);
+        this.createAIFarmer(x + 1, 'AI ' + (x + 2), this.startFarmerBalance, this.GAME_WIDTH - this.farmPaddingX, (this.GAME_HEIGHT / 4) * x, false);
+      }
+    }
+
+
+    preload() {
+
+      // Sprites and images
+      this.loadAssets(this);
+
+      // Load the export Tiled JSON
+      this.load.image('tiles', '{% static 'assets/game/textures/simple_farm.png' %}');
+      this.load.tilemapTiledJSON('map', '{% static 'assets/game/maps/fieldfarm.json' %}');
+    }
+
+    createAnimations() {
+      this.anims.create({
+        key: 'cow_walk_up',
+        frames: this.anims.generateFrameNumbers('cow_1', {frames: [0, 1, 2, 3]}),
+        frameRate: 8,
+        repeat: -1
+      });
+      this.anims.create({
+        key: 'cow_walk_left',
+        frames: this.anims.generateFrameNumbers('cow_1', {frames: [4, 5, 6, 7]}),
+        frameRate: 8,
+        repeat: -1
+      });
+      this.anims.create({
+        key: 'cow_walk_down',
+        frames: this.anims.generateFrameNumbers('cow_1', {frames: [8, 9, 10, 11]}),
+        frameRate: 8,
+        repeat: -1
+      });
+      this.anims.create({
+        key: 'cow_walk_right',
+        frames: this.anims.generateFrameNumbers('cow_1', {frames: [12, 13, 14, 15]}),
+        frameRate: 8,
+        repeat: -1
+      });
+
+    }
+
+
+    create() {
+      const width = this.scale.gameSize.width;
+      const height = this.scale.gameSize.height;
+
+      this.parent = new Phaser.Structs.Size(width, height);
+      this.sizer = new Phaser.Structs.Size(this.GAME_WIDTH, this.GAME_HEIGHT, Phaser.Structs.Size.FIT, this.parent);
+
+      this.parent.setSize(width, height);
+      this.sizer.setSize(width, height);
+
+
+      this.updateCamera();
+
+      this.scale.on('resize', this.resize, this);
+
+      // ### Pathfinding stuff ###
+      // Initializing the pathfinder
+      this.finder = new EasyStar.js();
+
+
+      // Main game board
+      this.createGameBoard();
+      this.createHerd();
+      //this.createPlayer();
+      //this.createFarmers()
+
+      // UI Containers
+      this.createScoreboard();
+
+      this.createAnimations();
+
+      const cow = this.herd[0];
+      /*for (let x = 0; x < (this.MAX_WIDTH / 16); x++) {
+        for (let y = 0; y < (this.MAX_HEIGHT / 16); y++) {
+          if (this.map.getTileAt(x,y, true, this.layers['Paths']) != null){
+            console.log(x+'::'+y);
+          }
+        }
+      }*/
+      //console.log(this.map.getTileAt(7,12, true, this.layers['Paths']));
+      //cow.calculateCowPath(this.map.getTileAt(30, 30, true, this.layers['Paths']));
+      //cow.sprite.play('cow_walk_left');
+
+      /*let tween = this.tweens.add({
+              targets: cow,
+              ease: 'Power1',
+              x: {value: 800, duration: 500},
+              y: {value: 600, duration: 500}
+            });
+      tween.play();*/
+
+      this.bovifreePhase();
+
+
+    }
+
+    update() {
+      // Move any cows that should be moved
+      // todo only call during move phase!
+      /*let stillMoving = false;
+      let maxSteps = 0;
+      for (let c = 0; c < this.herd.length; c++) {
+        if (this.herd[c].isMoving) {
+          if (this.herd[c].movePath.length > maxSteps) {
+            maxSteps = this.herd[c].movePath.length;
+          }
+        }
+      }
+      let herd = this.herd
+      if (maxSteps > 0) {
+         let timer = this.time.addEvent({
+            delay: 500,                // ms
+            callback: function () {
+              for (let c = 0; c < herd.length; c++) {
+                if (herd[c].isMoving) {
+                  herd[c].moveCow(timer.getRepeatCount());
+                }
+              }
+              console.log(timer.getRepeatCount());
+            },
+            loop: false,
+            repeat: maxSteps,
+            startAt: 0,
+            timeScale: 1,
+            paused: false
+          });
+      }*/
+
+    }
+
+    /* Gameplay flow functions */
+    /*
+    Each round of the game is as follows:
+
+    1. Ask player if they wish to join the Bovifree scheme
+      If so, set cows to bovifree and deduct fee
+
+    2. Player chooses which farm to purchase cow from
+
+    3.Calculate cow infection rate
+
+    4.  Calculate balance totals
+
+    5. End round
+
+    If round max is reached:
+      Display results of game
+      Prompt to play again /share?
+
+     */
+
+    bovifreePhase(){
+      this.scoreboardTitle.text = "Pay Bovifree fee?"
+      this.scoreboardText.text = "Pay £"+this.bfreeJoinCost+" to join scheme this turn? \n\n ";
+      const prompt_yes = this.add.text(0,0,'Yes', {fontFamily: 'PressStart2P'});
+      const prompt_no = this.add.text(0,0,'No', {fontFamily: 'PressStart2P'});
+      // helloButton.on('pointerover', () => { console.log('pointerover'); });
+      this.scoreboardContainer.add(prompt_yes);
+    }
+
+    cowTradingPhase(){
+
+    }
+
+    cowInfectionPhase() {
+
+    }
+
+    updateFarmers(){
+
+    }
+
+  };
+
+
+  // Game variables
+
+
+  // Setup herd
+
+
+
+
+
+
+  /**
+   *  Main game config
+   *
+   */
+
+
+
+  let config = {
+    type: Phaser.AUTO,
+    physics: {
+      default: 'arcade',
+      arcade: {
+        debug: false
+      }
+    },
+    scale: {
+      mode: Phaser.Scale.RESIZE,
+      parent: 'phaser-fieldgame',
+      width: FieldScene.GAME_WIDTH,
+      height: FieldScene.GAME_HEIGHT,
+      min: {
+        width: FieldScene.MIN_WIDTH,
+        height: FieldScene.MIN_HEIGHT
+      },
+      max: {
+        width: FieldScene.MAX_WIDTH,
+        height: FieldScene.MAX_HEIGHT
+      }
+    }
+  };
+  //scene: [FieldScene]
+  let game = new Phaser.Game(config);
+  game.scene.add('Title', TitleScene);
+  game.scene.add('Game', GameScene);
+  game.scene.start('Game');
+  //game.scene.start('Title');
+
+
+</script>
+<div style="font-family:PressStart2P; position: absolute; left:-1000px; visibility:hidden;">.</div>
+<div id="phaser-fieldgame">
+
+</div>
+</body>
+</html>
