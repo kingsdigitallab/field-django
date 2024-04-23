@@ -1,0 +1,49 @@
+#  pip-compile requirements/base.in && pip-compile requirements/local.in && pip-sync requirements/local.txt
+
+python-slugify==4.0.1  # https://github.com/un33k/python-slugify
+argon2-cffi  # https://github.com/hynek/argon2_cffi
+whitenoise  # https://github.com/evansd/whitenoise
+# redis==3.5.3  # https://github.com/andymccurdy/redis-py
+# hiredis==1.1.0  # https://github.com/redis/hiredis-py
+
+# Django
+# ------------------------------------------------------------------------------
+# django==3.1.7  # pyup: < 3.2  # https://www.djangoproject.com/
+Django<3.1
+django-environ  # https://github.com/joke2k/django-environ
+django-model-utils  # https://github.com/jazzband/django-model-utils
+django-allauth  # https://github.com/pennersr/django-allauth
+django-crispy-forms  # https://github.com/django-crispy-forms/django-crispy-forms
+django-compressor<3  # https://github.com/django-compressor/django-compressor
+django-libsass # for scss
+django-redis  # https://github.com/jazzband/django-redis
+djangorestframework==3.12.4
+#markdown
+
+
+# KDL
+# ------------------------------------------------------------------------------
+django-elasticsearch-dsl>=7.1,<8  # https://github.com/django-es/django-elasticsearch-dsl
+# elasticsearch-dsl>=7.0.0,<8.0.0  # https://github.com/elastic/elasticsearch-dsl-py
+
+# wagtail>=2.12,<3  # https://github.com/wagtail/wagtail
+wagtail<2.10
+django-kdl-wagtail>0.10.1  # https://github.com/kingsdigitallab/django-kdl-wagtail
+
+# End of cookie cutter stuff - Start of project specific stuff
+# ----------------------------------------------------------------------------
+
+django-simple-captcha
+
+kdl-wagtail-page # should remove this dependency at some point, deprecated
+
+puput
+django-contrib-comments # needed for manage.py compress to process puput templates
+wagtailmenus
+
+django-dublincore-resource
+mailchimp3
+
+# Testing
+# -----------------------------
+faker
