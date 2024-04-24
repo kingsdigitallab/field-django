@@ -134,18 +134,18 @@ class GameView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # if self.request.user.is_authenticated is False:
-        #     # Log in as default field game user
-        #     user = authenticate(
-        #         username=settings.FIELD_GAME_USER,
-        #         password=settings.FIELD_GAME_PASSWORD
-        #     )
-        #     if user is not None:
-        #         login(self.request, user)
-        #         context['session_id'] = self.request.session.session_key
-        # else:
-        #     user = User.objects.get(username=self.request.user)
-        #     context['session_id'] = self.request.COOKIES['sessionid']
+        if self.request.user.is_authenticated is False:
+            # Log in as default field game user
+            user = authenticate(
+                username=settings.FIELD_GAME_USER,
+                password=settings.FIELD_GAME_PASSWORD
+            )
+            if user is not None:
+                login(self.request, user)
+                context['session_id'] = self.request.session.session_key
+        else:
+            user = User.objects.get(username=self.request.user)
+            context['session_id'] = self.request.COOKIES['sessionid']
         return context
 
     @method_decorator(requires_csrf_token)
