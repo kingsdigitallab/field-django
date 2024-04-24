@@ -26,11 +26,15 @@ services:
     image: field_liv_django
     container_name: openstack_field_django
     depends_on:
-      - postgres
-      - elasticsearch
+      postgres:
+          condition: service_healthy
+      elasticsearch:
+          condition: service_started
     env_file:
       - .env
     restart: unless-stopped
+    volumes:
+      - ../volumes/django/static:/app/staticfiles
     expose:
       - 8000
     environment:
@@ -49,7 +53,7 @@ services:
     expose:
       - "8001"
     volumes:
-      - django_static:/usr/share/nginx/static:ro
+      - ../volumes/django/static:/usr/share/nginx/static:ro
     environment:
       VIRTUAL_HOST: "field.kdl.kcl.ac.uk,field.app.cch.kcl.ac.uk,localhost,127.0.0.1"
       VIRTUAL_PATH: "~^/(static/|redist/|robots.txt)"
@@ -68,9 +72,15 @@ services:
       #POSTGRES_USER: ${POSTGRES_USER}
       #POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       PGDATA: /var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "sh -c 'pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}'"]
+      timeout: 10s
+      interval: 5s
+      retries: 10
+
     volumes:
-      - postgres_data:/var/lib/postgresql/data:Z
-      - postgres_data_backups:/backups:z
+      - ../volumes/postgres_data:/var/lib/postgresql/data:Z
+      - ../volumes/postgres_data_backups:/backups:z
     env_file:
       - .env
     expose:

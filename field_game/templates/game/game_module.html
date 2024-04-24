@@ -5,9 +5,12 @@
   <meta charset="UTF-8">
   <title>BoviFlu Game</title>
 
-  <script src="{% static 'phaser/dist/phaser.js' %}"></script>
-  <script src="{% static 'axios/dist/axios.js' %}"></script>
+
+<script src="{% static 'phaser/dist/phaser.js' %}"></script>
+  <script defer src="{% static 'axios/dist/axios.min.js' %}"></script>
   <script type="text/javascript" src="{% static 'assets/game/plugins/vendor/easystarjs/bin/easystar-0.4.4.js' %}"></script>
+
+
   <style type="text/css">
     @font-face {
       font-family: PressStart2P;
@@ -32,6 +35,8 @@
   );
   sessionStorage.setItem('session_id', '{{ session_id }}');
 </script>
+
+
 <script defer type="module" src="{% static 'assets/game/main.js' %}"></script>
 
 

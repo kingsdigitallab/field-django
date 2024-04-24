@@ -7,6 +7,9 @@ __pycache__/
 #volumes
 volumes/elasticsearch-data
 volumes/postgres
+volumes/postgres_data/*
+volumes/postgres_data_backups
+volumes/django
 # C extensions
 *.so
 
@@ -283,6 +286,9 @@ field/media/
 
 # field
 .idea
+static/*
+media/*
+legacy/*
 /legacy/.gitignore
 /config/settings/local.py
 /legacy/.vagrant_provisioning/playbook.yml.bk
