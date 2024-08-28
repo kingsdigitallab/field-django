@@ -296,3 +296,4 @@ legacy/*
 /legacy/python.tar.xz
 /tmp/
 /volumes/django/static/
+/volumes/*
