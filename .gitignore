@@ -279,6 +279,7 @@ field/media/
 
 .ipython/
 .env
+compose/.env64
 .envs/*
 # GN: removed from repo as we don't want secret keys like mailchimp to leak
 # by accident.

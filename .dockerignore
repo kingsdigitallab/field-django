@@ -4,3 +4,4 @@
 !.pylintrc
 volumes
 node_modules
+staticfiles
