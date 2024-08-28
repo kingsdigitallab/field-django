@@ -7,14 +7,20 @@ from pathlib import Path
 import environ
 
 ROOT_DIR = Path(__file__).resolve(strict=True).parent.parent.parent
+
+
 # field/
 APPS_DIR = ROOT_DIR / "field"
 env = environ.Env()
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+
+COMPOSE_DIR = os.path.join(BASE_DIR, "compose")
+
 READ_DOT_ENV_FILE = env.bool("DJANGO_READ_DOT_ENV_FILE", default=False)
 if READ_DOT_ENV_FILE:
     # OS environment variables take precedence over variables from .env
-    env.read_env(str(ROOT_DIR / ".env"))
+    environ.Env.read_env(os.path.join(COMPOSE_DIR, '.env'))
 
 # GENERAL
 # ------------------------------------------------------------------------------
