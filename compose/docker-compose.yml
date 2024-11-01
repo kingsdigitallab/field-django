@@ -45,7 +45,7 @@ services:
     restart: unless-stopped
     volumes:
       - ../volumes/django/static:/app/staticfiles
-      #-../volumes/assets/resource:/app/assets/images/resource
+      - ../volumes/django/media:/app/media
     ports:
       - "8000:8000"
     environment:
