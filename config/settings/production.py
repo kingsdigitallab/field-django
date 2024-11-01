@@ -11,6 +11,9 @@ SECRET_KEY = env("DJANGO_SECRET_KEY")
 # https://docs.djangoproject.com/en/dev/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = env.list("DJANGO_ALLOWED_HOSTS", default=["field-wt.co.uk"])
 
+DEBUG = False
+
+
 # DATABASES
 # ------------------------------------------------------------------------------
 DATABASES["default"] = env.db("DATABASE_URL")  # noqa F405
@@ -237,4 +240,3 @@ AUTH_LDAP_USER_FLAGS_BY_GROUP = {
 FIELD_GAME_USER = env("FIELD_GAME_USER")
 FIELD_GAME_PASSWORD = env("FIELD_GAME_PASSWORD")
 
-DEBUG = False

@@ -19,11 +19,13 @@ services:
       - "8001"
     volumes:
       - ../volumes/django/static:/usr/share/nginx/static:ro
+      - ../volumes/django/media:/usr/share/nginx/media:ro
+      - ../volumes/stories/html:/usr/share/nginx/stories:ro
     env_file:
       - .env
     environment:
       VIRTUAL_HOST: ${DJANGO_ALLOWED_HOSTS}
-      VIRTUAL_PATH: "~^/(static/|redist/|robots.txt)"
+      VIRTUAL_PATH: "~^/(stories/|media/|static/|redist/|robots.txt)"
       VIRTUAL_PROTO: http
       VIRTUAL_PORT: 8001
 
@@ -43,7 +45,7 @@ services:
     restart: unless-stopped
     volumes:
       - ../volumes/django/static:/app/staticfiles
-      - ../volumes/assets/resource:/app/assets/images/resource
+      #-../volumes/assets/resource:/app/assets/images/resource
     ports:
       - "8000:8000"
     environment:
