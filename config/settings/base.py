@@ -214,6 +214,7 @@ STATICFILES_FINDERS = [
 ]
 
 # MEDIA
+# rewrite ^/assets/(.*)$ /stories/assets/$1 permanent;
 # ------------------------------------------------------------------------------
 # https://docs.djangoproject.com/en/dev/ref/settings/#media-root
 MEDIA_ROOT = str(APPS_DIR / "media")
