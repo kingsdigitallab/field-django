@@ -41,7 +41,7 @@ services:
       - .env
     environment:
       VIRTUAL_HOST: ${DJANGO_ALLOWED_HOSTS}
-      VIRTUAL_PATH: "/"
+      VIRTUAL_PATH: "~^/"
       VIRTUAL_PROTO: http
       VIRTUAL_PORT: 8002
 
