@@ -20,7 +20,6 @@ services:
     volumes:
       - ../volumes/django/static:/usr/share/nginx/static:ro
       - ../volumes/django/media:/usr/share/nginx/media:ro
-      - ../volumes/stories/html:/usr/share/nginx/stories:Z
     env_file:
       - .env
     environment:
@@ -42,7 +41,7 @@ services:
       - .env
     environment:
       VIRTUAL_HOST: ${DJANGO_ALLOWED_HOSTS}
-      VIRTUAL_PATH: "~^/(stories/|robots.txt)"
+      VIRTUAL_PATH: "/"
       VIRTUAL_PROTO: http
       VIRTUAL_PORT: 8002
 
