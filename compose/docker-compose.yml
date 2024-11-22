@@ -28,22 +28,35 @@ services:
       VIRTUAL_PROTO: http
       VIRTUAL_PORT: 8001
 
-  stories:
-    build:
-      context: ..
-      dockerfile: ./compose/stories/Dockerfile
-    restart: unless-stopped
-    ports:
-      - "8002:8002"
-    volumes:
-      - ../volumes/stories/html:/usr/share/nginx/stories:Z
-    env_file:
-      - .env
-    environment:
-      VIRTUAL_HOST: ${DJANGO_ALLOWED_HOSTS}
-      VIRTUAL_PATH: "~^/"
-      VIRTUAL_PROTO: http
-      VIRTUAL_PORT: 8002
+  # change service name as you wish for clarity
+  kdl-apache-proxy:
+      image: gitlab.kdl.kcl.ac.uk:5050/docker-images/core/kdl-apache-proxy
+      container_name: kdl-apache-proxy
+      volumes:
+        - ../volumes/stories-maps/pathmap.yaml:/maps/pathmap.yaml:ro
+        - ../volumes/stories/html/:/www/:ro
+      ports:
+        - "8002:80"
+      restart: always
+
+#  stories:
+#    build:
+#      context: ..
+#      dockerfile: ./compose/stories/Dockerfile
+#    restart: unless-stopped
+#    ports:
+#      - "8002:8002"
+#    volumes:
+#      - ../volumes/stories/html:/usr/share/nginx/stories:Z
+#    env_file:
+#      - .env
+#    environment:
+#      VIRTUAL_HOST: ${DJANGO_ALLOWED_HOSTS}
+#      VIRTUAL_PATH: "~^/"
+#      VIRTUAL_PROTO: http
+#      VIRTUAL_PORT: 8002
+
+
 
 
   django:
